@@ -1,0 +1,372 @@
+﻿<!DOCTYPE html>
+<html><head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<title>Веб-интерфейс</title>
+<link rel="stylesheet" href="index.css">
+<script src="io_get.cgi?add_devname_menu"></script>
+<script src="devname.cgi"></script>
+<script src="menu.js"></script>
+<style>
+body {min-width:1250px;}
+form {max-width:1110px;}
+select, input[type="text"], input[type="button"] {width:160px;}
+caption input[type="button"] {width:auto;min-width:160px;}
+.lamp {display:inline-block;padding:0 1ex 0 1ex;border:solid 2px white;margin-left:4px;}
+.edtdiv 
+{
+position: absolute;
+z-index:100;
+border: solid 1px green;
+background-color: white;
+padding:25px;
+left:100;
+top:100;
+box-shadow: 15px 15px 20px rgba(0,0,0,0.3);
+visibility:hidden;
+}
+#ediv h2 {margin-top:0px;}
+#edt_nf td, #edt_nf th {text-align:center;}
+#edt_nf td {min-width:80px;}
+.edt {width:620px;}
+.edt td, .edt th {text-align:right;}
+.edt td:first-child, .edt th:first-child {text-align:left;width:80%;}
+caption {caption-side:bottom;}
+</style>
+</head>
+<body>
+<script>
+menu('Линии ввода-вывода');
+
+var lamp_color = ['white','#E6E6E6','orange','red','#00E600'];
+
+var req = new XMLHttpRequest();
+
+function getid(a) { return document.getElementById(a); }
+
+function chkfrm()
+{
+ let n,f;
+ let d='';
+ for(ch in data)
+ {
+  f={};
+  f.name=frm._name[ch].value;
+  f.direction=frm.direction[ch].selectedIndex;
+  f.delay=range(frm.delay[ch],20,10000);
+  f.level_out=frm['level_out'+ch].value*1;
+  f.pulse_dur=Math.round(range(frm.pulse_dur[ch],100,25500)/100);
+  d+=pack(packfmt,f);
+ }
+ document.sender.data.value=d;
+ document.sender.submit();
+}
+
+function show_io_ch_status(ch,st)
+{
+  var d=data[ch];
+  var c=st ? (d.colors>>4)-1 : (d.colors&15)-1;
+  getid('level'+ch).innerHTML=st+'<span class="lamp" style="background-color:'+lamp_color[c]+'">&nbsp;</span>';
+  var legend = st ? d.nf_legend_high : d.nf_legend_low;
+  if(!legend) legend='-';
+  frm.level_text[ch].value=legend;
+}
+
+function show_io_status()
+{
+ for(let n in data) show_io_ch_status(n,(data_status>>n)&1);
+}
+
+function direction_changed(n) 
+{
+ let ena=!frm.direction[n].selectedIndex;
+ frm['level_out'+n][0].disabled=ena;
+ frm['level_out'+n][1].disabled=ena;
+ frm.pulse_dur[n].disabled=ena;
+ frm.pulse[n].disabled=ena;
+}
+
+function sendpulse(ch)
+{
+ if(data[ch].direction==0) return;
+ let dur=Math.round(range(frm.pulse_dur[ch],100,25500)/100);
+ req.abort();
+ req.open("POST","/io_set_pulse.cgi",true);
+ req.timeout=2000;
+ req.send("data="+hexb(ch*1)+hexb(dur));
+}
+</script>
+
+<div id="middle">
+<div id="push_margin" style="height:1px"></div>
+<form name="frm" id="idfrm" method="post" action="error.html">
+<table id="edt_x_ref" class="paramtable">
+<caption class="send_button_container">
+<div id="error" class="alert" style="float:left;visibility:hidden;">Нет связи с устройством! Данные устарели!</div>
+<div style="float:right"><input type="button" value="Применить изменения" onclick="chkfrm()"></div>
+<div style="clear:both"></div>
+</caption>
+<tr>
+<th>
+<th>Вход _ch1_
+<tr>
+<td>Памятка
+<td><input type="text" maxlength="30" name="_name" style="color:#009020">
+<tr>
+<td>Режим работы IO линии
+<td>
+<select name="direction" onchange="direction_changed(_ch_)">
+<option>вход</option>
+<option>выход +12V</option>
+</select>
+<tr>
+<td>Текущий логическаий уровень
+<td id="level_ch_">
+<tr>
+<td>Расшифровка лог. уровня
+<td><input type="text" name="level_text" readonly>
+<tr>
+<td>Фильтр коротких помех (20-10&nbsp;000мс)
+<td><input type="text" name="delay">
+<tr>
+<td id="edt_y_ref">Уведомления при смене лог. уровня
+<td><input type="button" value="Настроить" onclick="edit_notif(_ch_)">
+<tr>
+<td>Установка выхода
+<td>
+<tr>
+<td>&nbsp;&nbsp;лог.1
+<td><input type="radio" name="level_out_ch_" value="1">
+<tr>
+<td>&nbsp;&nbsp;лог.0
+<td><input type="radio" name="level_out_ch_" value="0">
+<tr>
+<td>Одиночный импульс
+<td>
+<tr>
+<td>&nbsp;&nbsp;длит. импульса (100-25&nbsp;500мс, шаг 100мс)
+<td><input type="text" name="pulse_dur" maxlength="5">
+<tr>
+<td>&nbsp;&nbsp;выдать импульс
+<td><input type="button" name="pulse" value="импульс" onclick="sendpulse(_ch_)">
+</table>
+</form>
+
+<form name="sender" style="display:none" action="io_set.cgi" method="post">
+<input type="hidden" name="data">
+</form>
+
+<script>
+expand_table(frm,data.length);
+show_io_status();
+for(let n in data)
+{
+ let d=data[n];
+ frm._name[n].value=d.name;
+ frm.direction[n].disabled=(n>=2);
+ frm.direction[n].selectedIndex=n<2?d.direction:0;
+ frm.delay[n].value=d.delay;
+ frm['level_out'+n].value=d.level_out;
+ frm.pulse_dur[n].value=d.pulse_dur*100;
+ direction_changed(n);
+}
+
+var sse_timeout;
+function show_sse_error() { getid('error').style.visibility="visible"; }
+function hide_sse_error() { getid('error').style.visibility="hidden"; }
+function alive() { clearTimeout(sse_timeout); sse_timeout=setTimeout(show_sse_error,12000); hide_sse_error(); }
+
+if(typeof(window.EventSource)=='undefined' || devname.indexOf('Test')!=-1)
+{
+ //getid('statelabel').innerHTML+=' (нажмите F5 для обновления)';
+ show_sse_error();
+}
+else
+{
+ var sse=new EventSource("/sse.cgi");
+ sse.addEventListener('io_state', function (e) { alive(); window.data_status=parseInt(e.data); show_io_status(); }, false);
+ sse.addEventListener('sse_ping', alive, false);
+ alive();
+}
+</script>
+
+<script>
+
+function edit_notif(ch)
+{
+ if(getid('ediv').style.visibility=='visible') return;
+ ch=parseInt(ch);
+ if(typeof ch_base!='undefined') ch+=ch_base;
+ var req=new XMLHttpRequest();
+ req.open('GET','/notify_get.cgi?nfid=02'+hexb(ch),false);
+ req.send(null);
+ if(req.status!=200||req.responseText==''||req.responseText=='error') return;
+ getid('notif_ch').innerHTML=ch+1; 
+ var d=eval(req.responseText);
+ set_nf_cb('1',d.high);
+ set_nf_cb('0',d.low);
+ set_nf_cb('_r',d.report);
+ nf_cb_changed();
+ var f=document.notif_frm;
+ f.legend_high.value=d.legend_high;
+ f.legend_low.value=d.legend_low;
+ f.color_high.selectedIndex=((d.colors>>4)&15)-1;
+ f.color_low.selectedIndex=(d.colors&15)-1;
+ f.rep_filter_mode.selectedIndex=d.rep_filter_mode;
+ f.rep_filter_time.disabled=(d.rep_filter_mode==0);
+ f.rep_filter_time.value=d.rep_filter_time;
+ var x,y;
+ x=getid('edt_x_ref').scrollWidth/2 - getid('ediv').scrollWidth/2; if(x<20) x=20;
+ y=getid('edt_y_ref').offsetTop+100;
+ getid('ediv').style.top=y+'px';
+ getid('ediv').style.left=x+'px'; 
+ getid('ediv').style.visibility='visible';
+}
+
+function set_nf_cb_all(evt,state)
+{
+ var msk=state?31/*all media*/:0;
+ set_nf_cb('1',msk);
+ set_nf_cb('0',msk);
+ set_nf_cb('_r',msk); 
+ document.notif_frm.atonce.indeterminate=false;
+ evt.stopPropagation();
+}
+
+var nfreq=new XMLHttpRequest();
+
+function save_notif(y)
+{
+ if(!y)
+ {
+  getid('ediv').style.visibility='hidden';
+ }
+ else
+ {
+  nfreq.abort();
+  var ch=parseInt(getid('notif_ch').innerHTML)-1;
+  var f=document.notif_frm;
+  var d='data=02'+hexb(ch);//io
+  d+=pack(//kinda hack,legends,2x16b pasc+zterm strings
+   {legend_high:{offs:0,len:16}, legend_low:{offs:16,len:16}, __len:32},
+   {legend_high:document.notif_frm.legend_high.value, legend_low:document.notif_frm.legend_low.value}
+  );
+  var colors=((f.color_high.selectedIndex+1)<<4)|(f.color_low.selectedIndex+1);
+  d+=get_nf_cb_hex('1');
+  d+=get_nf_cb_hex('0');
+  d+=get_nf_cb_hex('_r');
+  d+='0000';//reserved
+  d+=hexb(colors);//17.05.2018
+  d+=hexb(f.rep_filter_mode.selectedIndex);//13.06.2018
+  d+=hexb(range(f.rep_filter_time,0,65500),2);
+  d+='0000000000000000000000000000000000000000';//reserved2[5]
+  nfreq.onreadystatechange = function() 
+  {
+   if(nfreq.readyState==4 && nfreq.status==200)
+    getid('ediv').style.visibility='hidden';
+    // update legends
+    data[ch].nf_legend_high=f.legend_high.value;
+    data[ch].nf_legend_low=f.legend_low.value;
+    data[ch].colors=colors;
+    show_io_status();
+  }     
+  nfreq.open("POST","/notify_set.cgi",true);
+  nfreq.send(d);
+ }
+}
+</script>
+
+<div id="ediv" class="edtdiv">
+<form name="notif_frm">
+<h2>Уведомления для IO линии&nbsp;<span id="notif_ch">0</span></h2>
+<table id="edt_nf" class="edt" onchange="nf_cb_changed(event)">
+<tr>
+<th style="text-align:left">Событие
+<th>Журнал
+<th>Syslog
+<th>E-mail
+<th>SMS
+<th>SNMP Trap
+<tr>
+<td style="text-align:left">Фронт (изменение уровня 0 &rarr; 1)
+<td><input type="checkbox" name="nf_log1">
+<td><input type="checkbox" name="nf_syslog1">
+<td><input type="checkbox" name="nf_email1">
+<td><input type="checkbox" name="nf_sms1">
+<td><input type="checkbox" name="nf_trap1">
+<tr>
+<td style="text-align:left">Спад (изменение уровня 1 &rarr; 0)
+<td><input type="checkbox" name="nf_log0">
+<td><input type="checkbox" name="nf_syslog0">
+<td><input type="checkbox" name="nf_email0">
+<td><input type="checkbox" name="nf_sms0">
+<td><input type="checkbox" name="nf_trap0">
+<tr>
+<td style="text-align:left">Периодический отчёт
+<td><input type="checkbox" name="nf_log_r" disabled>
+<td><input type="checkbox" name="nf_syslog_r" disabled>
+<td><input type="checkbox" name="nf_email_r">
+<td><input type="checkbox" name="nf_sms_r">
+<td><input type="checkbox" name="nf_trap_r" disabled>
+<tr>
+<td style="text-align:left">Вкл/выкл все уведомления
+<td colspan="4">
+<td><input type="checkbox" name="atonce" onchange="set_nf_cb_all(event,this.checked)">
+</table>
+<table class="edt">
+<tr>
+<th style="padding-top:20px">Уровень на линии
+<th style="padding-top:20px">Расшифровка
+<th style="padding-top:20px">Индикатор
+<tr>
+<td>Лог. 1
+<td>
+<input type="text" style="color:#009020" name="legend_high" maxlength="14">
+<td>
+<select name="color_high">
+<option>белый</option>
+<option>серый</option>
+<option>оранжевый</option>
+<option>красный</option>
+<option>зелёный</option>
+</select>
+<tr>
+<td style="text-align:left">Лог. 0
+<td style="text-align:right">
+<input type="text" style="color:#009020" name="legend_low" maxlength="14">
+<td>
+<select name="color_low">
+<option>белый</option>
+<option>серый</option>
+<option>оранжевый</option>
+<option>красный</option>
+<option>зелёный</option>
+</select>
+</table>
+<table class="edt">
+<caption class="send_button">
+<input type="button" value="Отменить изменения" onclick="save_notif(0)">
+<input type="button" value="Сохранить изменения" onclick="save_notif(1)">
+</caption>
+<tr>
+<th style="padding-top:20px">Подавление повторяющихся уведомлений
+<tr>
+<td>Режим активации
+<td>
+<select name="rep_filter_mode" onchange="document.notif_frm.rep_filter_time.disabled=(this.selectedIndex==0)">
+<option>выкл</option>
+<option>фронт</option>
+<option>спад</option>
+<option>фронт/спад</option>
+</select>
+<tr>
+<td>Период подавления, с
+<td>
+<input type="text" name="rep_filter_time">
+</table>
+</form>
+</div>
+
+</div><!--#middle-->
+<div id="footer"></div>
+</body>
+</html>

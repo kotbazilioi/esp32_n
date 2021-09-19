@@ -1,0 +1,644 @@
+﻿<!DOCTYPE html>
+<html><head>
+<!-- source is in UTF-8, packed and served in windows-1251! -->
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<title>Веб-интерфейс</title>
+<link rel="stylesheet" href="index.css">
+<script src="devname.cgi"></script>
+<script src="menu.js"></script>
+<script src="obj_dict.cgi"></script>
+<script src="logic_get.cgi"></script>
+<script src="pinger_get.cgi"></script>
+<script src="setter_get.cgi"></script>
+<style>
+body {min-width:1250px;}
+form {max-width:1110px;}
+#middle {padding-top:30px}
+h2:first-child {margin-top:0px;}
+td:first-child {text-align:left;padding-left:10px;}
+td {border-top:none;text-align:right;}
+form tr:hover td {background-color:#f0f0f0;}
+tr.bold td {font-weight:bold;padding-top:20px;}
+input[type="text"],input[type="password"],input[type="button"],select {width:180px;margin-left:0px;margin-right:0px;}
+input.half_width {width:110px;}
+caption {caption-side:bottom;}
+input.out {border:none;}
+tr.suffixes td {padding-top:15px;}
+#nf td:not(:first-child) {text-align:center;min-width:70px;}
+.red {color:red;}
+</style>
+</head>
+<body>
+<script>
+var obj_list=[
+[3<<8|0,"Стартовый сброс",0,"",,,,2],
+[43<<8|0,"IO линия",1,"",,,,3],
+[43<<8|1,"IO линия",2,"",,,,3],
+[41<<8|2,"Вход",3,"",,,,2],
+[41<<8|3,"Вход",4,"",,,,2],
+[120<<8|0,"Пингер",1,"",,,,2],
+[120<<8|1,"Пингер",2,"",,,,2],
+[130<<8|0,"SNMP Setter",1,"",,,,1],
+[130<<8|1,"SNMP Setter",2,"",,,,1],
+[130<<8|2,"SNMP Setter",3,"",,,,1],
+[130<<8|3,"SNMP Setter",4,"",,,,1],
+[160<<8|0,"Таймер/Счётчик",1,"",,,,3],
+[160<<8|1,"Таймер/Счётчик",2,"",,,,3],
+[160<<8|2,"Таймер/Счётчик",3,"",,,,3],
+[160<<8|3,"Таймер/Счётчик",4,"",,,,3],
+[117<<8|0,"Расписание",0,"",,,,2]
+];
+
+menu('Логика');
+
+function getid(a) { return document.getElementById(a); }
+
+function elem(e) { return document.createElement(e); }
+
+function chk_ascii(fld)
+{
+ var v=fld.value;
+ for(var i=0;i<v.length;++i) 
+  if(v.charCodeAt(i) > 127)
+   seterr(fld,true);
+ return v;
+}
+
+function chk_oid(f)
+{
+ if(!(/^\.1\.3(\.\d*)+$/g).test(f.value)) seterr(f,1);
+ return f.value;
+}
+
+function chk_fqdn(fld)
+{
+ var a=fld.value.trim();
+ if(a=='') 
+ {
+  seterr(fld,0);
+  return a;
+ }
+ if((/^((\d{1,3})\.){3}(\d{1,3})$/).test(a))
+ {
+  var ipa=a.split('.'); 
+  for(n in ipa)
+  {
+   ipa[n] = parseInt(ipa[n]);
+   if(ipa[n]>255) 
+   {
+    seterr(fld,1);
+    throw fld;
+   }    
+  }
+  seterr(fld,0);
+  return a;
+ }
+ else
+ if((/^(?=.{1,62}$)([a-z0-9]+(-[a-z0-9]+)*)(\.[a-z0-9]+(-[a-z0-9]+)*)*$/i).test(a)) //domain name up to 62 chars, may be multi-label or just 1 label
+ {
+  seterr(fld,0);
+  return a;
+ }
+ seterr(fld,1);
+ throw fld;
+}
+
+function pack_bin(fmt, data) // v4, bin, no quotes, C strings
+{
+ var d=new Uint8Array(fmt.__len);
+ var i,l,n,x,f;
+ for(i in fmt) {
+ if(typeof(data[i])=='undefined') { continue; }
+  x=data[i]; f=fmt[i]; 
+  switch(typeof x) 
+  {
+  case 'string':
+   x=x.replace(/\"/g,''); // no quotes
+   l=x.length; if(l>f.len-1) l=f.len-1; // 16.05.2013, it was -1, now -2
+   for(n=0;n<l;++n) d[f.offs+n]=w1251(x.charCodeAt(n));
+   break;
+  case 'object':
+   if(!(x instanceof Array)) break;
+   for(n=0;n<f.len;++n) { d[f.offs+n]=Number(x[n]); }
+   break;
+  default:
+   x=Number(x); 
+   for(n=0;n<f.len;++n) { d[f.offs+n]=x&0xFF; x>>=8; }
+   break;
+  }
+ }
+ return d;
+}
+
+function encode_schedule(f)
+{
+ try {
+  let e=new Error('Wrong schedule!');
+  let t=f.value.trim();
+  let a=t.match(/^([012]?[0-9]):([0-5][0-9])( ([0-3]?[0-9])\.([01][0-9])| ([1-7]{1,7})|)$/);
+  if(!a[0]) throw e;
+  let hh,mm,dd,MM,w;
+  const lastday=[0,31,29,31,30,31,30,31,31,30,31,30,31];
+  hh=a[1]*1; if(hh>23) throw e;
+  mm=a[2]*1; if(mm>59) throw e;
+  if(a[3])
+  {
+   if(a[6])
+   { 
+    w=a[6].split('').reduce((w,d)=>w|1<<(d*1), 0) >> 1;
+    dd=0;
+    MM=0;
+   }
+   else
+   {
+    w=0;
+    MM=a[5]*1; if(MM>12) throw e;
+    dd=a[4]*1; if(dd>lastday[MM]) throw e;
+   }
+  }
+  else
+  {
+   w=127;
+   dd=0;
+   MM=0;
+  }
+  seterr(f,false);
+  return MM<<23 | dd<<18 | hh<<13 | mm<<7 | w;
+ }
+ catch(e)
+ {
+  seterr(f,true);
+  throw e;
+ }
+}
+
+function decode_schedule(d)
+{
+ let w=(d&127)<<1; let wt='';
+ for(let i=1;i<=7;++i) if(w&(1<<i)) wt+=i;
+ if(wt=='1234567') wt='';
+ let mm=(d>>7)&63; if(mm<10) mm='0'+mm;
+ let hh=(d>>13)&31;
+ let dd=(d>>18)&31; 
+ let MM=(d>>23)&15; if(MM&&MM<10) MM='0'+MM;
+ if(MM) return `${hh}:${mm} ${dd}.${MM}`;
+ else   return `${hh}:${mm} ${wt}`;
+}
+
+function chkfrm() 
+{
+ var i,tf,r,a,b,d={},d_bin=new Uint8Array(data_rules.length*packfmt.__len+1);
+
+ for(i in data_rules)
+ {
+  d.enable=frm.enable[i].checked*1;
+  d.in=frm.in[i].value*1;
+  d.condition=frm.condition[i].selectedIndex;
+  tf=frm.threshold[i];
+  if(frm.condition[i].value=='analog')
+  {
+   if(d.in==(117<<8|0))
+    d.threshold=encode_schedule(tf);
+   else
+   {
+    a=Number(tf.value);
+    seterr(tf,a==NaN);
+    d.threshold=Math.round(a*10)*100;
+   }
+  }
+  d.out=frm.out[i].value*1;
+  d.action=frm.action[i].selectedIndex;
+  d_bin.set(pack_bin(packfmt,d),i*packfmt.__len);
+ }
+ var rq=new XMLHttpRequest();
+ rq.open('POST','logic_set.cgi',true);
+ rq.onload=function() 
+ {
+  if(this.status!=200) { alert('Ошибка сохранения настроек!'); }
+  else { location.replace('logic.html'); }
+ };
+ d_bin[data_rules.length*packfmt.__len]=frm.activate.checked*1;
+ rq.send(d_bin);
+ return false;
+}
+
+function logicrun(flag)
+{
+ var r=new XMLHttpRequest();
+ r.open("GET","/logic_run.cgi?"+flag,true);
+ r.send(null);
+}
+
+function up()
+{
+ var r=this.parentElement.parentElement; // tr
+ var t=r.parentElement; // tbody
+ if(r!=t.rows[1]) t.insertBefore(r,r.previousSibling);
+}
+
+function down()
+{
+ var r=this.parentElement.parentElement; // tr
+ var t=r.parentElement; // tbody
+ if(r!=t.lastChild) t.insertBefore(r,r.nextSibling.nextSibling); // it's ok for len-2 row, will work as appendChild()
+}
+
+function refresh_enable()
+{
+ var dis=!this.checked;
+ var rule_n=this.parentElement.parentElement.rowIndex-1;
+ frm.in[rule_n].disabled=dis;
+ frm.condition[rule_n].disabled=dis;
+ frm.threshold[rule_n].disabled=dis;
+ if(!dis) frm.condition[rule_n].onchange(); // ena/dis threshold
+ frm.out[rule_n].disabled=dis;
+ frm.action[rule_n].disabled=dis;
+}
+
+function refresh_condition()
+{
+ if(this.selectedIndex==-1) return; //this->frm.in[n]
+ var rule_n=this.parentElement.parentElement.rowIndex-1;
+ var obj_name=in_obj_list[this.selectedIndex][1];
+ for(var dict_n in obj_dict) if(obj_dict[dict_n][0]==obj_name) break;
+ var conds=obj_dict[dict_n][2];
+ var cond_select=frm.condition[rule_n];
+ while(cond_select.firstChild) cond_select.removeChild(cond_select.firstChild);
+ let op,aflg;
+ for(let i in conds)
+ {
+  op=elem('option');
+  op.appendChild(document.createTextNode(conds[i].replace(/~/g,'')));
+  op.value=(conds[i][0]=='~'?'analog':'');
+  cond_select.appendChild(op);
+ }
+ cond_select.onchange();
+}
+
+function refresh_threshold()
+{
+ var rule_n=this.parentElement.parentElement.rowIndex-1;
+ let uses_threshold=frm.condition[rule_n].value;
+ var w=frm.in[0].offsetWidth;
+ frm.condition[rule_n].style.width=(uses_threshold?w-2:w+110)+'px';
+ frm.threshold[rule_n].style.display=uses_threshold?'':'none';
+ frm.threshold[rule_n].value=frm.in[rule_n].value==(117<<8|0)?'':'0';
+}
+
+function refresh_action()
+{
+ if(this.selectedIndex==-1) return; //this->frm.out[n]
+ var rule_n=this.parentElement.parentElement.rowIndex-1;
+ var obj_name=out_obj_list[this.selectedIndex][1];
+ for(var dict_n in obj_dict) if(obj_dict[dict_n][0]==obj_name) break;
+ var actns=obj_dict[dict_n][3];
+ var actn_select=frm.action[rule_n];
+ while(actn_select.firstChild) actn_select.removeChild(actn_select.firstChild);
+ var op;
+ for(var i in actns)
+ {
+  op=elem('option');
+  op.appendChild(document.createTextNode(actns[i]));
+  actn_select.appendChild(op);
+ }
+}
+
+</script>
+
+<div id="middle">
+<div id="push_margin"></div>
+
+<form name="frm" method="post" action="error.html">
+
+<h2>Логика</h2>
+<table>
+<caption class="send_button_container">
+<input type="button" value="Применить изменения" onclick="logicrun(document.frm.activate.checked*1)">
+</caption>
+<tr>
+<td>Активировать логику
+<td><input type="checkbox" name="activate">
+<tr>
+<td>Сброс (перезапуск) логики
+<td><input type="button" value="Reset" onclick="logicrun(2)">
+</table>
+
+<h2>Правила</h2>
+<table id="rules">
+<caption class="send_button_container">
+<input type="button" value="Применить изменения" onclick="chkfrm()">
+</caption>
+<tr><th>Вкл<th>Вход<th>Условие<th>Выход<th>Действие
+</table>
+<script>
+function list_cmp(a,b)
+{
+ var p=a[2]; if(p<10) p=' '+p; p=a[1]+p;
+ var q=b[2]; if(q<10) q=' '+q; q=b[1]+q; 
+ return p.localeCompare(q);
+}
+obj_list.sort(list_cmp); // depends on field order in obj_list[n][] !!!
+var out_obj_list=obj_list.filter(function(e){return e[7]&1;});
+var in_obj_list=obj_list.filter(function(e){return e[7]&2;});
+var i,j,t=getid('rules'),r,c,o,x;
+for(i in data_rules)
+{
+ r=t.insertRow(-1);
+ c=r.insertCell(-1);
+ q=c.appendChild(elem('input'));
+ q.type='checkbox';
+ q.name='enable';
+ q.onchange=refresh_enable;
+ c=r.insertCell(-1);
+ s=c.appendChild(elem('select'));
+ s.name='in';
+ s.onchange=refresh_condition;
+ for(j in in_obj_list)
+ {
+  o=in_obj_list[j];
+  q=s.appendChild(elem('option'));
+  q.value=o[0];
+  x=o[1];
+  if(o[2]) x+=' '+o[2];//ch
+  if(o[3]) x+=' ('+o[3]+')';//memo
+  q.appendChild(document.createTextNode(x));
+ }
+ c=r.insertCell(-1);
+ s=c.appendChild(elem('select'));
+ s.name='condition';
+ s.onchange=refresh_threshold;
+ ///c=r.insertCell(-1); 
+ q=c.appendChild(elem('input'));
+ q.name='threshold'; 
+ q.className='half_width';
+ q.style.marginLeft='2px';
+ q.style.display='none';
+ c=r.insertCell(-1);
+ s=c.appendChild(elem('select'));
+ s.name='out';
+ s.onchange=refresh_action; 
+ for(j in out_obj_list)
+ {
+  o=out_obj_list[j];
+  q=s.appendChild(elem('option'));
+  q.value=o[0];
+  x=o[1];
+  if(o[2]) x+=' '+o[2];//ch
+  if(o[3]) x+=' ('+o[3]+')';//memo
+  q.appendChild(document.createTextNode(x));
+ } 
+ c=r.insertCell(-1);
+ s=c.appendChild(elem('select'));
+ s.name='action';
+ c=r.insertCell(-1);
+ q=c.appendChild(elem('input'));
+ q.type='button';
+ q.name='up';
+ q.value='выше';
+ q.onclick=up;
+ q.className='half_width';
+ c=r.insertCell(-1);
+ q=c.appendChild(elem('input'));
+ q.type='button';
+ q.name='down';
+ q.value='ниже';
+ q.onclick=down;
+ q.className='half_width'; 
+}
+</script>
+</form>
+
+<script>
+var i,d;
+frm.activate.checked=data_activate;
+for(i in data_rules)
+{
+ d=data_rules[i];
+ frm.enable[i].checked=d.enable; frm.enable[i].onchange();
+ frm.in[i].value=d.in; frm.in[i].onchange();
+ frm.condition[i].selectedIndex=d.condition; frm.condition[i].onchange();
+ frm.threshold[i].value=((d.in==117<<8|0) ? decode_schedule(d.threshold) : Math.round(d.threshold/100)/10);
+ frm.out[i].value=d.out; frm.out[i].onchange();
+ frm.action[i].selectedIndex=d.action;
+}
+</script>
+
+<h2>Пингер</h2>
+<form name="pinger_frm">
+<table class="paramtable">
+<caption align="bottom" class="send_button_container">
+<input type="button" value="Применить изменения" onclick="chkfrm_pinger()">
+</caption>
+<colgroup>
+<col style="width:260px">
+<col style="width:220px">
+<col style="width:220px">
+<col>
+</colgroup>
+<tr>
+<th>
+<th>PINGER _ch1_
+<tr>
+<td>Адрес
+<td><input type="text" name="pinger_addr" maxlength="62">
+<tr>
+<td>Период опроса, с (5-900)
+<td><input type="text" name="pinger_period">
+<tr>
+<td>Таймаут одного пинга, мс (100-10000)
+<td><input type="text" name="pinger_timeout">
+<tr>
+<td>Статус
+<td><input type="text" name="pinger_status" readonly>
+</table>
+</table>
+</form>
+
+<script>
+var pinger_status_txt={0:'Молчит',1:'OK',0xff:'-'};
+var i,f=document.pinger_frm,d;
+expand_table(document.pinger_frm,pinger_data.length);
+for(i in pinger_data)
+{
+ d=pinger_data[i];
+ f.pinger_addr[i].value=d.hostname;
+ f.pinger_period[i].value=d.period;
+ f.pinger_timeout[i].value=d.timeout;
+ f.pinger_status[i]=pinger_status_txt[d.status];
+}
+
+function chkfrm_pinger()
+{
+ var i,f=document.pinger_frm,d={},data='';
+ for(i in pinger_data)
+ {
+  d.hostname=chk_fqdn(f.pinger_addr[i]);
+  d.period=range(f.pinger_period[i],5,900);
+  d.timeout=range(f.pinger_timeout[i],100,10000);
+  data+=pack(pinger_packfmt,d);
+ }
+ var rq=new XMLHttpRequest();
+ rq.open('POST','pinger_set.cgi',true);
+ rq.onload=function() 
+ {
+  if(this.status!=200) { alert('Ошибка сохранения настроек пингеров!'); }
+  else { location.replace('logic.html'); }
+ };
+ rq.send('data='+data);
+ return false;
+}
+</script>
+
+<h2>SNMP SETTER</h2>
+<form name="setter_frm">
+<table class="paramtable">
+<caption class="send_button_container">
+<input type="button" value="Применить изменения" onclick="chkfrm_setter()">
+</caption>
+<colgroup>
+<col style="width:260px">
+<col style="width:220px">
+<col style="width:220px">
+<col>
+</colgroup>
+<tr>
+<th>
+<th>SNMP _ch1_
+<tr>
+<td>Памятка
+<td><input type="text" name="setter_name" maxlength="30" style="color:#009020">
+<tr>
+<td>Адрес
+<td><input type="text" name="setter_addr">
+<tr>
+<td>Порт
+<td><input type="text" name="setter_port">
+<tr>
+<td>OID (.1.3.6...)
+<td><input type="text" name="setter_oid" style="font-size:80%">
+<tr>
+<td>Community
+<td><input type="password" name="setter_community">
+<tr>
+<td>Значение "Вкл" (тип Integer32)
+<td><input type="text" name="setter_value_on">
+<tr>
+<td>Значение "Выкл" (тип Integer32)
+<td><input type="text" name="setter_value_off">
+<tr>
+<td>Проверка
+<td>
+<input style="width:49%" type="button" value="Вкл" onclick="setter_test(this,1)">
+<input style="width:49%" type="button" value="Выкл" onclick="setter_test(this,0)">
+<tr>
+<td>Статус
+<td><input type="text" name="setter_status" readonly>
+</table>
+</form>
+
+<script>
+var n,f=document.setter_frm;
+expand_table(f, setter_data.length);
+for(n in setter_data) with(setter_data[n])
+{
+ f.setter_name[n].value=name;
+ f.setter_addr[n].value=hostname;
+ f.setter_port[n].value=port;
+ f.setter_oid[n].value=oid;
+ f.setter_community[n].value=community;
+ f.setter_value_on[n].value=value_on;
+ f.setter_value_off[n].value=value_off;
+}
+
+function chkfrm_setter()
+{
+ var d='',f={},q,frm=document.setter_frm;
+ for(var n in setter_data) 
+ {
+  f.name=frm.setter_name[n].value;
+  f.hostname=chk_fqdn(frm.setter_addr[n]);
+  f.port=range(frm.setter_port[n],0,65535);
+  f.oid=chk_oid(frm.setter_oid[n]);
+  f.community=chk_ascii(frm.setter_community[n]);
+  f.value_on=range(frm.setter_value_on[n],-2147483648,2147483647);
+  f.value_off=range(frm.setter_value_off[n],-2147483648,2147483647);
+  d+=pack(setter_packfmt,f);
+ }
+ var rq=new XMLHttpRequest();
+ rq.open('POST','setter_set.cgi',true);
+ rq.onloadend=function() 
+ {
+  if(this.status!=200) { alert('Ошибка сохранения настроек SNMP Setter!'); }
+  else { location.replace('logic.html'); }
+ };
+ rq.send('data='+d);
+ return false;
+}
+
+function setter_test(button,onoff)
+{
+ var f=document.setter_frm;
+ var n=button.parentElement.cellIndex-1;
+ with(setter_data[n])
+ {
+  if(f.setter_name[n].value!=name
+  || f.setter_addr[n].value!=hostname /*domain or ip as text*/
+  || f.setter_port[n].value!=port
+  || f.setter_oid[n].value!=oid
+  || f.setter_community[n].value!=community
+  || f.setter_value_on[n].value!=value_on
+  || f.setter_value_off[n].value!=value_off )
+  {
+   alert("Сохраните изменения перед тестированием!");
+   return;
+  }
+ }
+ f.setter_status[n].value=setter_status_txt[6];//'waiting ror reply'
+ var setreq=new XMLHttpRequest();
+ setreq.open("GET","/setter_test.cgi?ch"+((n*1)+1)+"="+onoff);
+ setreq.timeout=5000;
+ setreq.send(null);
+
+ clearInterval(status_interval);
+ status_interval=setInterval(send_status_req,15000); 
+ setTimeout(send_status_req,6000);
+}
+
+var pinger_status=[], setter_status=[];
+var pinger_status_txt={0:'молчит',1:'отвечает',2:'отвечает со сбоями',0xfe:'-',0xff:'-'};
+var setter_status_txt={0:'OK',1:'слишком большое',2:'нет такого OID',3:'неправильное значение',4:'запись запрещена',5:'ошибка',6:'ожидание ответа',7:'таймаут',8:'ошибка DNS',9:'отсутствует адрес'};
+
+function status_onload()
+{
+ var ok = (this.status==200 && this.responseText!='');
+ if(ok) eval(this.responseText); // renders tstat_status, pinger_status
+ var n,stat;
+ for(n in pinger_status)
+ {
+  stat= ok ? pinger_status_txt[pinger_status[n]] : '-' ;
+  pinger_frm.pinger_status[n].value=stat;
+ }
+ for(n in setter_status)
+ {
+  stat=setter_status_txt[setter_status[n]];
+  setter_frm.setter_status[n*1].value=stat?stat:'-';
+ }
+};
+
+function send_status_req()
+{
+ var req=new XMLHttpRequest();
+ req.open("GET","/logic_status.cgi",true);
+ req.onloadend=status_onload;
+ req.timeout=5000;
+ req.send();
+}
+
+send_status_req();
+var status_interval=setInterval(send_status_req,15000); 
+</script>
+
+</div><!--#middle-->
+<div id="footer"></div>
+</body>
+</html>
