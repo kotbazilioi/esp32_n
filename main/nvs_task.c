@@ -12,6 +12,177 @@
 #include "esp_flash_spi_init.h"
 
 #include "nvs_task.h"
+#define get_name(x) #x
+FW_data_t FW_data;
+
+uint8_t load_def_data(void)
+    {
+
+     FW_data.net.V_IP_CONFIG[0]=192;
+     FW_data.net.V_IP_CONFIG[1]=168;
+     FW_data.net.V_IP_CONFIG[2]=0;
+     FW_data.net.V_IP_CONFIG[3]=100;
+
+     FW_data.net.V_IP_MASK[0]=255;
+     FW_data.net.V_IP_MASK[1]=255;
+     FW_data.net.V_IP_MASK[2]=255;
+     FW_data.net.V_IP_MASK[3]=0;
+
+     FW_data.net.V_IP_GET[0]=192;
+     FW_data.net.V_IP_GET[1]=168;
+     FW_data.net.V_IP_GET[2]=0;
+     FW_data.net.V_IP_GET[3]=1;
+
+     FW_data.net.V_DHCP = 0;
+     FW_data.net.V_IP_DNS[0]=10;
+     FW_data.net.V_IP_DNS[1]=0;
+     FW_data.net.V_IP_DNS[2]=0;
+     FW_data.net.V_IP_DNS[3]=18;
+
+
+     FW_data.sys.V_FW1_VER[0]=Platform;
+     FW_data.sys.V_FW1_VER[1]=rev;
+     FW_data.sys.V_FW1_VER[2]=Assembly;
+     FW_data.sys.V_FW1_VER[3]=Bild;
+
+     FW_data.sys.V_FW1_LEN=1280*1024;//*((uint32_t *)A_FW_LEN);
+     FW_data.sys.V_BOOT_VER =0;// *((uint32_t *)A_BOOT_VER);
+     FW_data.sys.V_CRC_DATA = 0;
+
+//      memset((uint8_t*)&FW_data.V_LOGIN,0,16);
+//     memcpy((uint32_t*)&FW_data.V_LOGIN, (uint32_t *)"visor", 5);
+//      memset((uint8_t*)&FW_data.V_PASSWORD,0,16);
+//     memcpy((uint32_t*)&FW_data.V_PASSWORD, (uint32_t *)"ping", 4);
+
+       FW_data.http.V_WEB_PORT = 80;
+//     HTTPD_SERVER_PORT =FW_data.V_WEB_PORT;
+       FW_data.snmp.V_PORT_SNMP = 162;
+       FW_data.net.V_HTTP_IP = 80;
+     memset((uint8_t*)&FW_data.http.V_ON_MESS,0,32);
+     memcpy((uint8_t*)&FW_data.http.V_ON_MESS, (uint8_t *)"Power swich ON",14);
+     memset((uint8_t*)&FW_data.http.V_OFF_MESS,0,32);
+     memcpy((uint8_t*)&FW_data.http.V_OFF_MESS, (uint8_t *)"Power swich OFF", 15);
+     FW_data.http.V_FLAG_EN_MAN =1;
+     FW_data.rasp.V_FLAG_EN_RASP =0;
+     FW_data.http.V_FLAG_EN_WEB =1;
+     FW_data.wdt.V_FLAG_EN_WATCHMAN =0;
+     memset((uint8_t*)&FW_data.smtp.V_EMAIL_ERR,0,32);
+     memset((uint8_t*)&FW_data.rasp.V_D_TIME,61,sizeof(FW_data.rasp.V_D_TIME));
+     memset((uint8_t*)&FW_data.rasp.V_RD_DATA,61,sizeof(FW_data.rasp.V_RD_DATA));
+
+
+     FW_data.rasp.V_IP_PING_TIME = 9999;
+     FW_data.rasp.V_TIME_SEND = 9999;
+     FW_data.rasp.V_TIME_READ = 9999;
+     FW_data.rasp.V_N_RERID = 9999;
+     FW_data.rasp.V_TIME_RESET = 9999;
+     FW_data.rasp.V_DELAY_PING = 9999;
+     FW_data.rasp.V_SOST_RESET = 0;
+     FW_data.wdt.V_N_PING = 255;
+     FW_data.net.V_IP_NTP1[0]=85;//    85.21.78.23
+     FW_data.net.V_IP_NTP1[1]=21;
+     FW_data.net.V_IP_NTP1[2]=78;
+     FW_data.net.V_IP_NTP1[3]=23;
+
+     FW_data.net.V_IP_NTP2[0]=194;
+     FW_data.net.V_IP_NTP2[1]=190;
+     FW_data.net.V_IP_NTP2[2]=168;
+     FW_data.net.V_IP_NTP2[3]=1;
+     FW_data.net.V_PORT_NTP  = 123;
+     memset((uint8_t*)&FW_data.smtp.V_NAME_SMTP,0,32);
+     memcpy((uint8_t*)&FW_data.smtp.V_NAME_SMTP, (uint8_t *)"Name SNMP Server",sizeof("Name SNMP Server"));
+     FW_data.snmp.V_PORT_SNMP = 162;
+     memset((uint8_t*)&FW_data.smtp.V_LOGIN_SMTP,0,32);
+     memcpy((uint32_t*)&FW_data.smtp.V_LOGIN_SMTP, (uint32_t *)"admin", 5);
+     memset((uint8_t*)&FW_data.smtp.V_PASSWORD_SMTP,0,32);
+     memcpy((uint32_t*)&FW_data.smtp.V_PASSWORD_SMTP, (uint32_t *)"admin", 5);
+     FW_data.smtp.V_FLAG_EMAIL_PORT=25;
+
+     memset((uint8_t*)&FW_data.smtp.V_EMAIL_ADDR,0,32);
+     //memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_ADDR, (uint32_t *)"", 5);
+
+     memset((uint8_t*)&FW_data.smtp.V_EMAIL_FROM,0,32);
+    // memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_FROM, (uint32_t *)"", 5);
+
+     memset((uint8_t*)&FW_data.smtp.V_EMAIL_TO,0,32);
+    // memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_TO, (uint32_t *)"", 5);
+
+
+
+
+
+      memset((uint8_t*)&FW_data.sys.V_GEOM_NAME,0,85);
+     memcpy((uint32_t*)&FW_data.sys.V_GEOM_NAME, (uint32_t *)"Moscow office", 13);
+
+    FW_data.sys.V_ID_MAC[0] =   00;//(uint16_t)idBase0[0];
+    FW_data.sys.V_ID_MAC[1] =   00;//((uint16_t)idBase0[0])>>8;
+    FW_data.sys.V_ID_MAC[2] =   00;///(uint16_t)idBase1[0];
+    FW_data.sys.V_ID_MAC[3] =   00;//((uint16_t)idBase1[0])>>8;
+    FW_data.sys.V_ID_MAC[4] =   00;//(uint16_t)idBase2[0];
+    FW_data.sys.V_ID_MAC[5] =   00;//((uint16_t)idBase2[0])>>8;
+    FW_data.sys.V_ID_MAC[6] =    0x59;
+    FW_data.sys.V_ID_MAC[7] =    0xDC;
+    memset((uint8_t*)&FW_data.sys.V_Name_dev,0,85);
+    memset((uint8_t*)&FW_data.sys.V_CALL_DATA,0,85);
+    memcpy((uint8_t*)&FW_data.sys.V_Name_dev,(uint8_t *)"DKSF 59",7);
+    memcpy((uint8_t*)&FW_data.sys.V_CALL_DATA,(uint8_t *)"netping.ru",10);
+
+//    memset((uint8_t*)&FW_data.V_resv,0,1659);
+    FW_data.V_logs_struct.CRC16 = 0;
+    memset((uint8_t*)&FW_data.V_logs_struct.log_reple,0,2000);
+
+     FW_data.net.V_IP_SYSL[0]=0;//     62.117.76.142
+     FW_data.net.V_IP_SYSL[1]=0;
+     FW_data.net.V_IP_SYSL[2]=0;
+     FW_data.net.V_IP_SYSL[3]=0;
+
+
+     FW_data.net.V_IP_SNMP[0]=192;//     62.117.76.142
+     FW_data.net.V_IP_SNMP[1]=168;
+     FW_data.net.V_IP_SNMP[2]=0;
+     FW_data.net.V_IP_SNMP[3]=152;
+     FW_data.sys.V_TYPE_OUT=0;
+
+     FW_data.sys.V_NTP_CIRCL = 4;
+
+     //  FW_data.V_CRC_BOOT=*((uint16_t *)A_CRC_DATA_BOOT);
+   //    FW_data.V_logs_struct.CRC16 = crc16_ccitt((uint8_t*)&(FW_data.V_logs_struct.log_reple[0]),2000);
+     //  FW_data.V_CRC_DATA=crc16_ccitt((uint8_t*)&(FW_data.V_DHCP),2018);
+
+       FW_data.sys.V_TYPE_LOGIC=0;
+       FW_data.wdt.V_EN_WATCHDOG=0;
+       FW_data.wdt.V_EN_WATCHDOG_CN_A=1;
+       FW_data.wdt.V_EN_WATCHDOG_CN_B=1;
+       FW_data.wdt.V_EN_WATCHDOG_CN_C=1;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_A[0]=192;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_A[1]=168;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_A[2]=0;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_A[3]=151;
+
+       FW_data.wdt.V_IP_WDT_ADDR_CN_B[0]=192;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_B[1]=168;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_B[2]=0;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_B[3]=152;
+
+       FW_data.wdt.V_IP_WDT_ADDR_CN_C[0]=192;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_C[1]=168;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_C[2]=0;
+       FW_data.wdt.V_IP_WDT_ADDR_CN_C[3]=153;
+       FW_data.wdt.V_CT_RES_ALLSTART=0;
+       FW_data.wdt.V_T_SEND_PING=15;
+       FW_data.wdt.V_TIME_RESEND_PING=1000;
+       FW_data.wdt.V_MAX_REPID_PING=8;
+       FW_data.wdt.V_TIME_RESET_PULSE=12;
+       FW_data.wdt.V_PAUSE_RESET_TO_REPID=15;
+       FW_data.wdt.V_MAX_RESEND_PACET_RESET=0;
+  //     save_data_blok(3,(uint32_t*)&FW_data.V_CRC_APP);
+
+
+
+        return 1;
+      }
+
+
 
 void nvs_task(void *pvParameters)
 {
@@ -26,12 +197,16 @@ void nvs_task(void *pvParameters)
 
 // Open
 	  int32_t restart_counter=0; // value will default to 0, if not set yet in NVS
-	  int32_t counter;
+	//  int32_t counter;
+	  char* name_count =  get_name(FW_data.net.V_IP_CONFIG);
 
 
 
 
     while(1) {
+
+   	 printf("\n\r DATA - %s \n\r",name_count);
+
     	 //memcpy((char*)data_flash,point_nvs,8192);
 
 //   	 gpio_set_level(5, 1);

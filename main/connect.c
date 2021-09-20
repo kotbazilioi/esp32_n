@@ -66,7 +66,7 @@ static const char *s_ipv6_addr_types[] = {
 };
 #endif
 
-static const char *TAG = "example_connect";
+static const char *TAG = "connect";
 
 #if CONFIG_EXAMPLE_CONNECT_WIFI
 static esp_netif_t *wifi_start(void);

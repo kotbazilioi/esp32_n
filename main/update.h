@@ -20,6 +20,6 @@ extern const httpd_uri_t np_html_uri_devname_cgi;
 
 
 extern const httpd_uri_t np_html_uri[];
-#define NP_HTML_HEADERS_NUMBER    12
+#define NP_HTML_HEADERS_NUMBER    7//12
 
 #endif /* COMPONENTS_UPDATE_H_ */

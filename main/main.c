@@ -13,9 +13,9 @@
 
 
 
-#define DEVICE_USE_STATIC_IP	false
-#define DEVICE_IP          "172.16.0.210"
-#define DEVICE_GW          "172.16.0.254"
+#define DEVICE_USE_STATIC_IP	true
+#define DEVICE_IP          "192.168.1.159"
+#define DEVICE_GW          "192.168.1.1"
 #define DEVICE_NETMASK     "255.255.255.0"
 
 #define CONFIG_BLINK_GPIO 4
@@ -33,6 +33,8 @@
 extern const struct snmp_mib gpio_mib;
 
 #define SNMP_SERVER_IP "172.16.0.250"
+
+
 
 static const char *TAG_SNMP = "Snmp_agent";
 /* ----- TODO: Global variables for SNMP Trap vvv
@@ -91,6 +93,9 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
+
+
+
     const esp_partition_t *running = esp_ota_get_running_partition();
     ESP_LOGI(TAG_boot, "Current running partition: %s", running->label);
     esp_app_desc_t app_desc;
@@ -107,6 +112,17 @@ void app_main(void)
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
+#if DEVICE_USE_STATIC_IP
+	tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_ETH); // Don't run a DHCP client
+	tcpip_adapter_ip_info_t ipInfo;
+
+	inet_pton(AF_INET, DEVICE_IP, &ipInfo.ip);
+	inet_pton(AF_INET, DEVICE_GW, &ipInfo.gw);
+	inet_pton(AF_INET, DEVICE_NETMASK, &ipInfo.netmask);
+	tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_ETH, &ipInfo);
+#endif
+
+
 
     /* Register event handlers to stop the server when Wi-Fi or Ethernet is disconnected,
      * and re-start it upon connection.
@@ -119,6 +135,8 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_event_handler_register(IP_EVENT, IP_EVENT_ETH_GOT_IP, &connect_handler, &server));
     ESP_ERROR_CHECK(esp_event_handler_register(ETH_EVENT, ETHERNET_EVENT_DISCONNECTED, &disconnect_handler, &server));
 #endif // CONFIG_EXAMPLE_CONNECT_ETHERNET
+
+
 
     /* Start the server for the first time */
     server = start_webserver();
@@ -151,6 +169,6 @@ void app_main(void)
 
 const __attribute__((used)) __attribute__((section(".rodata_custom_desc"))) char updater_js[]=
 		"75hd95kuDbvf8y3k"
-		"function fw_is_compatible(oldver){return oldver.startsWith('v32.');}/* **************************** */"
+		"function fw_is_compatible(oldver){return oldver.startsWith('v110.');}/* **************************** */"
 		"48fe99uA6k88eSDa";
 
