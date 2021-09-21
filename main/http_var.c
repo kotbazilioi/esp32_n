@@ -5,13 +5,15 @@
  *      Author: ivanov
  */
 #include "../main/includes_base.h"
-
+#include "esp_tls_crypto.h"
 //#include "html_data_simple_ru.h"
 #include "update.h"
 #include "mime.h"
 
 #define STORAGE_NAMESPACE "storage"
 #define TAG_http "http mes"
+#define HTTPD_401      "401 UNAUTHORIZED"           /*!< HTTP Response 401 */
+#define HTTPD_302      "302 Found Location: /index.html"           /*!< HTTP Response 401 */
 /* An HTTP GET handler */
 static esp_err_t hello_get_handler(httpd_req_t *req)
 {
@@ -266,6 +268,143 @@ static esp_err_t setup_set_post_handler(httpd_req_t *req)
     httpd_resp_send_chunk(req, NULL, 0);
     return ESP_OK;
 }
+// HTTP Error (404) Handler - Redirects all requests to the root page
+esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err)
+{
+    // Set status
+    httpd_resp_set_status(req, "302 Temporary Redirect");
+    // Redirect to the "/" root directory
+    httpd_resp_set_hdr(req, "Location", "/");
+    // iOS requires content in the response to detect a captive portal, simply redirecting is not sufficient.
+    httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
+
+    ESP_LOGI(TAG_http, "Redirecting to root");
+    return ESP_OK;
+}
+
+
+typedef struct {
+    char    *username;
+    char    *password;
+} basic_auth_info_t;
+
+
+
+static char *http_auth_basic(const char *username, const char *password)
+{
+    int out;
+    char *user_info = NULL;
+    char *digest = NULL;
+    size_t n = 0;
+    asprintf(&user_info, "%s:%s", username, password);
+    if (!user_info) {
+        ESP_LOGE(TAG_http, "No enough memory for user information");
+        return NULL;
+    }
+    esp_crypto_base64_encode(NULL, 0, &n, (const unsigned char *)user_info, strlen(user_info));
+
+    /* 6: The length of the "Basic " string
+     * n: Number of bytes for a base64 encode format
+     * 1: Number of bytes for a reserved which be used to fill zero
+    */
+    digest = calloc(1, 6 + n + 1);
+    if (digest) {
+        strcpy(digest, "Basic ");
+        esp_crypto_base64_encode((unsigned char *)digest + 6, n, (size_t *)&out, (const unsigned char *)user_info, strlen(user_info));
+    }
+    free(user_info);
+    return digest;
+}
+
+/* An HTTP GET handler */
+static esp_err_t basic_auth_get_handler(httpd_req_t *req)
+{
+    char *buf = NULL;
+    size_t buf_len = 0;
+    basic_auth_info_t *basic_auth_info = req->user_ctx;
+
+    buf_len = httpd_req_get_hdr_value_len(req, "Authorization") + 1;
+    if (buf_len > 1) {
+        buf = calloc(1, buf_len);
+        if (!buf) {
+            ESP_LOGE(TAG_http, "No enough memory for basic authorization");
+            return ESP_ERR_NO_MEM;
+        }
+
+        if (httpd_req_get_hdr_value_str(req, "Authorization", buf, buf_len) == ESP_OK) {
+            ESP_LOGI(TAG_http, "Found header => Authorization: %s", buf);
+        } else {
+            ESP_LOGE(TAG_http, "No auth value received");
+        }
+
+        char *auth_credentials = http_auth_basic(basic_auth_info->username, basic_auth_info->password);
+        if (!auth_credentials) {
+            ESP_LOGE(TAG_http, "No enough memory for basic authorization credentials");
+            free(buf);
+            return ESP_ERR_NO_MEM;
+        }
+
+        if (strncmp(auth_credentials, buf, buf_len)) {
+            ESP_LOGE(TAG_http, "Not authenticated");
+            httpd_resp_set_status(req, HTTPD_401);
+            httpd_resp_set_type(req, "application/json");
+            httpd_resp_set_hdr(req, "Connection", "keep-alive");
+            httpd_resp_set_hdr(req, "WWW-Authenticate", "Basic realm=\"Hello\"");
+            httpd_resp_send(req, NULL, 0);
+        } else {
+            ESP_LOGI(TAG_http, "Authenticated!");
+            char *basic_auth_resp = NULL;
+//            httpd_resp_set_status(req, HTTPD_200);HTTPD_302
+//            httpd_resp_set_type(req, "application/json");
+//            httpd_resp_set_hdr(req, "Connection", "keep-alive");
+            httpd_resp_set_status(req, "302 Temporary Redirect");
+               // Redirect to the "/" root directory
+               httpd_resp_set_hdr(req, "Location", "/index.html");
+               // iOS requires content in the response to detect a captive portal, simply redirecting is not sufficient.
+               httpd_resp_send(req, "Redirect to the captive portal", HTTPD_RESP_USE_STRLEN);
+
+
+        //    asprintf(&basic_auth_resp, "{\"authenticated\": true,\"user\": \"%s\"}", basic_auth_info->username);
+            if (!basic_auth_resp) {
+                ESP_LOGE(TAG_http, "No enough memory for basic authorization response");
+                free(auth_credentials);
+                free(buf);
+                return ESP_ERR_NO_MEM;
+            }
+            httpd_resp_send(req, basic_auth_resp, strlen(basic_auth_resp));
+            free(basic_auth_resp);
+        }
+        free(auth_credentials);
+        free(buf);
+    } else {
+        ESP_LOGE(TAG_http, "No auth header received");
+        httpd_resp_set_status(req, HTTPD_401);
+        httpd_resp_set_type(req, "application/json");
+        httpd_resp_set_hdr(req, "Connection", "keep-alive");
+        httpd_resp_set_hdr(req, "WWW-Authenticate", "Basic realm=\"Hello\"");
+        httpd_resp_send(req, NULL, 0);
+    }
+
+    return ESP_OK;
+}
+
+static httpd_uri_t basic_auth = {
+    .uri       = "/",
+    .method    = HTTP_GET,
+    .handler   = basic_auth_get_handler,
+};
+
+static void httpd_register_basic_auth(httpd_handle_t server)
+{
+    basic_auth_info_t *basic_auth_info = calloc(1, sizeof(basic_auth_info_t));
+    if (basic_auth_info) {
+        basic_auth_info->username = FW_data.http.V_LOGIN;
+        basic_auth_info->password = FW_data.http.V_PASSWORD;
+
+        basic_auth.user_ctx = basic_auth_info;
+        httpd_register_uri_handler(server, &basic_auth);
+    }
+}
 
 static const httpd_uri_t setup_get_cgi = {
     .uri       = "/setup_get.cgi",
@@ -351,6 +490,10 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &np_html_uri_main);
         httpd_register_uri_handler(server, &np_html_uri_update_set);
         httpd_register_uri_handler(server, &np_html_uri_devname_cgi);
+        httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
+      //  #if CONFIG_EXAMPLE_BASIC_AUTH
+        httpd_register_basic_auth(server);
+       // #endif
         return server;
     }
 

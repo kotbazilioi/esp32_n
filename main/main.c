@@ -93,7 +93,7 @@ void app_main(void)
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-
+    load_struct_flash_data();
 
 
     const esp_partition_t *running = esp_ota_get_running_partition();

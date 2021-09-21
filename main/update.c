@@ -32,7 +32,7 @@ esp_err_t np_http_get_handler(httpd_req_t *req)
 	httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
 	httpd_resp_set_type(req, page->mime);
 	if(page->flags & HTML_FLG_COMPRESSED)
-		httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
+	  httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
 	httpd_resp_send(req, page->addr, page->size);
 	return ESP_OK;
 }
@@ -178,7 +178,7 @@ const httpd_uri_t np_html_uri_devname_cgi = {
 };
 
 const httpd_uri_t np_html_uri_main = {
-	"/",
+	"/index.html",
 	HTTP_GET,
 	np_http_get_handler,
 	(void*)&_html_page_update_html

@@ -75,6 +75,7 @@ typedef struct
 
 typedef struct
 {
+	uint8_t LOAD_DEF_FLAG;
 	uint16_t  V_CRC_APP  ;
 	uint16_t  V_CRC_BOOT  ;
 	uint8_t V_FW1_VER[4] ;
@@ -192,7 +193,7 @@ logs_t V_logs_struct;
 extern FW_data_t FW_data;
 
 void nvs_task(void *pvParameters);
-
+uint8_t load_struct_flash_data (void);
 
 
 
