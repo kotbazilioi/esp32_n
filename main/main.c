@@ -112,15 +112,19 @@ void app_main(void)
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
-#if DEVICE_USE_STATIC_IP
+if (FW_data.net.V_DHCP==0)
+{
 	tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_ETH); // Don't run a DHCP client
 	tcpip_adapter_ip_info_t ipInfo;
 
-	inet_pton(AF_INET, DEVICE_IP, &ipInfo.ip);
-	inet_pton(AF_INET, DEVICE_GW, &ipInfo.gw);
-	inet_pton(AF_INET, DEVICE_NETMASK, &ipInfo.netmask);
+//	inet_pton(AF_INET, DEVICE_IP, &ipInfo.ip);
+//	inet_pton(AF_INET, DEVICE_GW, &ipInfo.gw);
+//	inet_pton(AF_INET, DEVICE_NETMASK, &ipInfo.netmask);
+	IP4_ADDR(&ipInfo.ip,FW_data.net.V_IP_CONFIG[0],FW_data.net.V_IP_CONFIG[1],FW_data.net.V_IP_CONFIG[2],FW_data.net.V_IP_CONFIG[3]);
+	IP4_ADDR(&ipInfo.gw,FW_data.net.V_IP_GET[0],FW_data.net.V_IP_GET[1],FW_data.net.V_IP_GET[2],FW_data.net.V_IP_GET[3]);
+	IP4_ADDR(&ipInfo.netmask,FW_data.net.V_IP_MASK[0],FW_data.net.V_IP_MASK[1],FW_data.net.V_IP_MASK[2],FW_data.net.V_IP_MASK[3]);
 	tcpip_adapter_set_ip_info(TCPIP_ADAPTER_IF_ETH, &ipInfo);
-#endif
+}
 
 
 
