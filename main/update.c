@@ -209,7 +209,7 @@ const httpd_uri_t np_html_uri_reboot_cgi = {
 };
 
 const httpd_uri_t np_html_uri_main = {
-	"/index.html",
+	"/",
 	HTTP_GET,
 	np_http_get_handler,
 	(void*)&_html_page_update_html

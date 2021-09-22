@@ -53,18 +53,58 @@ static esp_err_t cgi_get_handler(httpd_req_t *req)
     	httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Can't read FW version!");
     	return ESP_FAIL;
     }
-    char buf[2056];
+    char buf[2048];
+    char buf_temp[256];
     int mac= 5566223;//344778899;
-    sprintf(buf,
-    		"var hostname='Project 110 device'\n"
-    		"var location ='Barnaul '\n"
-    		"var contact ='Ivano KA'\n"
-    		"var serialnum  ='123456 '\n"
-    		"var mac = '%d '\n"
-    		"var ip = '%h ';\n"
-    		"var mask = '%h ';\n"
-    		"var gate = '%h ';\n",
-			mac,mac,mac,mac);
+//    sprintf(buf,"var data.hostname='Project 110 device'\n"
+//    		"var data.location ='Barnaul '\n"
+//    		"var data.contact ='Ivanov KA'\n"
+//    		"var data.serialnum  ='0x123456 '\n"
+//    		"var data.mac = '%x '\n",mac);
+    sprintf(buf,"var packfmt={mac:{offs:0,len:6},ip:{offs:6,len:4},gate:{offs:10,len:4},mask:{offs:14,len:1},dst:{offs:15,len:1},http_port:{offs:16,len:2},uname:{offs:18,len:18},passwd:{offs:36,len:18},community_r:{offs:54,len:18},community_w:{offs:72,len:18},filt_ip1:{offs:90,len:4},filt_mask1:{offs:94,len:1},powersaving:{offs:96,len:1},trap_refresh:{offs:97,len:1},trap_ip1:{offs:105,len:4},trap_ip2:{offs:109,len:4},ntp_ip1:{offs:113,len:4},ntp_ip2:{offs:117,len:4},timezone:{offs:121,len:1},syslog_ip1:{offs:122,len:4},facility:{offs:130,len:1},severity:{offs:131,len:1},snmp_port:{offs:132,len:2},notification_email:{offs:134,len:48},hostname:{offs:184,len:64},location:{offs:312,len:64},contact:{offs:248,len:64},dns_ip1:{offs:376,len:4},trap_hostname1:{offs:384,len:64},trap_hostname2:{offs:448,len:64},ntp_hostname1:{offs:512,len:64},ntp_hostname2:{offs:576,len:64},syslog_hostname1:{offs:640,len:64},__len:768};\n"
+    		"var data={serial:\"SN: 472 763 712\""
+    		",serialnum:472763712,"
+    		"mac:'00:a2:40:cd:2d:1c',"
+    		"ip:'192.168.0.34',"
+    		"gate:'192.168.0.1',"
+    		"mask:'255.255.255.0',"
+    		"dst:0,"
+    		"http_port:80,"
+    		"uname:\"visor34\","
+    	    "passwd:\"ping34\","
+    		"community_r:\"ping34\""
+    		",community_w:\"ping34\","
+    		"filt_ip1:'0.0.0.0',"
+    		"filt_mask1:'0.0.0.0',"
+    		"powersaving:0,"
+    		"trap_refresh:0,"
+    		"trap_ip1:'0.0.0.0',"
+			"trap_ip2:'0.0.0.0',"
+    		"ntp_ip1:'125.227.188.173',"
+    		"ntp_ip2:'0.0.0.0',"
+    		"timezone:3,"
+    		"syslog_ip1:'0.0.0.0',"
+    		"facility:16,severity:6,"
+    		"snmp_port:161,"
+    		"notification_email:"
+			",hostname:\"IOv3\","
+			"location:\"Birmingham\","
+			"contact:\"admin@company.com\","
+			"dns_ip1:'192.168.0.1',"
+			"trap_hostname1:\"\","
+			"trap_hostname2:\"\","
+			"ntp_hostname1:\"ntp.netping.ru\","
+			"ntp_hostname2:\"\","
+			"syslog_hostname1:\"\"};"
+    		"var data_rtc=1632334692;var uptime_100ms=69374927;var devname='NetPing IO 254R301';");
+
+
+//    sprintf(buf_temp,"var ip ='%d';\n",mac);
+//    strcat(buf,buf_temp);
+//    sprintf(buf_temp,"var mask = '%d';\n",mac);
+//    strcat(buf,buf_temp);
+//    sprintf(buf_temp,"var gate = '%d';\n",mac);
+//    strcat(buf,buf_temp);
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
 }
@@ -426,7 +466,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &np_html_uri_reboot_cgi);
         httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
       //  #if CONFIG_EXAMPLE_BASIC_AUTH
-        httpd_register_basic_auth(server);
+     //   httpd_register_basic_auth(server);
        // #endif
         return server;
     }
