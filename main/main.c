@@ -9,8 +9,10 @@
 #include "includes_base.h"
 #include "http_var.h"
 #include "update.h"
+#include "smtp.h"
+#include "LOGS.h"
 #define TAG_boot "main start"
-
+#include "app.h"
 
 
 #define DEVICE_USE_STATIC_IP	true
@@ -59,9 +61,9 @@ u16_t SNMP_SYSLOCATION_LEN = sizeof("Your Institute or Company");
 * ----- TODO: Global variables for SNMP Trap ^^^
 */
 char PAGE_BODY[256]={0};
-struct tm timeinfo;
+
 u16_t snmp_buffer = 64;
-TaskHandle_t xHandleNTP = NULL;
+//TaskHandle_t xHandleNTP = NULL;
 
 
 
@@ -147,11 +149,13 @@ if (FW_data.net.V_DHCP==0)
     time_t now;
       initialise_mdns();
       initialize_snmp();
-      gpio_set_direction(5, GPIO_MODE_OUTPUT);
-     // xTaskCreate(&mdns_example_task, "mdns_example_task", 2048, NULL, 5, NULL);
-      xTaskCreate(&vTaskNTP, "vTaskNTP", 2048, NULL, 10, &xHandleNTP);
-      xTaskCreate(&mdns_example_task, "mdns_example_task", 2048, NULL, 5, NULL);
-      xTaskCreate(&nvs_task, "nvs_task", 2048, NULL, 5, NULL);
+
+
+      xTaskCreate(&start_task, "start_task", 12048, NULL, 5, NULL);
+
+
+
+
       gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
            while(1) {
           	 time(&now);

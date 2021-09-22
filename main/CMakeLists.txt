@@ -1,5 +1,13 @@
                     
-idf_component_register(SRCS "main.c"  "mdns_task.c" "nvs_task.c" "http_var.c" "update.c"
+idf_component_register(SRCS
+ "main.c" 
+ "mdns_task.c"
+ "nvs_task.c"
+ "http_var.c"
+ "update.c"
+ "smtp.c"
+ "LOGS.c"
+ "app.c"
                     INCLUDE_DIRS ".")
 
 

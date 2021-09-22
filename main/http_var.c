@@ -29,12 +29,12 @@ static esp_err_t hello_get_handler(httpd_req_t *req)
    	httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Can't read FW version!");
    	return ESP_FAIL;
    }
-   char buf[128];
+//   char buf[128];
 //   sprintf(buf,
 //   		"var fwver='v%.31s'\n"
 //   		"var devname='Test Netping-on-ESP32';\n",
 //   		 app_desc.version);
-	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+//	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
 }
 
@@ -53,11 +53,18 @@ static esp_err_t cgi_get_handler(httpd_req_t *req)
     	httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Can't read FW version!");
     	return ESP_FAIL;
     }
-    char buf[128];
-//    sprintf(buf,
-//    		"var fwver='v%.31s'\n"
-//    		"var devname='Test Netping-on-ESP32';\n",
-//    		 app_desc.version);
+    char buf[2056];
+    int mac= 5566223;//344778899;
+    sprintf(buf,
+    		"var hostname='Project 110 device'\n"
+    		"var location ='Barnaul '\n"
+    		"var contact ='Ivano KA'\n"
+    		"var serialnum  ='123456 '\n"
+    		"var mac = '%d '\n"
+    		"var ip = '%h ';\n"
+    		"var mask = '%h ';\n"
+    		"var gate = '%h ';\n",
+			mac,mac,mac,mac);
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
 }
@@ -416,6 +423,7 @@ httpd_handle_t start_webserver(void)
         httpd_register_uri_handler(server, &np_html_uri_main);
         httpd_register_uri_handler(server, &np_html_uri_update_set);
         httpd_register_uri_handler(server, &np_html_uri_devname_cgi);
+        httpd_register_uri_handler(server, &np_html_uri_reboot_cgi);
         httpd_register_err_handler(server, HTTPD_404_NOT_FOUND, http_404_error_handler);
       //  #if CONFIG_EXAMPLE_BASIC_AUTH
         httpd_register_basic_auth(server);

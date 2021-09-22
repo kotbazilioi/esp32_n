@@ -164,9 +164,33 @@ esp_err_t np_http_devname_cgi(httpd_req_t *req)
     char buf[128];
     sprintf(buf,
     		"var fwver='v%.31s'\n"
-    		"var devname='Test Netping-on-ESP32';\n",
+    		"var devname='Test Netping-APP-ESP32';\n",
     		 app_desc.version);
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+	return ESP_OK;
+}
+esp_err_t np_http_reboot_cgi(httpd_req_t *req)
+{
+
+#warning "******** where is no error processing !  *******"
+	httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
+	httpd_resp_set_type(req, mime_js);
+
+    const esp_partition_t *running = esp_ota_get_running_partition();
+    esp_app_desc_t app_desc;
+    esp_err_t ret = esp_ota_get_partition_description(running, &app_desc);
+    if(ret != ESP_OK)
+    {
+    	httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Can't read FW version!");
+    	return ESP_FAIL;
+    }
+    esp_restart();
+//    char buf[128];
+//    sprintf(buf,
+//    		"var fwver='v%.31s'\n"
+//    		"var devname='Test Netping-APP-ESP32';\n",
+//    		 app_desc.version);
+///	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
 }
 
@@ -174,6 +198,13 @@ const httpd_uri_t np_html_uri_devname_cgi = {
 	"/devname.cgi",
 	HTTP_GET,
 	np_http_devname_cgi,
+	0
+};
+
+const httpd_uri_t np_html_uri_reboot_cgi = {
+	"/reboot.cgi",
+	HTTP_POST,
+	np_http_reboot_cgi,
 	0
 };
 

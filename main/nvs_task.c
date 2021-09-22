@@ -103,6 +103,10 @@ esp_err_t save_data_blok(void)
 
     err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_TO),FW_data.smtp.V_EMAIL_TO,32);
 
+    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_DEF_EMAIL),FW_data.smtp.V_FLAG_DEF_EMAIL);
+
+    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_EN_EMAIL),FW_data.smtp.V_FLAG_EN_EMAIL);
+
     err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.sys.V_GEOM_NAME),FW_data.sys.V_GEOM_NAME,88);
 
     err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.sys.V_ID_MAC), FW_data.sys.V_ID_MAC,8);
@@ -242,6 +246,10 @@ esp_err_t load_data_blok(void)
 
     err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_TO),FW_data.smtp.V_EMAIL_TO,32);
 
+    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_DEF_EMAIL),FW_data.smtp.V_FLAG_DEF_EMAIL);
+
+    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_EN_EMAIL),FW_data.smtp.V_FLAG_EN_EMAIL);
+
     err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.sys.V_GEOM_NAME),FW_data.sys.V_GEOM_NAME,88);
 
     err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.sys.V_ID_MAC), FW_data.sys.V_ID_MAC,8);
@@ -291,6 +299,8 @@ esp_err_t load_data_blok(void)
       err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_PAUSE_RESET_TO_REPID),FW_data.wdt.V_PAUSE_RESET_TO_REPID);
 
       err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_MAX_RESEND_PACET_RESET),FW_data.wdt.V_MAX_RESEND_PACET_RESET);
+
+
 
       return err;
 }
@@ -371,8 +381,13 @@ uint8_t load_def_data(void)
      FW_data.net.V_IP_NTP2[2]=168;
      FW_data.net.V_IP_NTP2[3]=1;
      FW_data.net.V_PORT_NTP  = 123;
+
+
+
+
+
      memset((uint8_t*)&FW_data.smtp.V_NAME_SMTP,0,32);
-     memcpy((uint8_t*)&FW_data.smtp.V_NAME_SMTP, (uint8_t *)"Name SNMP Server",sizeof("Name SNMP Server"));
+     memcpy((uint8_t*)&FW_data.smtp.V_NAME_SMTP, (uint8_t *)"Name SMTP ",sizeof("Name SMTP"));
      FW_data.snmp.V_PORT_SNMP = 162;
      memset((uint8_t*)&FW_data.smtp.V_LOGIN_SMTP,0,32);
      memcpy((uint32_t*)&FW_data.smtp.V_LOGIN_SMTP, (uint32_t *)"admin", 5);
@@ -380,14 +395,18 @@ uint8_t load_def_data(void)
      memcpy((uint32_t*)&FW_data.smtp.V_PASSWORD_SMTP, (uint32_t *)"admin", 5);
      FW_data.smtp.V_FLAG_EMAIL_PORT=25;
 
+     FW_data.smtp.V_FLAG_DEF_EMAIL=1;
+     FW_data.smtp.V_FLAG_EN_EMAIL=1;
+
+
      memset((uint8_t*)&FW_data.smtp.V_EMAIL_ADDR,0,32);
      //memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_ADDR, (uint32_t *)"", 5);
 
      memset((uint8_t*)&FW_data.smtp.V_EMAIL_FROM,0,32);
-    // memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_FROM, (uint32_t *)"", 5);
+     memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_FROM, (uint32_t *)"dkst59@smtp.netping.ru", sizeof("dkst59@smtp.netping.ru"));
 
      memset((uint8_t*)&FW_data.smtp.V_EMAIL_TO,0,32);
-    // memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_TO, (uint32_t *)"", 5);
+     memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_TO, (uint32_t *)"kotbazilioi@ngs.ru", sizeof("kotbazilioi@ngs.ru"));
 
 
 
@@ -457,6 +476,7 @@ uint8_t load_def_data(void)
        FW_data.wdt.V_TIME_RESET_PULSE=12;
        FW_data.wdt.V_PAUSE_RESET_TO_REPID=15;
        FW_data.wdt.V_MAX_RESEND_PACET_RESET=0;
+
       save_data_blok();
 
 
