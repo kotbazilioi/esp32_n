@@ -16,6 +16,8 @@ extern const httpd_uri_t np_html_uri_update_set;
 extern const httpd_uri_t np_html_uri_fwupdate_cgi;
 extern const httpd_uri_t np_html_uri_devname_cgi;
 extern const httpd_uri_t np_html_uri_reboot_cgi;
+extern const httpd_uri_t np_html_uri_update;
+extern const httpd_uri_t np_html_uri_setings;
 
 
 

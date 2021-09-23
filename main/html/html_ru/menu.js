@@ -1,10 +1,10 @@
 /////// debuggg usually this comes from devname.cgi //////
-var devname='Test Netping-on-ESP32';
+//var devname='Test Netping-on-ESP32';
 ///var fwver='v32.1.1.A-1';
-var hwmodel=32;
+///var hwmodel=32;
 var hwver=1;
-var sys_name='TestESP';
-var sys_location='Siberia';
+///var sys_name='TestESP';
+///var sys_location='Siberia';
 
 
 function menu(page_name)
@@ -21,14 +21,14 @@ l+=sys_location.replace("<","&lt;");
 l+='</table></div>';
 l+='<div id="menu">';
 l+=[
-'<a href="index.html">Главная</a>',
-'<a href="settings.html">Настройки</a>',
+'<a href="index.html">Р“Р»Р°РІРЅР°СЏ</a>',
+'<a href="settings.html">РќР°СЃС‚СЂРѕР№РєРё</a>',
 '<a href="sendmail.html">e-mail</a>',
-'<a href="io.html">Ввод-типа-вывод</a>',
-////'<a href="wdog.html">Сторож</a>',
-////'<a href="logic.html">Логика</a>',
-'<a href="update.html">Прошивка</a>',
-'<a href="log.html">Журнал</a>'
+'<a href="io.html">Р’РІРѕРґ-РІС‹РІРѕРґ</a>',
+////'<a href="wdog.html">РЎС‚РѕСЂРѕР¶</a>',
+////'<a href="logic.html">Р›РѕРіРёРєР°</a>',
+'<a href="update.html">РџСЂРѕС€РёРІРєР°</a>',
+'<a href="log.html">Р–СѓСЂРЅР°Р»</a>'
 ].join(' | ');
 l+='</div>';
 document.write(l);

@@ -9,10 +9,15 @@
 #include "app.h"
 #include "sntp_task.h"
 #include "smtp.h"
+#include "tcpip_adapter.h"
 TaskHandle_t xHandleNTP = NULL;
 SemaphoreHandle_t S_gpio_port1 = NULL;
 SemaphoreHandle_t S_gpio_port2 = NULL;
 uint8_t port_data[2];
+uint8_t chipid[6];
+uint32_t  serial_id;
+tcpip_adapter_ip_info_t ipInfo;
+esp_netif_dns_type_t dns_info;
 #define PORT_O1 16
 #define PORT_O2 6
 void gpio1_task(void *pvParameters)
@@ -66,6 +71,34 @@ void gpio2_task(void *pvParameters)
 
  void start_task(void *pvParameters)
  {
+
+
+	 esp_mac_type_t eth = 3;
+	 esp_read_mac(chipid,eth);
+	 serial_id = (chipid[3]<<24)|(chipid[2]<<16)|(chipid[1]<<8)|(chipid[0]);
+	 tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_ETH, &ipInfo);
+	 FW_data.net.V_IP_CONFIG[0]=(0xff&(ipInfo.ip.addr));
+	 FW_data.net.V_IP_CONFIG[1]=(0xff&(ipInfo.ip.addr>>8));
+	 FW_data.net.V_IP_CONFIG[2]=(0xff&(ipInfo.ip.addr>>16));
+	 FW_data.net.V_IP_CONFIG[3]=(0xff&(ipInfo.ip.addr>>24));
+
+	 FW_data.net.V_IP_MASK[0]=(0xff&(ipInfo.netmask.addr));
+     FW_data.net.V_IP_MASK[1]=(0xff&(ipInfo.netmask.addr>>8));
+	 FW_data.net.V_IP_MASK[2]=(0xff&(ipInfo.netmask.addr>>16));
+	 FW_data.net.V_IP_MASK[3]=(0xff&(ipInfo.netmask.addr>>24));
+
+
+	 FW_data.net.V_IP_GET[0]=(0xff&(ipInfo.gw.addr));
+	 FW_data.net.V_IP_GET[1]=(0xff&(ipInfo.gw.addr>>8));
+	 FW_data.net.V_IP_GET[2]=(0xff&(ipInfo.gw.addr>>16));
+	 FW_data.net.V_IP_GET[3]=(0xff&(ipInfo.gw.addr>>24));
+
+	 tcpip_adapter_get_dns_info(TCPIP_ADAPTER_IF_ETH, 0, &dns_info) ;
+
+	 FW_data.net.V_IP_DNS[0]=(0xff&(dns_info));
+     FW_data.net.V_IP_DNS[1]=(0xff&(dns_info>>8));
+	 FW_data.net.V_IP_DNS[2]=(0xff&(dns_info>>16));
+	 FW_data.net.V_IP_DNS[3]=(0xff&(dns_info>>24));
 
 	 flag_global_save_log = xSemaphoreCreateMutex ();
 	 S_gpio_port1 = xSemaphoreCreateMutex ();

@@ -161,11 +161,10 @@ esp_err_t np_http_devname_cgi(httpd_req_t *req)
     	httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Can't read FW version!");
     	return ESP_FAIL;
     }
-    char buf[128];
+    char buf[256];
     sprintf(buf,
-    		"var fwver='v%.31s'\n"
-    		"var devname='Test Netping-APP-ESP32';\n",
-    		 app_desc.version);
+    		"var fwver='v%.31s'\n var devname='%s';",
+    		 app_desc.version,FW_data.sys.V_Name_dev);
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
 }
@@ -208,11 +207,24 @@ const httpd_uri_t np_html_uri_reboot_cgi = {
 	0
 };
 
+
+const httpd_uri_t np_html_uri_update = {
+	"/update.html",
+	HTTP_GET,
+	np_http_get_handler,
+	(void*)&_html_page_update_html
+};
 const httpd_uri_t np_html_uri_main = {
 	"/",
 	HTTP_GET,
 	np_http_get_handler,
-	(void*)&_html_page_update_html
+	(void*)&_html_page_index_html
+};
+const httpd_uri_t np_html_uri_setings = {
+	"/settings.html",
+	HTTP_GET,
+	np_http_get_handler,
+	(void*)&_html_page_settings_html
 };
 
 

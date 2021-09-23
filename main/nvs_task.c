@@ -425,7 +425,7 @@ uint8_t load_def_data(void)
     FW_data.sys.V_ID_MAC[7] =    0xDC;
     memset((uint8_t*)&FW_data.sys.V_Name_dev,0,85);
     memset((uint8_t*)&FW_data.sys.V_CALL_DATA,0,85);
-    memcpy((uint8_t*)&FW_data.sys.V_Name_dev,(uint8_t *)"DKSF 59",7);
+    memcpy((uint8_t*)&FW_data.sys.V_Name_dev,(uint8_t *)"DKSF 110",8);
     memcpy((uint8_t*)&FW_data.sys.V_CALL_DATA,(uint8_t *)"netping.ru",10);
 
 

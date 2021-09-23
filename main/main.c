@@ -117,7 +117,7 @@ void app_main(void)
 if (FW_data.net.V_DHCP==0)
 {
 	tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_ETH); // Don't run a DHCP client
-	tcpip_adapter_ip_info_t ipInfo;
+
 
 //	inet_pton(AF_INET, DEVICE_IP, &ipInfo.ip);
 //	inet_pton(AF_INET, DEVICE_GW, &ipInfo.gw);
@@ -145,6 +145,7 @@ if (FW_data.net.V_DHCP==0)
 
 
     /* Start the server for the first time */
+
     server = start_webserver();
     time_t now;
       initialise_mdns();
