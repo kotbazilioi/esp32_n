@@ -230,6 +230,7 @@ extern FW_data_t FW_data;
 
 void nvs_task(void *pvParameters);
 uint8_t load_struct_flash_data (void);
+esp_err_t save_data_blok(void);
 
 
 

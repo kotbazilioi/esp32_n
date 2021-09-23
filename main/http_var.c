@@ -41,11 +41,22 @@ static esp_err_t hello_get_handler(httpd_req_t *req) {
 
 
 static esp_err_t sse_get_cgi_handler(httpd_req_t *req) {
-#warning "******** where is no error processing !  *******"
-	//httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
 	httpd_resp_set_type(req, mime_sse);
 	httpd_resp_set_hdr(req, "Connection", "Close");
-
+	const esp_partition_t *running = esp_ota_get_running_partition();
+	char buf[128];
+	char buf_temp[128];// "retry: 2000\n\nevent: sse_ping.data: -\n\nevent: sse_ping.data: -\n\n"  unsigned n = sprintf(s,"event: io_state\n""data: %u\n\n", io_get_state_bitmap());
+	sprintf(buf,"retry: 2000\n\n");
+	//sprintf(buf_temp,"event: sse_ping\n""data: -\n\n");
+	sprintf(buf,"event: io_state\n""data: %d%d\n\n",IN_PORT[0],IN_PORT[1]);
+	strcat(buf,buf_temp);
+	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+	return ESP_OK;
+}
+static esp_err_t log_get_cgi_handler(httpd_req_t *req) {
+#warning "******** where is no error processing !  *******"
+	httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
+	httpd_resp_set_type(req, mime_js);
 
 	const esp_partition_t *running = esp_ota_get_running_partition();
 	esp_app_desc_t app_desc;
@@ -56,32 +67,30 @@ static esp_err_t sse_get_cgi_handler(httpd_req_t *req) {
 		return ESP_FAIL;
 	}
 	char buf[1024];
-//	char buf_temp[256];
-	sprintf(buf,"retry: 2000\n\nevent: sse_ping.data: -\n\nevent: sse_ping.data: -\n\n");
+	char buf_temp[256];
+	sprintf(buf,"var sys_name='%s';",FW_data.sys.V_Name_dev);
 //	sprintf(buf,"var packfmt={name:{offs:0,len:32},direction:{offs:42,len:1},delay:{offs:40,len:2},level_out:{offs:43,len:1},pulse_dur:{offs:45,len:1},__len:48};");
 //	sprintf(buf_temp,"var data_status=15;");
 //	strcat(buf,buf_temp);
 //	sprintf(buf_temp," var data=[{name:\"IO_port1\",direction:0,delay:500,level_out:1,pulse_dur:10,level:1,nf_legend_high:\"\",nf_legend_low:\"\",colors:82},");
 //	strcat(buf,buf_temp);
 //	           sprintf(buf_temp,"{name:\"IO_port2\",direction:0,delay:500,level_out:0,pulse_dur:10,level:1,nf_legend_high:\"\",nf_legend_low:\"\",colors:82}];");
-//	strcat(buf,buf_temp);
-//	sprintf(buf_temp,"var devname='%s';",FW_data.sys.V_Name_dev);
-//	strcat(buf,buf_temp);
-//	sprintf(buf_temp,"var fwver='v110.0.0';");
-//	strcat(buf,buf_temp);
-//    sprintf(buf_temp,"var sys_location='Barnaul';");
-//	strcat(buf,buf_temp);
-//	sprintf(buf_temp,"var hwmodel=110;");
-//	strcat(buf,buf_temp);
-//	sprintf(buf_temp,"var hwver=1;");
-//	strcat(buf,buf_temp);
-//	sprintf(buf_temp,"var sys_name='%s';",FW_data.sys.V_Name_dev);
-//	strcat(buf,buf_temp);
+    sprintf(buf_temp,"var sys_location='%s';",FW_data.sys.V_Name_dev);
+	strcat(buf,buf_temp);
+	sprintf(buf_temp,"var devname='%s';",FW_data.sys.V_Name_dev);
+	strcat(buf,buf_temp);
+	sprintf(buf_temp,"var fwver='v110.0.0';");
+	strcat(buf,buf_temp);
+	sprintf(buf_temp,"var hwmodel=110;");
+	strcat(buf,buf_temp);
+	sprintf(buf_temp,"var hwver=1;");
+	strcat(buf,buf_temp);
+	sprintf(buf_temp,"var sys_name='%s';",FW_data.sys.V_Name_dev);
+	strcat(buf,buf_temp);
 
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
 }
-
 static esp_err_t io_get_cgi_handler(httpd_req_t *req) {
 #warning "******** where is no error processing !  *******"
 	httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
@@ -288,28 +297,43 @@ static esp_err_t ip_set_post_handler(httpd_req_t *req) {
 			return ESP_FAIL;
 		}
 
-		/* Send back the same data */
-		httpd_resp_send_chunk(req, buf, ret);
-		remaining -= ret;
+		FW_data.net.V_IP_CONFIG[0] =buf[6];
+		FW_data.net.V_IP_CONFIG[1] =buf[7];
+		FW_data.net.V_IP_CONFIG[2] =buf[8];
+		FW_data.net.V_IP_CONFIG[3] =buf[9];
 
-//        /* Log data received */
-//        ESP_LOGI(TAG_http, "=========== RECEIVED DATA ==========");
-//        ESP_LOGI(TAG_http, "%.*s", ret, buf);
-//        ESP_LOGI(TAG_http, "====================================");
+		FW_data.net.V_IP_GET[0] =buf[10];
+		FW_data.net.V_IP_GET[1] =buf[11];
+		FW_data.net.V_IP_GET[2] =buf[12];
+		FW_data.net.V_IP_GET[3] =buf[13];
 
-		err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
-		if (err != ESP_OK)
-			printf("Error (%s) saving restart counter to NVS!\n",
-					esp_err_to_name(err));
-		err = nvs_set_blob(my_handle, "ip_set", buf, req->content_len);
-		if (err != ESP_OK)
-			printf("Error (%s) saving restart counter to NVS!\n",
-					esp_err_to_name(err));
-		err = nvs_commit(my_handle);
-		if (err != ESP_OK)
-			printf("Error (%s) saving restart counter to NVS!\n",
-					esp_err_to_name(err));
-		nvs_close(my_handle);
+		uint32_t mask_temp = 0xffffffff<<(32-buf[14]);
+
+		FW_data.net.V_IP_MASK[3] =mask_temp&0x000000ff;
+		FW_data.net.V_IP_MASK[2] =0x000000ff&(mask_temp>>8);
+		FW_data.net.V_IP_MASK[1] =0x000000ff&(mask_temp>>16);
+		FW_data.net.V_IP_MASK[0] =0x000000ff&(mask_temp>>24);
+		save_data_blok();
+
+//		/* Send back the same data */
+//		httpd_resp_send_chunk(req, buf, ret);
+//		remaining -= ret;
+//
+////        /* Log data received */
+////        ESP_LOGI(TAG_http, "=========== RECEIVED DATA ==========");
+////        ESP_LOGI(TAG_http, "%.*s", ret, buf);
+////        ESP_LOGI(TAG_http, "====================================");
+//
+//		err = nvs_open(STORAGE_NAMESPACE, NVS_READWRITE, &my_handle);
+//		err = nvs_set_blob(my_handle, "ip_set", buf, req->content_len);
+//		if (err != ESP_OK)
+//			printf("Error (%s) saving restart counter to NVS!\n",
+//					esp_err_to_name(err));
+//		err = nvs_commit(my_handle);
+//		if (err != ESP_OK)
+//			printf("Error (%s) saving restart counter to NVS!\n",
+//					esp_err_to_name(err));
+//		nvs_close(my_handle);
 	}
 
 	// End response
@@ -508,6 +532,11 @@ static const httpd_uri_t io_get_cgi = { .uri = "/io_get.cgi", .method =
 		.handler = io_get_cgi_handler,
 		.user_ctx = 0
 		};
+static const httpd_uri_t log_get_cgi = { .uri = "/log.cgi", .method =
+		HTTP_GET,
+		.handler = log_get_cgi_handler,
+		.user_ctx = 0
+		};
 static const httpd_uri_t sse_get_cgi = { .uri = "/sse.cgi", .method =
 		HTTP_GET,
 		.handler = sse_get_cgi_handler,
@@ -553,6 +582,7 @@ httpd_handle_t start_webserver(void) {
 		httpd_register_uri_handler(server, &eeprom_clone_get);
 		httpd_register_uri_handler(server, &setup_get_cgi);
 		httpd_register_uri_handler(server, &io_get_cgi);
+		httpd_register_uri_handler(server, &log_get_cgi);
 		httpd_register_uri_handler(server, &sse_get_cgi);
 
 		for (int i = 0; i < NP_HTML_HEADERS_NUMBER; ++i) {

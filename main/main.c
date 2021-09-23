@@ -94,7 +94,7 @@ void app_main(void)
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-
+    nvs_flash_init();
     load_struct_flash_data();
 
 
@@ -178,6 +178,6 @@ if (FW_data.net.V_DHCP==0)
 
 const __attribute__((used)) __attribute__((section(".rodata_custom_desc"))) char updater_js[]=
 		"75hd95kuDbvf8y3k"
-		"function fw_is_compatible(oldver){return oldver.startsWith('v110.');}/* **************************** */"
+		"function fw_is_compatible(oldver){return oldver.startsWith('v32.');}/* **************************** */"
 		"48fe99uA6k88eSDa";
 

@@ -18,14 +18,21 @@ uint8_t chipid[6];
 uint32_t  serial_id;
 tcpip_adapter_ip_info_t ipInfo;
 esp_netif_dns_type_t dns_info;
+uint8_t IN_PORT[2]={0};
 #define PORT_O1 16
 #define PORT_O2 6
+
+
+#define PORT_I0 34
+#define PORT_I1 32
+
 void gpio1_task(void *pvParameters)
 {
 	gpio_set_direction(PORT_O2, GPIO_MODE_OUTPUT);
+	gpio_set_direction(PORT_I0, GPIO_MODE_INPUT);
 	while(1)
 		{
-
+		IN_PORT[0]=gpio_get_level(PORT_I0);
 		if( S_gpio_port1 != NULL )
 				    {
 
@@ -47,9 +54,10 @@ void gpio1_task(void *pvParameters)
 void gpio2_task(void *pvParameters)
 {
 	gpio_set_direction(PORT_O2, GPIO_MODE_OUTPUT);
+	gpio_set_direction(PORT_I1, GPIO_MODE_INPUT);
 	while(1)
 		{
-
+		IN_PORT[1]=gpio_get_level(PORT_I1);
 		if( S_gpio_port2 != NULL )
 				    {
 

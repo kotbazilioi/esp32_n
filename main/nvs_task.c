@@ -19,10 +19,15 @@ nvs_handle_t nvs_data_handle;
 
 esp_err_t save_data_blok(void)
 {
-	esp_err_t err=0;
+
+	 esp_err_t err =nvs_open("storage", NVS_READWRITE, &nvs_data_handle);
+
+
+
 	err = nvs_set_blob(nvs_data_handle,get_name(FW_data.net.V_IP_CONFIG),FW_data.net.V_IP_CONFIG,4);
-
-
+	  printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+	err=nvs_set_u8(nvs_data_handle,get_name(FW_data.sys.LOAD_DEF_FLAG),FW_data.sys.LOAD_DEF_FLAG);
+	  printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 	err =err|nvs_set_blob(nvs_data_handle,get_name(FW_data.net.V_IP_MASK),FW_data.net.V_IP_MASK,4);
 
 
@@ -157,13 +162,24 @@ esp_err_t save_data_blok(void)
 
       err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_MAX_RESEND_PACET_RESET),FW_data.wdt.V_MAX_RESEND_PACET_RESET);
 
+
+      printf("Committing updates in NVS ... ");
+      err = nvs_commit(nvs_data_handle);
+      printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+      nvs_close(nvs_data_handle);
+
+
       return err;
 }
 esp_err_t load_data_blok(void)
 {
-	esp_err_t err=0;
-	err = nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_CONFIG),FW_data.net.V_IP_CONFIG,4);
 
+	 esp_err_t err =nvs_open("storage", NVS_READWRITE, &nvs_data_handle);
+
+
+
+	err = nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_CONFIG),FW_data.net.V_IP_CONFIG,4);
+	err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.sys.LOAD_DEF_FLAG),FW_data.sys.LOAD_DEF_FLAG);
 
 	err =err|nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_MASK),FW_data.net.V_IP_MASK,4);
 
@@ -300,7 +316,10 @@ esp_err_t load_data_blok(void)
 
       err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_MAX_RESEND_PACET_RESET),FW_data.wdt.V_MAX_RESEND_PACET_RESET);
 
-
+      printf("Committing updates in NVS ... ");
+      err = nvs_commit(nvs_data_handle);
+      printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+      nvs_close(nvs_data_handle);
 
       return err;
 }
@@ -486,11 +505,20 @@ uint8_t load_def_data(void)
 
 uint8_t load_struct_flash_data (void)
 {
-char * name =get_name(FW_data.sys.LOAD_DEF_FLAG);
-   esp_err_t err=nvs_get_u8(nvs_data_handle,name, &FW_data.sys.LOAD_DEF_FLAG);
-   err = nvs_open("storage", NVS_READWRITE, &nvs_data_handle);
+ //  char * name =get_name(FW_data.sys.LOAD_DEF_FLAG);
+   esp_err_t err =nvs_open("storage", NVS_READWRITE, &nvs_data_handle);
+
+   err=nvs_get_u8(nvs_data_handle,get_name(FW_data.sys.LOAD_DEF_FLAG), (uint8_t*)&(FW_data.sys.LOAD_DEF_FLAG));
+
+   printf("Committing updates in NVS ... ");
+   err = nvs_commit(nvs_data_handle);
+
+   printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
+   nvs_close(nvs_data_handle);
+
    if ((FW_data.sys.LOAD_DEF_FLAG==0)||(err!=ESP_OK))
     {
+	 printf("Run load_def_data() - settings default load \n\r");
      return  load_def_data();
     }
    else
@@ -499,10 +527,7 @@ char * name =get_name(FW_data.sys.LOAD_DEF_FLAG);
        return load_data_blok();
     }
 
-   printf("Committing updates in NVS ... ");
-   err = nvs_commit(nvs_data_handle);
-   printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
-   nvs_close(nvs_data_handle);
+
 }
 
 
@@ -511,7 +536,7 @@ char * name =get_name(FW_data.sys.LOAD_DEF_FLAG);
 void nvs_task(void *pvParameters)
 {
 
-	esp_err_t err;// = nvs_flash_init();
+//	esp_err_t err;// = nvs_flash_init();
 //if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
 //    // NVS partition was truncated and needs to be erased
 //    // Retry nvs_flash_init
@@ -521,9 +546,9 @@ void nvs_task(void *pvParameters)
 //ESP_ERROR_CHECK( err );
 
 // Open
-	  int32_t restart_counter=0; // value will default to 0, if not set yet in NVS
+	//  int32_t restart_counter=0; // value will default to 0, if not set yet in NVS
 	//  int32_t counter;
-	  char* name_count =  get_name(FW_data.net.V_IP_CONFIG);
+//	  char* name_count =  get_name(FW_data.net.V_IP_CONFIG);
 
 
 
