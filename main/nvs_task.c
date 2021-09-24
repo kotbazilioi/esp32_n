@@ -20,149 +20,149 @@ nvs_handle_t nvs_data_handle;
 esp_err_t save_data_blok(void)
 {
 
-	 esp_err_t err =nvs_open("storage", NVS_READWRITE, &nvs_data_handle);
+	 esp_err_t  err =nvs_open_from_partition("nvs","storage", NVS_READWRITE, &nvs_data_handle);
 
 
 
-	err = nvs_set_blob(nvs_data_handle,get_name(FW_data.net.V_IP_CONFIG),FW_data.net.V_IP_CONFIG,4);
-	  printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
-	err=nvs_set_u8(nvs_data_handle,get_name(FW_data.sys.LOAD_DEF_FLAG),FW_data.sys.LOAD_DEF_FLAG);
-	  printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
-	err =err|nvs_set_blob(nvs_data_handle,get_name(FW_data.net.V_IP_MASK),FW_data.net.V_IP_MASK,4);
+	err = nvs_set_blob(nvs_data_handle,get_name(V_IP_CONFIG),FW_data.net.V_IP_CONFIG,4);
 
+	err=nvs_set_u8(nvs_data_handle,get_name(LOAD_DEF_FLAG),FW_data.sys.LOAD_DEF_FLAG);
 
-	err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.net.V_IP_GET),FW_data.net.V_IP_GET,4);
+	err =err|nvs_set_blob(nvs_data_handle,get_name(V_IP_MASK),FW_data.net.V_IP_MASK,4);
 
-	err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.net.V_DHCP),FW_data.net.V_DHCP);
-	err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.net.V_IP_DNS),FW_data.net.V_IP_DNS,4);
 
-	err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.sys.V_FW1_VER),FW_data.sys.V_FW1_VER,4);
+	err=err|nvs_set_blob(nvs_data_handle,get_name(V_IP_GET),FW_data.net.V_IP_GET,4);
 
-	err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.sys.V_FW1_LEN),FW_data.sys.V_FW1_LEN);
+	err=err|nvs_set_u8(nvs_data_handle,get_name(V_DHCP),FW_data.net.V_DHCP);
+	err=err|nvs_set_blob(nvs_data_handle,get_name(V_IP_DNS),FW_data.net.V_IP_DNS,4);
 
-	err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.sys.V_BOOT_VER),FW_data.sys.V_BOOT_VER);
+	err=err|nvs_set_blob(nvs_data_handle,get_name(V_FW1_VER),FW_data.sys.V_FW1_VER,4);
 
-	err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.http.V_LOGIN),FW_data.http.V_LOGIN,16);
+	err=err|nvs_set_u32(nvs_data_handle,get_name(V_FW1_LEN),FW_data.sys.V_FW1_LEN);
 
-	err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.http.V_PASSWORD),FW_data.http.V_PASSWORD,16);
+	err=err|nvs_set_u32(nvs_data_handle,get_name(V_BOOT_VER),FW_data.sys.V_BOOT_VER);
 
-	err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.http.V_WEB_PORT),FW_data.http.V_WEB_PORT);
+	err=err|nvs_set_blob(nvs_data_handle,get_name(V_LOGIN),FW_data.http.V_LOGIN,16);
 
-	err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.snmp.V_PORT_SNMP),FW_data.snmp.V_PORT_SNMP);
+	err=err|nvs_set_blob(nvs_data_handle,get_name(V_PASSWORD),FW_data.http.V_PASSWORD,16);
 
-	err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.net.V_HTTP_IP),FW_data.net.V_HTTP_IP);
+	err=err|nvs_set_u16(nvs_data_handle,get_name(V_WEB_PORT),FW_data.http.V_WEB_PORT);
 
-	err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.http.V_ON_MESS),FW_data.http.V_ON_MESS,32);
+	err=err|nvs_set_u16(nvs_data_handle,get_name(V_PORT_SNMP),FW_data.snmp.V_PORT_SNMP);
 
-	err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.http.V_OFF_MESS),FW_data.http.V_OFF_MESS,32);
+	err=err|nvs_set_u16(nvs_data_handle,get_name(V_HTTP_IP),FW_data.net.V_HTTP_IP);
 
-	err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.http.V_FLAG_EN_MAN),FW_data.http.V_FLAG_EN_MAN);
+	err=err|nvs_set_blob(nvs_data_handle,get_name(V_ON_MESS),FW_data.http.V_ON_MESS,32);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.rasp.V_FLAG_EN_RASP),FW_data.rasp.V_FLAG_EN_RASP);
+	err=err|nvs_set_blob(nvs_data_handle,get_name(V_OFF_MESS),FW_data.http.V_OFF_MESS,32);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.http.V_FLAG_EN_WEB),FW_data.http.V_FLAG_EN_WEB);
+	err=err|nvs_set_u8(nvs_data_handle,get_name(V_FLAG_EN_MAN),FW_data.http.V_FLAG_EN_MAN);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.wdt.V_FLAG_EN_WATCHMAN),FW_data.wdt.V_FLAG_EN_WATCHMAN);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(V_FLAG_EN_RASP),FW_data.rasp.V_FLAG_EN_RASP);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(V_FLAG_EN_WEB),FW_data.http.V_FLAG_EN_WEB);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(EN_WATCHMAN),FW_data.wdt.V_FLAG_EN_WATCHMAN);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
 
-    err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.rasp.V_IP_PING_TIME),FW_data.rasp.V_IP_PING_TIME);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
 
-    err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.rasp.V_TIME_SEND),FW_data.rasp.V_TIME_SEND);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
 
-    err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.rasp.V_TIME_READ),FW_data.rasp.V_TIME_READ);
+    err=err|nvs_set_u32(nvs_data_handle,get_name(V_IP_PING_TIME),FW_data.rasp.V_IP_PING_TIME);
 
-    err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.rasp.V_N_RERID),FW_data.rasp.V_N_RERID);
+    err=err|nvs_set_u32(nvs_data_handle,get_name(V_TIME_SEND),FW_data.rasp.V_TIME_SEND);
 
-    err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.rasp.V_TIME_RESET),FW_data.rasp.V_TIME_RESET);
+    err=err|nvs_set_u32(nvs_data_handle,get_name(V_TIME_READ),FW_data.rasp.V_TIME_READ);
 
-    err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.rasp.V_DELAY_PING),FW_data.rasp.V_DELAY_PING);
+    err=err|nvs_set_u32(nvs_data_handle,get_name(V_N_RERID),FW_data.rasp.V_N_RERID);
 
-    err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.rasp.V_SOST_RESET),FW_data.rasp.V_SOST_RESET);
+    err=err|nvs_set_u32(nvs_data_handle,get_name(V_TIME_RESET),FW_data.rasp.V_TIME_RESET);
 
-    err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_N_PING),FW_data.wdt.V_N_PING);
+    err=err|nvs_set_u32(nvs_data_handle,get_name(V_DELAY_PING),FW_data.rasp.V_DELAY_PING);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.net.V_IP_NTP1),FW_data.net.V_IP_NTP1,4);
+    err=err|nvs_set_u32(nvs_data_handle,get_name(V_SOST_RESET),FW_data.rasp.V_SOST_RESET);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.net.V_IP_NTP2),FW_data.net.V_IP_NTP2,4);
+    err=err|nvs_set_u16(nvs_data_handle,get_name(V_N_PING),FW_data.wdt.V_N_PING);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.net.V_PORT_NTP),FW_data.net.V_PORT_NTP);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_IP_NTP1),FW_data.net.V_IP_NTP1,4);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_NAME_SMTP),FW_data.smtp.V_NAME_SMTP,32);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_IP_NTP2),FW_data.net.V_IP_NTP2,4);
 
-    err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.snmp.V_PORT_SNMP),FW_data.snmp.V_PORT_SNMP);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(V_PORT_NTP),FW_data.net.V_PORT_NTP);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_LOGIN_SMTP),FW_data.smtp.V_LOGIN_SMTP,32);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_NAME_SMTP),FW_data.smtp.V_NAME_SMTP,32);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_PASSWORD_SMTP),FW_data.smtp.V_PASSWORD_SMTP,32);
+    err=err|nvs_set_u16(nvs_data_handle,get_name(V_PORT_SNMP),FW_data.snmp.V_PORT_SNMP);
 
-    err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_EMAIL_PORT),FW_data.smtp.V_FLAG_EMAIL_PORT);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_LOGIN_SMTP),FW_data.smtp.V_LOGIN_SMTP,32);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_ADDR),FW_data.smtp.V_EMAIL_ADDR,32);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_PASSWORD_SMTP),FW_data.smtp.V_PASSWORD_SMTP,32);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_FROM),FW_data.smtp.V_EMAIL_FROM,32);
+    err=err|nvs_set_u16(nvs_data_handle,get_name(EMAIL_PORT),FW_data.smtp.V_FLAG_EMAIL_PORT);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_TO),FW_data.smtp.V_EMAIL_TO,32);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_EMAIL_ADDR),FW_data.smtp.V_EMAIL_ADDR,32);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_DEF_EMAIL),FW_data.smtp.V_FLAG_DEF_EMAIL);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_EMAIL_FROM),FW_data.smtp.V_EMAIL_FROM,32);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_EN_EMAIL),FW_data.smtp.V_FLAG_EN_EMAIL);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_EMAIL_TO),FW_data.smtp.V_EMAIL_TO,32);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name(FW_data.sys.V_GEOM_NAME),FW_data.sys.V_GEOM_NAME,88);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(DEF_EMAIL),FW_data.smtp.V_FLAG_DEF_EMAIL);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.sys.V_ID_MAC), FW_data.sys.V_ID_MAC,8);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(EN_EMAIL),FW_data.smtp.V_FLAG_EN_EMAIL);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.sys.V_Name_dev), FW_data.sys.V_Name_dev,88);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_GEOM_NAME),FW_data.sys.V_GEOM_NAME,88);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.sys.V_CALL_DATA),FW_data.sys.V_CALL_DATA,88);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_ID_MAC), FW_data.sys.V_ID_MAC,8);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.sys.V_Name_dev),FW_data.sys.V_Name_dev,88);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_Name_dev), FW_data.sys.V_Name_dev,88);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.sys.V_CALL_DATA),FW_data.sys.V_CALL_DATA,16);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_CALL_DATA),FW_data.sys.V_CALL_DATA,88);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.net.V_IP_SYSL),FW_data.net.V_IP_SYSL,4);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_Name_dev),FW_data.sys.V_Name_dev,88);
 
-    err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.net.V_IP_SNMP),FW_data.net.V_IP_SNMP,4);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_CALL_DATA),FW_data.sys.V_CALL_DATA,16);
 
-    err=err|nvs_set_u32(nvs_data_handle,get_name(FW_data.sys.V_TYPE_OUT),FW_data.sys.V_TYPE_OUT);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_IP_SYSL),FW_data.net.V_IP_SYSL,4);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.sys.V_NTP_CIRCL),FW_data.sys.V_NTP_CIRCL);
+    err=err|nvs_set_blob(nvs_data_handle,get_name(V_IP_SNMP),FW_data.net.V_IP_SNMP,4);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.sys.V_TYPE_LOGIC),FW_data.sys.V_TYPE_LOGIC);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(V_TYPE_OUT),FW_data.sys.V_TYPE_OUT);
 
-    err=err|nvs_set_u8(nvs_data_handle,get_name( FW_data.wdt.V_EN_WATCHDOG), FW_data.wdt.V_EN_WATCHDOG);
+    err=err|nvs_set_i8(nvs_data_handle,get_name(V_NTP_CIRCL),FW_data.sys.V_NTP_CIRCL);
 
-      err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.wdt.V_EN_WATCHDOG_CN_A),FW_data.wdt.V_EN_WATCHDOG_CN_A);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(V_TYPE_LOGIC),FW_data.sys.V_TYPE_LOGIC);
 
-      err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.wdt.V_EN_WATCHDOG_CN_B),FW_data.wdt.V_EN_WATCHDOG_CN_B);
+    err=err|nvs_set_u8(nvs_data_handle,get_name(V_EN_WATCHDOG), FW_data.wdt.V_EN_WATCHDOG);
 
-      err=err|nvs_set_u8(nvs_data_handle,get_name(FW_data.wdt.V_EN_WATCHDOG_CN_C),FW_data.wdt.V_EN_WATCHDOG_CN_C);
+      err=err|nvs_set_u8(nvs_data_handle,get_name(WATCHDOG_CN_A),FW_data.wdt.V_EN_WATCHDOG_CN_A);
 
-      err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.wdt.V_IP_WDT_ADDR_CN_A),FW_data.wdt.V_IP_WDT_ADDR_CN_A,4);
+      err=err|nvs_set_u8(nvs_data_handle,get_name(WATCHDOG_CN_B),FW_data.wdt.V_EN_WATCHDOG_CN_B);
 
-      err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.wdt.V_IP_WDT_ADDR_CN_B),FW_data.wdt.V_IP_WDT_ADDR_CN_B,4);
+      err=err|nvs_set_u8(nvs_data_handle,get_name(WATCHDOG_CN_C),FW_data.wdt.V_EN_WATCHDOG_CN_C);
 
-      err=err|nvs_set_blob(nvs_data_handle,get_name( FW_data.wdt.V_IP_WDT_ADDR_CN_C),FW_data.wdt.V_IP_WDT_ADDR_CN_C,4);
+      err=err|nvs_set_blob(nvs_data_handle,get_name(WDT_ADDR_CN_A),FW_data.wdt.V_IP_WDT_ADDR_CN_A,4);
 
-      err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_CT_RES_ALLSTART),FW_data.wdt.V_CT_RES_ALLSTART);
+      err=err|nvs_set_blob(nvs_data_handle,get_name(WDT_ADDR_CN_B),FW_data.wdt.V_IP_WDT_ADDR_CN_B,4);
 
-      err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_T_SEND_PING),FW_data.wdt.V_T_SEND_PING);
+      err=err|nvs_set_blob(nvs_data_handle,get_name(WDT_ADDR_CN_C),FW_data.wdt.V_IP_WDT_ADDR_CN_C,4);
 
-      err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_TIME_RESEND_PING),FW_data.wdt.V_TIME_RESEND_PING);
+      err=err|nvs_set_u16(nvs_data_handle,get_name(CT_RES_ALLST),FW_data.wdt.V_CT_RES_ALLSTART);
 
-      err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_MAX_REPID_PING),FW_data.wdt.V_MAX_REPID_PING);
+      err=err|nvs_set_u16(nvs_data_handle,get_name(V_T_SEND_P),FW_data.wdt.V_T_SEND_PING);
 
-      err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_TIME_RESET_PULSE),FW_data.wdt.V_TIME_RESET_PULSE);
+      err=err|nvs_set_u16(nvs_data_handle,get_name(V_TIME_RSD_P),FW_data.wdt.V_TIME_RESEND_PING);
 
-      err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_PAUSE_RESET_TO_REPID),FW_data.wdt.V_PAUSE_RESET_TO_REPID);
+      err=err|nvs_set_u16(nvs_data_handle,get_name(V_MAX_REPID_P),FW_data.wdt.V_MAX_REPID_PING);
 
-      err=err|nvs_set_u16(nvs_data_handle,get_name(FW_data.wdt.V_MAX_RESEND_PACET_RESET),FW_data.wdt.V_MAX_RESEND_PACET_RESET);
+      err=err|nvs_set_u16(nvs_data_handle,get_name(V_TIME_R_PULSE),FW_data.wdt.V_TIME_RESET_PULSE);
 
+      err=err|nvs_set_u16(nvs_data_handle,get_name(V_PAUSE_R_TO_R),FW_data.wdt.V_PAUSE_RESET_TO_REPID);
 
+      err=err|nvs_set_u16(nvs_data_handle,get_name(V_MAX_R_PACET_R),FW_data.wdt.V_MAX_RESEND_PACET_RESET);
+
+      printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
       printf("Committing updates in NVS ... ");
       err = nvs_commit(nvs_data_handle);
       printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
@@ -173,150 +173,158 @@ esp_err_t save_data_blok(void)
 }
 esp_err_t load_data_blok(void)
 {
+    uint8_t lens = 4;
+	 esp_err_t  err =nvs_open_from_partition("nvs","storage", NVS_READWRITE, &nvs_data_handle);
 
-	 esp_err_t err =nvs_open("storage", NVS_READWRITE, &nvs_data_handle);
 
+	err=nvs_get_u8(nvs_data_handle,get_name(LOAD_DEF_FLAG),&FW_data.sys.LOAD_DEF_FLAG);
 
+	err =err| nvs_get_blob(nvs_data_handle,get_name(V_IP_CONFIG),FW_data.net.V_IP_CONFIG,&lens);
 
-	err = nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_CONFIG),FW_data.net.V_IP_CONFIG,4);
-	err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.sys.LOAD_DEF_FLAG),FW_data.sys.LOAD_DEF_FLAG);
+	err =err|nvs_get_blob(nvs_data_handle,get_name(V_IP_MASK),FW_data.net.V_IP_MASK,&lens);
 
-	err =err|nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_MASK),FW_data.net.V_IP_MASK,4);
 
+	err=err|nvs_get_blob(nvs_data_handle,get_name(V_IP_GET),FW_data.net.V_IP_GET,&lens);
 
-	err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_GET),FW_data.net.V_IP_GET,4);
+	err=err|nvs_get_u8(nvs_data_handle,get_name(V_DHCP),&FW_data.net.V_DHCP);
 
-	err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.net.V_DHCP),FW_data.net.V_DHCP);
+	err=err|nvs_get_blob(nvs_data_handle,get_name(V_IP_DNS),FW_data.net.V_IP_DNS,&lens);
 
-	err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_DNS),FW_data.net.V_IP_DNS,4);
+	err=err|nvs_get_blob(nvs_data_handle,get_name(V_FW1_VER),FW_data.sys.V_FW1_VER,&lens);
 
-	err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.sys.V_FW1_VER),FW_data.sys.V_FW1_VER,4);
+	err=err|nvs_get_u32(nvs_data_handle,get_name(V_FW1_LEN),&FW_data.sys.V_FW1_LEN);
 
-	err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.sys.V_FW1_LEN),FW_data.sys.V_FW1_LEN);
+	err=err|nvs_get_u32(nvs_data_handle,get_name(V_BOOT_VER),&FW_data.sys.V_BOOT_VER);
 
-	err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.sys.V_BOOT_VER),FW_data.sys.V_BOOT_VER);
+	lens =16;
+	err=err|nvs_get_blob(nvs_data_handle,get_name(V_LOGIN),FW_data.http.V_LOGIN,&lens);
 
-	err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.http.V_LOGIN),FW_data.http.V_LOGIN,16);
+	err=err|nvs_get_blob(nvs_data_handle,get_name(V_PASSWORD),FW_data.http.V_PASSWORD,&lens);
 
-	err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.http.V_PASSWORD),FW_data.http.V_PASSWORD,16);
+	err=err|nvs_get_u16(nvs_data_handle,get_name(V_WEB_PORT),&FW_data.http.V_WEB_PORT);
 
-	err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.http.V_WEB_PORT),FW_data.http.V_WEB_PORT);
+	err=err|nvs_get_u16(nvs_data_handle,get_name(V_PORT_SNMP),&FW_data.snmp.V_PORT_SNMP);
 
-	err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.snmp.V_PORT_SNMP),FW_data.snmp.V_PORT_SNMP);
+	err=err|nvs_get_u16(nvs_data_handle,get_name(V_HTTP_IP),&FW_data.net.V_HTTP_IP);
 
-	err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.net.V_HTTP_IP),FW_data.net.V_HTTP_IP);
+	lens = 32;
+	err=err|nvs_get_blob(nvs_data_handle,get_name(V_ON_MESS),FW_data.http.V_ON_MESS,&lens);
 
-	err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.http.V_ON_MESS),FW_data.http.V_ON_MESS,32);
+	err=err|nvs_get_blob(nvs_data_handle,get_name(V_OFF_MESS),FW_data.http.V_OFF_MESS,&lens);
 
-	err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.http.V_OFF_MESS),FW_data.http.V_OFF_MESS,32);
+	err=err|nvs_get_u8(nvs_data_handle,get_name(V_FLAG_EN_MAN),&FW_data.http.V_FLAG_EN_MAN);
 
-	err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.http.V_FLAG_EN_MAN),FW_data.http.V_FLAG_EN_MAN);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(V_FLAG_EN_RASP),&FW_data.rasp.V_FLAG_EN_RASP);
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.rasp.V_FLAG_EN_RASP),FW_data.rasp.V_FLAG_EN_RASP);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(V_FLAG_EN_WEB),&FW_data.http.V_FLAG_EN_WEB);
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.http.V_FLAG_EN_WEB),FW_data.http.V_FLAG_EN_WEB);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(EN_WATCHMAN),&FW_data.wdt.V_FLAG_EN_WATCHMAN);
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.wdt.V_FLAG_EN_WATCHMAN),FW_data.wdt.V_FLAG_EN_WATCHMAN);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_ERR),FW_data.smtp.V_EMAIL_ERR,32);
+    err=err|nvs_get_u32(nvs_data_handle,get_name(V_IP_PING_TIME),&FW_data.rasp.V_IP_PING_TIME);
 
-    err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.rasp.V_IP_PING_TIME),FW_data.rasp.V_IP_PING_TIME);
+    err=err|nvs_get_u32(nvs_data_handle,get_name(V_TIME_SEND),&FW_data.rasp.V_TIME_SEND);
 
-    err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.rasp.V_TIME_SEND),FW_data.rasp.V_TIME_SEND);
+    err=err|nvs_get_u32(nvs_data_handle,get_name(V_TIME_READ),&FW_data.rasp.V_TIME_READ);
 
-    err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.rasp.V_TIME_READ),FW_data.rasp.V_TIME_READ);
+    err=err|nvs_get_u32(nvs_data_handle,get_name(V_N_RERID),&FW_data.rasp.V_N_RERID);
 
-    err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.rasp.V_N_RERID),FW_data.rasp.V_N_RERID);
+    err=err|nvs_get_u32(nvs_data_handle,get_name(V_TIME_RESET),&FW_data.rasp.V_TIME_RESET);
 
-    err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.rasp.V_TIME_RESET),FW_data.rasp.V_TIME_RESET);
+    err=err|nvs_get_u32(nvs_data_handle,get_name(V_DELAY_PING),&FW_data.rasp.V_DELAY_PING);
 
-    err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.rasp.V_DELAY_PING),FW_data.rasp.V_DELAY_PING);
+    err=err|nvs_get_u32(nvs_data_handle,get_name(V_SOST_RESET),&FW_data.rasp.V_SOST_RESET);
 
-    err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.rasp.V_SOST_RESET),FW_data.rasp.V_SOST_RESET);
+    err=err|nvs_get_u16(nvs_data_handle,get_name(V_N_PING),&FW_data.wdt.V_N_PING);
 
-    err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_N_PING),FW_data.wdt.V_N_PING);
+    lens=4;
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_IP_NTP1),FW_data.net.V_IP_NTP1,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_NTP1),FW_data.net.V_IP_NTP1,4);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_IP_NTP2),FW_data.net.V_IP_NTP2,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.net.V_IP_NTP2),FW_data.net.V_IP_NTP2,4);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(V_PORT_NTP),&FW_data.net.V_PORT_NTP);
+    lens=32;
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.net.V_PORT_NTP),FW_data.net.V_PORT_NTP);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_NAME_SMTP),FW_data.smtp.V_NAME_SMTP,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_NAME_SMTP),FW_data.smtp.V_NAME_SMTP,32);
+    err=err|nvs_get_u16(nvs_data_handle,get_name(V_PORT_SNMP),&FW_data.snmp.V_PORT_SNMP);
 
-    err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.snmp.V_PORT_SNMP),FW_data.snmp.V_PORT_SNMP);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_LOGIN_SMTP),FW_data.smtp.V_LOGIN_SMTP,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_LOGIN_SMTP),FW_data.smtp.V_LOGIN_SMTP,32);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_PASSWORD_SMTP),FW_data.smtp.V_PASSWORD_SMTP,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_PASSWORD_SMTP),FW_data.smtp.V_PASSWORD_SMTP,32);
+    err=err|nvs_get_u16(nvs_data_handle,get_name(EMAIL_PORT),&FW_data.smtp.V_FLAG_EMAIL_PORT);
 
-    err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_EMAIL_PORT),FW_data.smtp.V_FLAG_EMAIL_PORT);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_EMAIL_ADDR),FW_data.smtp.V_EMAIL_ADDR,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_ADDR),FW_data.smtp.V_EMAIL_ADDR,32);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_EMAIL_FROM),FW_data.smtp.V_EMAIL_FROM,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_FROM),FW_data.smtp.V_EMAIL_FROM,32);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_EMAIL_TO),FW_data.smtp.V_EMAIL_TO,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.smtp.V_EMAIL_TO),FW_data.smtp.V_EMAIL_TO,32);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(DEF_EMAIL),&FW_data.smtp.V_FLAG_DEF_EMAIL);
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_DEF_EMAIL),FW_data.smtp.V_FLAG_DEF_EMAIL);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(EN_EMAIL),&FW_data.smtp.V_FLAG_EN_EMAIL);
+    lens=88;
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_GEOM_NAME),FW_data.sys.V_GEOM_NAME,&lens);
+    lens=8;
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_ID_MAC), FW_data.sys.V_ID_MAC,&lens);
+    lens=88;
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_Name_dev), FW_data.sys.V_Name_dev,&lens);
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.smtp.V_FLAG_EN_EMAIL),FW_data.smtp.V_FLAG_EN_EMAIL);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_CALL_DATA),FW_data.sys.V_CALL_DATA,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name(FW_data.sys.V_GEOM_NAME),FW_data.sys.V_GEOM_NAME,88);
+//    err=err|nvs_get_blob(nvs_data_handle,get_name(V_Name_dev),FW_data.sys.V_Name_dev,&lens);
+    lens=16;
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.sys.V_ID_MAC), FW_data.sys.V_ID_MAC,8);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_CALL_DATA),FW_data.sys.V_CALL_DATA,&lens);
+    lens=4;
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.sys.V_Name_dev), FW_data.sys.V_Name_dev,88);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_IP_SYSL),FW_data.net.V_IP_SYSL,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.sys.V_CALL_DATA),FW_data.sys.V_CALL_DATA,88);
+    err=err|nvs_get_blob(nvs_data_handle,get_name(V_IP_SNMP),FW_data.net.V_IP_SNMP,&lens);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.sys.V_Name_dev),FW_data.sys.V_Name_dev,88);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(V_TYPE_OUT),&FW_data.sys.V_TYPE_OUT);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.sys.V_CALL_DATA),FW_data.sys.V_CALL_DATA,16);
+    err=err|nvs_get_i8(nvs_data_handle,get_name(V_NTP_CIRCL),&FW_data.sys.V_NTP_CIRCL);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.net.V_IP_SYSL),FW_data.net.V_IP_SYSL,4);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(V_TYPE_LOGIC),&FW_data.sys.V_TYPE_LOGIC);
 
-    err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.net.V_IP_SNMP),FW_data.net.V_IP_SNMP,4);
+    err=err|nvs_get_u8(nvs_data_handle,get_name(V_EN_WATCHDOG),&FW_data.wdt.V_EN_WATCHDOG);
 
-    err=err|nvs_get_u32(nvs_data_handle,get_name(FW_data.sys.V_TYPE_OUT),FW_data.sys.V_TYPE_OUT);
+      err=err|nvs_get_u8(nvs_data_handle,get_name(WATCHDOG_CN_A),&FW_data.wdt.V_EN_WATCHDOG_CN_A);
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.sys.V_NTP_CIRCL),FW_data.sys.V_NTP_CIRCL);
+      err=err|nvs_get_u8(nvs_data_handle,get_name(WATCHDOG_CN_B),&FW_data.wdt.V_EN_WATCHDOG_CN_B);
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.sys.V_TYPE_LOGIC),FW_data.sys.V_TYPE_LOGIC);
+      err=err|nvs_get_u8(nvs_data_handle,get_name(WATCHDOG_CN_C),&FW_data.wdt.V_EN_WATCHDOG_CN_C);
 
-    err=err|nvs_get_u8(nvs_data_handle,get_name( FW_data.wdt.V_EN_WATCHDOG), FW_data.wdt.V_EN_WATCHDOG);
+      err=err|nvs_get_blob(nvs_data_handle,get_name(WDT_ADDR_CN_A),FW_data.wdt.V_IP_WDT_ADDR_CN_A,&lens);
 
-      err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.wdt.V_EN_WATCHDOG_CN_A),FW_data.wdt.V_EN_WATCHDOG_CN_A);
+      err=err|nvs_get_blob(nvs_data_handle,get_name(WDT_ADDR_CN_B),FW_data.wdt.V_IP_WDT_ADDR_CN_B,&lens);
 
-      err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.wdt.V_EN_WATCHDOG_CN_B),FW_data.wdt.V_EN_WATCHDOG_CN_B);
+      err=err|nvs_get_blob(nvs_data_handle,get_name(WDT_ADDR_CN_C),FW_data.wdt.V_IP_WDT_ADDR_CN_C,&lens);
 
-      err=err|nvs_get_u8(nvs_data_handle,get_name(FW_data.wdt.V_EN_WATCHDOG_CN_C),FW_data.wdt.V_EN_WATCHDOG_CN_C);
+      err=err|nvs_get_u16(nvs_data_handle,get_name(CT_RES_ALLST),&FW_data.wdt.V_CT_RES_ALLSTART);
 
-      err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.wdt.V_IP_WDT_ADDR_CN_A),FW_data.wdt.V_IP_WDT_ADDR_CN_A,4);
+      err=err|nvs_get_u16(nvs_data_handle,get_name(V_T_SEND_P),&FW_data.wdt.V_T_SEND_PING);
 
-      err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.wdt.V_IP_WDT_ADDR_CN_B),FW_data.wdt.V_IP_WDT_ADDR_CN_B,4);
+      err=err|nvs_get_u16(nvs_data_handle,get_name(V_TIME_RSD_P),&FW_data.wdt.V_TIME_RESEND_PING);
 
-      err=err|nvs_get_blob(nvs_data_handle,get_name( FW_data.wdt.V_IP_WDT_ADDR_CN_C),FW_data.wdt.V_IP_WDT_ADDR_CN_C,4);
+      err=err|nvs_get_u16(nvs_data_handle,get_name(V_MAX_REPID_P),&FW_data.wdt.V_MAX_REPID_PING);
 
-      err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_CT_RES_ALLSTART),FW_data.wdt.V_CT_RES_ALLSTART);
+      err=err|nvs_get_u16(nvs_data_handle,get_name(V_TIME_R_PULSE),&FW_data.wdt.V_TIME_RESET_PULSE);
 
-      err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_T_SEND_PING),FW_data.wdt.V_T_SEND_PING);
+      err=err|nvs_get_u16(nvs_data_handle,get_name(V_PAUSE_R_TO_R),&FW_data.wdt.V_PAUSE_RESET_TO_REPID);
 
-      err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_TIME_RESEND_PING),FW_data.wdt.V_TIME_RESEND_PING);
+      err=err|nvs_get_u16(nvs_data_handle,get_name(V_MAX_R_PACET_R),&FW_data.wdt.V_MAX_RESEND_PACET_RESET);
+      printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 
-      err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_MAX_REPID_PING),FW_data.wdt.V_MAX_REPID_PING);
 
-      err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_TIME_RESET_PULSE),FW_data.wdt.V_TIME_RESET_PULSE);
-
-      err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_PAUSE_RESET_TO_REPID),FW_data.wdt.V_PAUSE_RESET_TO_REPID);
-
-      err=err|nvs_get_u16(nvs_data_handle,get_name(FW_data.wdt.V_MAX_RESEND_PACET_RESET),FW_data.wdt.V_MAX_RESEND_PACET_RESET);
-
-      printf("Committing updates in NVS ... ");
+      printf("Committing 2 updates in NVS ... ");
       err = nvs_commit(nvs_data_handle);
       printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
       nvs_close(nvs_data_handle);
@@ -505,12 +513,20 @@ uint8_t load_def_data(void)
 
 uint8_t load_struct_flash_data (void)
 {
- //  char * name =get_name(FW_data.sys.LOAD_DEF_FLAG);
-   esp_err_t err =nvs_open("storage", NVS_READWRITE, &nvs_data_handle);
+		esp_err_t err= nvs_flash_init_partition("nvs");
+	if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+	    // NVS partition was truncated and needs to be erased
+	    // Retry nvs_flash_init
+	    ESP_ERROR_CHECK(nvs_flash_erase());
+	    err = nvs_flash_init();
+	}
+	ESP_ERROR_CHECK( err );
 
-   err=nvs_get_u8(nvs_data_handle,get_name(FW_data.sys.LOAD_DEF_FLAG), (uint8_t*)&(FW_data.sys.LOAD_DEF_FLAG));
+   err =nvs_open_from_partition("nvs","storage", NVS_READWRITE, &nvs_data_handle);
 
-   printf("Committing updates in NVS ... ");
+   err=nvs_get_u8(nvs_data_handle,get_name(LOAD_DEF_FLAG), (uint8_t*)&(FW_data.sys.LOAD_DEF_FLAG));
+
+   printf("Committing1 updates in NVS ... ");
    err = nvs_commit(nvs_data_handle);
 
    printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
@@ -519,6 +535,7 @@ uint8_t load_struct_flash_data (void)
    if ((FW_data.sys.LOAD_DEF_FLAG==0)||(err!=ESP_OK))
     {
 	 printf("Run load_def_data() - settings default load \n\r");
+	 nvs_erase_all(nvs_data_handle);
      return  load_def_data();
     }
    else

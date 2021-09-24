@@ -561,7 +561,7 @@ static const httpd_uri_t rtcset = { .uri = "/rtcset.cgi", .method = HTTP_POST,
 httpd_handle_t start_webserver(void) {
 	httpd_handle_t server = NULL;
 	const httpd_config_t config = { .task_priority = tskIDLE_PRIORITY + 5,
-			.stack_size = 4096, .core_id = tskNO_AFFINITY, .server_port = 80,
+			.stack_size = 8192, .core_id = tskNO_AFFINITY, .server_port = 80,
 			.ctrl_port = 32768, .max_open_sockets = 7, .max_uri_handlers = 30, /*12*/
 			.max_resp_headers = 8, .backlog_conn = 5, .lru_purge_enable = true, /**/
 			.recv_wait_timeout = 5, .send_wait_timeout = 5, .global_user_ctx =

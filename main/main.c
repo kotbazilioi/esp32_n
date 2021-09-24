@@ -94,7 +94,7 @@ void app_main(void)
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
-    nvs_flash_init();
+
     load_struct_flash_data();
 
 
@@ -114,11 +114,10 @@ void app_main(void)
      * examples/protocols/README.md for more information about this function.
      */
     ESP_ERROR_CHECK(example_connect());
-if (FW_data.net.V_DHCP==0)
+
+if (((FW_data.net.V_DHCP==1)||((FW_data.net.V_IP_CONFIG[0]==0)&&(FW_data.net.V_IP_CONFIG[1]==0)&&(FW_data.net.V_IP_CONFIG[2]==0)&&(FW_data.net.V_IP_CONFIG[3]==0)))==0)
 {
 	tcpip_adapter_dhcpc_stop(TCPIP_ADAPTER_IF_ETH); // Don't run a DHCP client
-
-
 //	inet_pton(AF_INET, DEVICE_IP, &ipInfo.ip);
 //	inet_pton(AF_INET, DEVICE_GW, &ipInfo.gw);
 //	inet_pton(AF_INET, DEVICE_NETMASK, &ipInfo.netmask);
@@ -153,7 +152,6 @@ if (FW_data.net.V_DHCP==0)
 
 
       xTaskCreate(&start_task, "start_task", 12048, NULL, 5, NULL);
-
 
 
 
