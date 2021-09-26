@@ -18,7 +18,7 @@ uint8_t chipid[6];
 uint32_t  serial_id;
 tcpip_adapter_ip_info_t ipInfo;
 esp_netif_dns_type_t dns_info;
-uint8_t IN_PORT[2]={0};
+input_port_t IN_PORT[2]={0};
 #define PORT_O1 16
 #define PORT_O2 6
 
@@ -32,7 +32,7 @@ void gpio1_task(void *pvParameters)
 	gpio_set_direction(PORT_I0, GPIO_MODE_INPUT);
 	while(1)
 		{
-		IN_PORT[0]=gpio_get_level(PORT_I0);
+	//	IN_PORT[0]=gpio_get_level(PORT_I0);
 		if( S_gpio_port1 != NULL )
 				    {
 
@@ -57,7 +57,7 @@ void gpio2_task(void *pvParameters)
 	gpio_set_direction(PORT_I1, GPIO_MODE_INPUT);
 	while(1)
 		{
-		IN_PORT[1]=gpio_get_level(PORT_I1);
+	//	IN_PORT[1]=gpio_get_level(PORT_I1);
 		if( S_gpio_port2 != NULL )
 				    {
 
@@ -75,6 +75,68 @@ void gpio2_task(void *pvParameters)
 				    }
 	     vTaskDelay(300 / portTICK_PERIOD_MS);
 		}
+}
+void read_in (input_port_t* inpin,uint8_t pin)
+{
+	inpin->sost_raw=pin;
+	if (inpin->semple_count<inpin->filtr_time)
+		{
+		inpin->semple_count++;
+		if (inpin->sost_raw!=0)
+			{
+			inpin->filtr_count++;
+			}
+		}
+	else
+	{
+		inpin->semple_count=0;
+		inpin->sost_filtr_old=inpin->sost_filtr;
+		if (inpin->filtr_count<(inpin->filtr_time/2))
+			{
+			inpin->sost_filtr=0;
+			}
+		else
+			{
+			inpin->sost_filtr=1;
+			}
+		inpin->filtr_count=0;
+	while(inpin->event!=0)
+		{
+		 vTaskDelay(30 / portTICK_PERIOD_MS);
+		}
+		if (inpin->sost_filtr_old>inpin->sost_filtr)
+			{
+			inpin->sost_fall=1;
+			inpin->sost_rise=0;
+			inpin->event=1;
+			}
+		if (inpin->sost_filtr_old<inpin->sost_filtr)
+			{
+			inpin->sost_fall=0;
+			inpin->sost_rise=1;
+			inpin->event=1;
+			}
+		if (inpin->event==0)
+			{
+			inpin->sost_fall=0;
+			inpin->sost_rise=0;
+			}
+	}
+}
+void input_port(void *pvParameters)
+{
+	IN_PORT[0].filtr_time=20;
+	IN_PORT[1].filtr_time=20;
+
+
+	while(1)
+		{
+		read_in(&(IN_PORT[0]),gpio_get_level(PORT_I0));
+		read_in(&(IN_PORT[1]),gpio_get_level(PORT_I1));
+
+		 vTaskDelay(30 / portTICK_PERIOD_MS);
+		}
+
 }
 
  void start_task(void *pvParameters)
@@ -118,8 +180,17 @@ void gpio2_task(void *pvParameters)
 
 	 xTaskCreate(&gpio1_task, "gpio1_task", 512, NULL, 10, NULL);
 	 xTaskCreate(&gpio2_task, "gpio2_task", 512, NULL, 10, NULL);
-	 vTaskDelay(1000 / portTICK_PERIOD_MS);
-	  my_smtp_test();
+	 xTaskCreate(&input_port, "input_port", 1024, NULL, 10, NULL);
+	 xTaskCreate(&log_task, "log_task", 2024, NULL, 10, NULL);
+	 xTaskCreate(&send_smtp_task, "send_smtp_task", 2048, NULL, 10, NULL);
+
+
+	  reple_to_save.type_event=POWER_ON;
+      reple_to_save.dicr=1;
+// vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+	  printf("all app run\n\r");
+
 
 	 vTaskDelete(NULL);
  }

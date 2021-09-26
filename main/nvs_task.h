@@ -61,7 +61,11 @@ enum logs_events_t {
   SWICH_ON_RASP_N,
   SWICH_OFF_RASP_N,
   SWICH_TOLG_RASP_N,
-  SEND_EMAIL
+  SEND_EMAIL,
+  IN_PORT0_RISE,
+  IN_PORT1_RISE,
+  IN_PORT0_FALL,
+  IN_PORT1_FALL
 };
 typedef struct
 {
@@ -227,6 +231,7 @@ logs_t V_logs_struct;
 }FW_data_t;
 
 extern FW_data_t FW_data;
+extern nvs_handle_t nvs_data_handle;
 
 void nvs_task(void *pvParameters);
 uint8_t load_struct_flash_data (void);

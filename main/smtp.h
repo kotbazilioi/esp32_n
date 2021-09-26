@@ -128,4 +128,6 @@ const char* smtp_result_str(u8_t smtp_result);
 #endif /* LWIP_HDR_APPS_SMTP_H */
 
 
+void send_smtp_mess(char * mes);
 void my_smtp_test(void);
+void send_smtp_task(void *pvParameters);

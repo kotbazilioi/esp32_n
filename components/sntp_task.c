@@ -25,6 +25,7 @@ void initialize_sntp(void) {
 	ESP_LOGI(TAG_SNTP, "Initializing SNTP");
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
 	sntp_setservername(0, "pool.ntp.org");
+	sntp_setservername(1, "ntp3.stratum2.ru");
 	sntp_set_time_sync_notification_cb(time_sync_notification_cb);
 #ifdef CONFIG_SNTP_TIME_SYNC_METHOD_SMOOTH
     sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);
@@ -37,13 +38,15 @@ void obtain_time(void) {
 	time_t now = 0;
 	struct tm timeinfo = { 0 };
 	int retry = 0;
-	const int retry_count = 10;
+	const int retry_count = 20;
 	while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET
 			&& ++retry < retry_count) {
 		ESP_LOGI(TAG_SNTP, "Waiting for system time to be set... (%d/%d)", retry,
 				retry_count);
 		vTaskDelay(5000 / portTICK_PERIOD_MS);
 	}
+	if (retry==retry_count)sntp_restart();
+	ESP_LOGD(TAG_SNTP, "Time OK)");
 	time(&now);
 	localtime_r(&now, &timeinfo);
 
@@ -57,6 +60,7 @@ void vTaskNTP(void *pvParameters) {
 	initialize_sntp();
 	for (;;) {
 		obtain_time();
+
 		vTaskDelay(60 * 1000 / portTICK_PERIOD_MS);
 	}
 }

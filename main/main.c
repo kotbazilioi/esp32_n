@@ -149,12 +149,7 @@ if (((FW_data.net.V_DHCP==1)||((FW_data.net.V_IP_CONFIG[0]==0)&&(FW_data.net.V_I
     time_t now;
       initialise_mdns();
       initialize_snmp();
-
-
-      xTaskCreate(&start_task, "start_task", 12048, NULL, 5, NULL);
-
-
-
+      xTaskCreate(&start_task, "start_task", 12048, NULL, 10, NULL);
       gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
            while(1) {
           	 time(&now);

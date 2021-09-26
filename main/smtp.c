@@ -55,7 +55,7 @@
 
 #include "smtp.h"
 #include "includes_base.h"
-#if LWIP_TCP && LWIP_CALLBACK_API
+//#if LWIP_TCP && LWIP_CALLBACK_API
 #include "lwip/sys.h"
 #include "lwip/sockets.h"
 #include "lwip/altcp.h"
@@ -1551,7 +1551,7 @@ smtp_send_body_data_handler(struct smtp_session *s, struct altcp_pcb *pcb)
 }
 #endif /* SMTP_BODYDH */
 
-#endif /* LWIP_TCP && LWIP_CALLBACK_API */
+//#endif /* LWIP_TCP && LWIP_CALLBACK_API */
 
 
   void my_smtp_result_fn (void * arg, u8_t smtp_result, u16_t srv_err, err_t err)
@@ -1564,6 +1564,7 @@ smtp_send_body_data_handler(struct smtp_session *s, struct altcp_pcb *pcb)
 
 void send_smtp_mess(char * mes)
   {
+    uint32_t time_send = 50;
    if (FW_data.smtp.V_FLAG_EN_EMAIL==1)
    {
       form_reple_to_smtp(SEND_EMAIL);
@@ -1591,9 +1592,11 @@ void send_smtp_mess(char * mes)
       {
       smtp_send_mail(FW_data.smtp.V_EMAIL_FROM,FW_data.smtp.V_EMAIL_TO,"dkst110", (const char *)mes, my_smtp_result_fn,NULL);
       flag_send_wait =0;
-      while (flag_send_wait ==0)
+      time_send = 50;
+      while ((flag_send_wait ==0)||(time_send==0))
       {
     	  vTaskDelay (50);
+    	  time_send--;
       }
       vTaskDelay (2000);
       }
@@ -1602,30 +1605,36 @@ void send_smtp_mess(char * mes)
       {
       smtp_send_mail(FW_data.smtp.V_EMAIL_FROM,FW_data.smtp.V_EMAIL_CC1,"dkst110", (const char *)mes, my_smtp_result_fn,NULL);
       flag_send_wait =0;
-      while (flag_send_wait ==0)
-      {
-    	  vTaskDelay (50);
-      }
+      time_send = 50;
+            while ((flag_send_wait ==0)||(time_send==0))
+            {
+          	  vTaskDelay (50);
+          	  time_send--;
+            }
       vTaskDelay (2000);
       }
       if (FW_data.smtp.V_EMAIL_CC2[0]!=0)
       {
       smtp_send_mail(FW_data.smtp.V_EMAIL_FROM,FW_data.smtp.V_EMAIL_CC2,"dkst110", (const char *)mes, my_smtp_result_fn,NULL);
       flag_send_wait =0;
-      while (flag_send_wait ==0)
-      {
-    	  vTaskDelay (50);
-      }
+      time_send = 50;
+      while ((flag_send_wait ==0)||(time_send==0))
+       {
+      	  vTaskDelay (50);
+       	  time_send--;
+       }
       vTaskDelay (2000);
       }
       if (FW_data.smtp.V_EMAIL_CC3[0]!=0)
       {
       smtp_send_mail(FW_data.smtp.V_EMAIL_FROM,FW_data.smtp.V_EMAIL_CC3,"dkst110", (const char *)mes, my_smtp_result_fn,NULL);
       flag_send_wait =0;
-      while (flag_send_wait ==0)
-      {
-    	  vTaskDelay (50);
-      }
+      time_send = 50;
+      while ((flag_send_wait ==0)||(time_send==0))
+        {
+          vTaskDelay (50);
+          time_send--;
+        }
       }
    }
  }
@@ -1636,3 +1645,25 @@ void my_smtp_test(void)
     
     send_smtp_mess(messt);
  }
+
+
+
+void send_smtp_task(void *pvParameters)
+{
+	char mess[256];
+	char event_mess[100];
+	  my_smtp_test();
+    while(1) {
+
+    	if (reple_to_email.dicr!=0)
+    	{
+    		GET_reple(&reple_to_email);
+    		swich_mess_event(reple_to_email.type_event, event_mess);
+    		sprintf(mess, "%02d.%02d.%02d %02d:%02d:%02d %s ", reple_to_email.day, reple_to_email.month,
+    				reple_to_email.year, reple_to_email.reple_hours, reple_to_email.reple_minuts,
+					reple_to_email.reple_seconds, event_mess);
+    		send_smtp_mess(mess);
+    	}
+        vTaskDelay(50 / portTICK_PERIOD_MS);
+    }
+}

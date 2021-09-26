@@ -21,7 +21,7 @@
 
 #include "mime.h"
 #include "html_data_simple_ru.h"
-
+#include "LOGS.h"
 static const char *TAG = "update_app";
 
 esp_err_t np_http_get_handler(httpd_req_t *req)
@@ -183,6 +183,8 @@ esp_err_t np_http_reboot_cgi(httpd_req_t *req)
     	httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Can't read FW version!");
     	return ESP_FAIL;
     }
+    reple_to_save.type_event=RESETL;
+    reple_to_save.dicr=1;
     esp_restart();
 //    char buf[128];
 //    sprintf(buf,
@@ -190,6 +192,7 @@ esp_err_t np_http_reboot_cgi(httpd_req_t *req)
 //    		"var devname='Test Netping-APP-ESP32';\n",
 //    		 app_desc.version);
 ///	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+
 	return ESP_OK;
 }
 
