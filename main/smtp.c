@@ -1652,7 +1652,7 @@ void send_smtp_task(void *pvParameters)
 {
 	char mess[256];
 	char event_mess[100];
-	  my_smtp_test();
+	//  my_smtp_test();
     while(1) {
 
     	if (reple_to_email.dicr!=0)

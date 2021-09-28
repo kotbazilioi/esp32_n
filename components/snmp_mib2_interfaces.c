@@ -311,7 +311,7 @@ interfaces_Table_set_value(struct snmp_node_instance *instance, u16_t len, void 
 
 #endif /* SNMP_SAFE_REQUESTS */
 
-static const struct snmp_scalar_node interfaces_Number = SNMP_SCALAR_CREATE_NODE_READONLY(1, SNMP_ASN1_TYPE_INTEGER, interfaces_get_value);
+//static const struct snmp_scalar_node interfaces_Number = SNMP_SCALAR_CREATE_NODE_READONLY(1, SNMP_ASN1_TYPE_INTEGER, interfaces_get_value);
 
 static const struct snmp_table_col_def interfaces_Table_columns[] = {
   {  1, SNMP_ASN1_TYPE_INTEGER,      SNMP_NODE_INSTANCE_READ_ONLY }, /* ifIndex */
@@ -348,21 +348,22 @@ static const struct snmp_table_node interfaces_Table = SNMP_TABLE_CREATE(
       interfaces_Table_get_cell_instance, interfaces_Table_get_next_cell_instance,
       interfaces_Table_get_value, interfaces_Table_set_test, interfaces_Table_set_value);
 #else
-static const struct snmp_table_node interfaces_Table = SNMP_TABLE_CREATE(
-      2, interfaces_Table_columns,
-      interfaces_Table_get_cell_instance, interfaces_Table_get_next_cell_instance,
-      interfaces_Table_get_value, NULL, NULL);
+//static const struct snmp_table_node interfaces_Table = SNMP_TABLE_CREATE(
+//      2, interfaces_Table_columns,
+//      interfaces_Table_get_cell_instance, interfaces_Table_get_next_cell_instance,
+//      interfaces_Table_get_value, NULL, NULL);
 #endif
 
 /* the following nodes access variables in LWIP stack from SNMP worker thread and must therefore be synced to LWIP (TCPIP) thread */
-CREATE_LWIP_SYNC_NODE(1, interfaces_Number)
-CREATE_LWIP_SYNC_NODE(2, interfaces_Table)
+//CREATE_LWIP_SYNC_NODE(1, interfaces_Number)
+//CREATE_LWIP_SYNC_NODE(2, interfaces_Table)
 
-static const struct snmp_node *const interface_nodes[] = {
-  &SYNC_NODE_NAME(interfaces_Number).node.node,
-  &SYNC_NODE_NAME(interfaces_Table).node.node
-};
-
-const struct snmp_tree_node snmp_mib2_interface_root = SNMP_CREATE_TREE_NODE(2, interface_nodes);
+//static const struct snmp_node *const interface_nodes[] = {
+//  &SYNC_NODE_NAME(interfaces_Number).node.node,
+//  &SYNC_NODE_NAME(interfaces_Table).node.node
+//};
+const struct snmp_scalar_array_node snmp_mib2_interface_root = SNMP_SCALAR_CREATE_ARRAY_NODE(2, interfaces_Table_columns, interfaces_Table_get_value, NULL, NULL);
+//const struct snmp_tree_node snmp_mib2_interface_root = SNMP_CREATE_TREE_NODE(2, interface_nodes);
+//const struct snmp_tree_node snmp_mib2_interface_root = SNMP_CREATE_TREE_NODE(2, interface_nodes);
 
 #endif /* LWIP_SNMP && SNMP_LWIP_MIB2 */

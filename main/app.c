@@ -178,16 +178,17 @@ void input_port(void *pvParameters)
 	 xTaskCreate(&mdns_example_task, "mdns_example_task", 2048, NULL, 5, NULL);
 	 xTaskCreate(&nvs_task, "nvs_task", 2048, NULL, 5, NULL);
 
-	 xTaskCreate(&gpio1_task, "gpio1_task", 512, NULL, 10, NULL);
-	 xTaskCreate(&gpio2_task, "gpio2_task", 512, NULL, 10, NULL);
+	 xTaskCreate(&gpio1_task, "gpio1_task", 1024, NULL, 10, NULL);
+	 xTaskCreate(&gpio2_task, "gpio2_task", 1024, NULL, 10, NULL);
 	 xTaskCreate(&input_port, "input_port", 1024, NULL, 10, NULL);
 	 xTaskCreate(&log_task, "log_task", 2024, NULL, 10, NULL);
-	 xTaskCreate(&send_smtp_task, "send_smtp_task", 2048, NULL, 10, NULL);
+	 xTaskCreate(&send_smtp_task, "send_smtp_task", 4096, NULL, 10, NULL);
 
 
-	  reple_to_save.type_event=POWER_ON;
-      reple_to_save.dicr=1;
-// vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+ vTaskDelay(1000 / portTICK_PERIOD_MS);
+       reple_to_save.type_event=POWER_ON;
+       reple_to_save.dicr=1;
 
 	  printf("all app run\n\r");
 

@@ -430,7 +430,7 @@ uint8_t load_def_data(void)
      //memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_ADDR, (uint32_t *)"", 5);
 
      memset((uint8_t*)&FW_data.smtp.V_EMAIL_FROM,0,32);
-     memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_FROM, (uint32_t *)"dkst59@smtp.netping.ru", sizeof("dkst59@smtp.netping.ru"));
+     memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_FROM, (uint32_t *)"dkst110@smtp.netping.ru", sizeof("dkst110@smtp.netping.ru"));
 
      memset((uint8_t*)&FW_data.smtp.V_EMAIL_TO,0,32);
      memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_TO, (uint32_t *)"kotbazilioi@ngs.ru", sizeof("kotbazilioi@ngs.ru"));

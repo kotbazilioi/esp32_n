@@ -120,30 +120,50 @@ static esp_err_t io_cgi_api_handler(httpd_req_t *req) {
 #warning "******** where is no error processing !  *******"
 	httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
 	httpd_resp_set_type(req, mime_js);
-	char buf[1024];
-	int ret, remaining = req->content_len;
-	if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf))))
-						<= 0) {
-	//				if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-	//					/* Retry receiving if timeout occurred */
-	//					continue;
-	//				}
-	//				return ESP_FAIL;
-				}
+	char* buf;
+	int ret, remaining = httpd_req_get_url_query_len(req) + 1;
+	buf = malloc(1024);
+			if (httpd_req_get_url_query_str(req, buf, remaining) == ESP_OK) {
+			            ESP_LOGI(TAG_http, "Found header => Host: %s", buf);
+			        }
 
-//	const esp_partition_t *running = esp_ota_get_running_partition();
-//	esp_app_desc_t app_desc;
-//	esp_err_t ret = esp_ota_get_partition_description(running, &app_desc);
-//	if (ret != ESP_OK) {
-//		httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR,
-//				"Can't read FW version!");
-//		return ESP_FAIL;
-//	}
+	if ((buf[0]=='i')&&(buf[1]=='o'))
+		{
+			if (buf[2]==0)
+			{
+				memset(buf,0,1024);
+				uint8_t sost = (IN_PORT[0].sost_filtr)|(IN_PORT[1].sost_filtr<<1);
+				sprintf(buf,"io_result('ok', %d);",sost);
+			}
+			else
+			{
+				if ((buf[2]=='0')&&(buf[3]==0))
+					{
+					   memset(buf,0,1024);
+					   sprintf(buf,"io_result('ok',-1,%d,0);",IN_PORT[0].sost_filtr);
+					}
+				else if ((buf[2]=='1')&&(buf[3]==0))
+						{
+						 memset(buf,0,1024);
+						 sprintf(buf,"io_result('ok',-1,%d,0);",IN_PORT[1].sost_filtr);
+						}
+					else
+						{
+						 memset(buf,0,1024);
+						 sprintf(buf,"io_result('error');");
+						}
+			}
 
-	uint8_t sost = (IN_PORT[0].sost_filtr)|(IN_PORT[1].sost_filtr<<1);
+		}
+	else
+		{
+		 memset(buf,0,1024);
+		 sprintf(buf,"io_result('error');");
+		}
 
-	sprintf(buf,"io_result('ok', %d);",sost);
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+	free(buf);
+
 	return ESP_OK;
 }
 static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {

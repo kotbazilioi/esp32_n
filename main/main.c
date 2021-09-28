@@ -34,7 +34,7 @@
 /* transport information to my_mib.c */
 extern const struct snmp_mib gpio_mib;
 
-#define SNMP_SERVER_IP "172.16.0.250"
+u8_t* SNMP_SERVER_IP = (u8_t*)"192.168.1.186";
 
 
 
@@ -46,8 +46,8 @@ static const char *TAG_SNMP = "Snmp_agent";
 */
 static const struct snmp_mib *my_snmp_mibs[] = { &mib2, &gpio_mib };
 //1.3.6.1.2.1.1.1.0
-const u8_t * SNMP_SYSDESCR = (u8_t*) "simple_snmp_agent";
-const u16_t SNMP_SYSDESCR_LEN = sizeof("simple_snmp_agent");
+const u8_t * SNMP_SYSDESCR = (u8_t*) "Project 110";
+const u16_t SNMP_SYSDESCR_LEN = sizeof("Project 110");
 //1.3.6.1.2.1.1.4.0
 u8_t * SNMP_SYSCONTACT = (u8_t*) "yourmail@contact.com";
 u16_t SNMP_SYSCONTACT_LEN = sizeof("yourmail@contact.com");
@@ -70,6 +70,15 @@ u16_t snmp_buffer = 64;
 static void initialize_snmp(void)
 {
 
+//	SNMP_SYSDESCR = FW_data.sys.
+//	SNMP_SYSDESCR_LEN
+	SNMP_SYSCONTACT = (u8_t*)FW_data.sys.V_CALL_DATA;
+	SNMP_SYSCONTACT_LEN = strlen(FW_data.sys.V_CALL_DATA);
+	SNMP_SYSNAME = (u8_t*)FW_data.sys.V_Name_dev;
+	SNMP_SYSNAME_LEN= strlen(FW_data.sys.V_Name_dev);
+	SNMP_SYSLOCATION = (u8_t*)FW_data.sys.V_GEOM_NAME;
+	SNMP_SYSLOCATION_LEN = strlen(FW_data.sys.V_GEOM_NAME);
+
 	snmp_mib2_set_syscontact(SNMP_SYSCONTACT, &SNMP_SYSCONTACT_LEN, snmp_buffer);
 	snmp_mib2_set_syslocation(SNMP_SYSLOCATION, &SNMP_SYSLOCATION_LEN, snmp_buffer);
 	snmp_set_auth_traps_enabled(ENABLE);
@@ -77,7 +86,7 @@ static void initialize_snmp(void)
 	snmp_mib2_set_sysname(SNMP_SYSNAME, &SNMP_SYSNAME_LEN, snmp_buffer);
 
 	ip_addr_t gw = { 0 };
-    ipaddr_aton(SNMP_SERVER_IP,&gw);
+    ipaddr_aton((char*)SNMP_SERVER_IP,&gw);
 
 	snmp_trap_dst_ip_set(TRAP_DESTINATION_INDEX, &gw);
 	snmp_trap_dst_enable(TRAP_DESTINATION_INDEX, ENABLE);
@@ -159,11 +168,11 @@ if (((FW_data.net.V_DHCP==1)||((FW_data.net.V_IP_CONFIG[0]==0)&&(FW_data.net.V_I
                /* Blink off (output low) */
              //  printf("Turning off the LED\n");
                gpio_set_level(BLINK_GPIO, 0);
-               vTaskDelay(1000 / portTICK_PERIOD_MS);
+               vTaskDelay(300 / portTICK_PERIOD_MS);
                /* Blink on (output high) */
            //    printf("Turning on the LED\n");
                gpio_set_level(BLINK_GPIO, 1);
-               vTaskDelay(1000 / portTICK_PERIOD_MS);
+               vTaskDelay(300 / portTICK_PERIOD_MS);
            }
 
 
