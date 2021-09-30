@@ -25,7 +25,7 @@ typedef struct
 
 extern uint8_t chipid[6];
 extern uint32_t  serial_id;
-extern tcpip_adapter_ip_info_t ipInfo;
+
 extern input_port_t IN_PORT[2];
 
  void start_task(void *pvParameters);

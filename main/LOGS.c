@@ -428,7 +428,7 @@ void save_reple_log(log_reple_t reple2) {
 		number_mess = 0;
 	}
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
-	sprintf(mess, "%d %02d.%02d.%02d %02d:%02d:%02d %s ",number_mess, reple2.day, reple2.month,
+	sprintf(mess, " %02d.%02d.%02d  %02d:%02d:%02d   %s ", reple2.day, reple2.month,
 				reple2.year, reple2.reple_hours, reple2.reple_minuts,
 				reple2.reple_seconds, event_mess);
 

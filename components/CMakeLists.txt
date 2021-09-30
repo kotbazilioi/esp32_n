@@ -25,7 +25,8 @@ idf_component_register(SRCS
  "snmp_snmpv2_usm.c"
  "snmp_table.c"
 "snmp_threadsync.c"
-"snmp_traps.c" 
+"snmp_traps.c"
+"lwip_prvmib.c"  
 
                     INCLUDE_DIRS ".")
                     

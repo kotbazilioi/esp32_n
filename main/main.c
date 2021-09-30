@@ -13,6 +13,7 @@
 #include "LOGS.h"
 #define TAG_boot "main start"
 #include "app.h"
+#include "private_mib.h"
 
 
 #define DEVICE_USE_STATIC_IP	true
@@ -33,7 +34,7 @@
 
 /* transport information to my_mib.c */
 extern const struct snmp_mib gpio_mib;
-
+extern tcpip_adapter_ip_info_t ipInfo;
 u8_t* SNMP_SERVER_IP = (u8_t*)"192.168.1.186";
 
 
@@ -44,7 +45,7 @@ static const char *TAG_SNMP = "Snmp_agent";
 * for your contact mail, SNMP_SYSNAME for your system name, SNMP_SYSLOCATION
 * for your location. Also consider the size of each string in _LEN functions.
 */
-static const struct snmp_mib *my_snmp_mibs[] = { &mib2, &gpio_mib };
+static const struct snmp_mib *my_snmp_mibs[] = { &mib2, &mib_private, &mib_np_private};
 //1.3.6.1.2.1.1.1.0
 const u8_t * SNMP_SYSDESCR = (u8_t*) "Project 110";
 const u16_t SNMP_SYSDESCR_LEN = sizeof("Project 110");
@@ -78,6 +79,7 @@ static void initialize_snmp(void)
 	SNMP_SYSNAME_LEN= strlen(FW_data.sys.V_Name_dev);
 	SNMP_SYSLOCATION = (u8_t*)FW_data.sys.V_GEOM_NAME;
 	SNMP_SYSLOCATION_LEN = strlen(FW_data.sys.V_GEOM_NAME);
+	lwip_privmib_init();
 
 	snmp_mib2_set_syscontact(SNMP_SYSCONTACT, &SNMP_SYSCONTACT_LEN, snmp_buffer);
 	snmp_mib2_set_syslocation(SNMP_SYSLOCATION, &SNMP_SYSLOCATION_LEN, snmp_buffer);

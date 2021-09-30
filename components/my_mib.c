@@ -47,11 +47,11 @@ static const struct snmp_scalar_array_node_def snmpengine_scalars_nodes[] = {
   {3, SNMP_ASN1_TYPE_INTEGER,      SNMP_NODE_INSTANCE_READ_ONLY}, /* snmpEngineTime */
   {4, SNMP_ASN1_TYPE_INTEGER,      SNMP_NODE_INSTANCE_READ_ONLY}, /* snmpEngineMaxMessageSize */
 };
-static const struct snmp_scalar_array_node snmpengine_scalars = SNMP_SCALAR_CREATE_ARRAY_NODE(4, snmpengine_scalars_nodes, snmpengine_scalars_get_value, NULL, NULL);
+static const struct snmp_scalar_array_node snmpengine_scalars = SNMP_SCALAR_CREATE_ARRAY_NODE(1, snmpengine_scalars_nodes, snmpengine_scalars_get_value, NULL, NULL);
 
 /* led .1.3.6.1.4.1.25728.1.1.1 */
 //static const struct snmp_scalar_node leds_node = SNMP25_SCALAR_CREATE_NODE_READONLY(1, SNMP_ASN1_TYPE_INTEGER, get_leds_value); // ready-only example
-static const struct snmp_scalar_node leds_node = SNMP_SCALAR_CREATE_NODE(1, SNMP_NODE_INSTANCE_READ_WRITE, SNMP_ASN1_TYPE_INTEGER, get_in0_value, NULL, set_leds_value); //read-and-write example
+static const struct snmp_scalar_node leds_node = SNMP_SCALAR_CREATE_NODE(4, SNMP_NODE_INSTANCE_READ_WRITE, SNMP_ASN1_TYPE_INTEGER, get_in0_value, NULL, set_leds_value); //read-and-write example
 /* switch .1.3.6.1.4.1.25728.1.1.2 */
 static const struct snmp_scalar_node switches_node = SNMP_SCALAR_CREATE_NODE_READONLY(2, SNMP_ASN1_TYPE_INTEGER, get_in1_value);
 /* xgpio .1.3.6.1.4.1.25728.1.1.3 */

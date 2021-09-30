@@ -62,13 +62,28 @@ static esp_err_t log_get_cgi_handler(httpd_req_t *req) {
 
 	char buf[128*50] = { 0 };
 	char buf_temp[256];
-	uint16_t i = 0;
-	while ((logs_read(i, buf_temp) == 0)&&(i<max_log_mess)) {
-		strcat(buf, buf_temp);
-		i++;
+	uint8_t number_mess;
 
+	esp_err_t err = nvs_open_from_partition("nvs", "storage", NVS_READWRITE,
+				&nvs_data_handle);
+	err = nvs_get_u16(nvs_data_handle, "number_mess", &number_mess);
+	err = nvs_commit(nvs_data_handle);
+	nvs_close(nvs_data_handle);
+
+	//
+	buf[0]=' ';
+	for (uint16_t i = number_mess;i>0;i--){
+				logs_read(i, buf_temp);
+				strcat(buf, buf_temp);
+				printf("\n\rRead %d messege logs\n\r", i);
+			}
+	for (uint16_t i =max_log_mess ;i<number_mess;i--){
+		logs_read(i, buf_temp);
+		strcat(buf, buf_temp);
+		printf("\n\rRead %d messege logs\n\r", i);
 	}
-	printf("\n\rRead %d messege logs\n\r", i);
+
+
 
 	//sprintf(buf,"11.05.21 Tu 07:38:15.040 Watchdog: reset of chan.1 \"Сигнал\"\. A (8.8.8.8) no reply, B (192.168.0.55) no reply, C (124.211.45.11) is ignored.\r\n");
 
@@ -654,9 +669,9 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 			httpd_register_uri_handler(server, &np_html_uri_reboot_cgi);
 			httpd_register_err_handler(server, HTTPD_404_NOT_FOUND,
 					http_404_error_handler);
-			//  #if CONFIG_EXAMPLE_BASIC_AUTH
-			//   httpd_register_basic_auth(server);
-			// #endif
+			  #if CONFIG_EXAMPLE_BASIC_AUTH
+			   httpd_register_basic_auth(server);
+			 #endif
 			return server;
 		}
 

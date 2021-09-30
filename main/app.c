@@ -6,10 +6,13 @@
  */
 #include "includes_base.h"
 #include "LOGS.h"
-#include "app.h"
+
 #include "sntp_task.h"
 #include "smtp.h"
 #include "tcpip_adapter.h"
+#include "tcpip_adapter_types.h"
+#include "app.h"
+
 TaskHandle_t xHandleNTP = NULL;
 SemaphoreHandle_t S_gpio_port1 = NULL;
 SemaphoreHandle_t S_gpio_port2 = NULL;

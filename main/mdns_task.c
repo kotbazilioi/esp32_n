@@ -37,7 +37,7 @@ static const char *TAG_mDNS = "mDNS";
 static char* generate_hostname(void)
 {
 #ifndef CONFIG_MDNS_ADD_MAC_TO_HOSTNAME
-    return strdup("netping110");
+    return strdup("Netping110");
 #else
     uint8_t mac[6];
     char   *hostname;
