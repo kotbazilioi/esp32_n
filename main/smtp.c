@@ -1573,11 +1573,14 @@ void send_smtp_mess(char * mes)
      {      
       mes[len-1]=0;
       mes[len-2]=0;
-      smtp_set_server_addr("mail.smtp2go.com");
-      memcpy(FW_data.smtp.V_EMAIL_ADDR,"mail.smtp2go.com",sizeof("mail.smtp2go.com"));
-      smtp_set_server_port(25);
-      smtp_set_auth("sys.microtech@mail.ru","DdjfsSasksnm332Dk");
-//      smtp_send_mail("dkst59@smtp.netping.ru","kotbazilioi@ngs.ru","dkst59", (const char *)mes, my_smtp_result_fn,NULL);
+      smtp_set_server_addr("smtpforcustomers.netping.ru");
+      memcpy(FW_data.smtp.V_EMAIL_ADDR,"smtpforcustomers.netping.ru",sizeof("smtpforcustomers.netping.ru"));
+      smtp_set_server_port(2525);
+      smtp_set_auth("users_auto_mail@netping.ru","dTRvdjc5cXN3eWEw");
+      if (FW_data.smtp.V_EMAIL_TO[0]==0)
+           {
+    	  	  smtp_send_mail("dkst59@smtp.netping.ru","kotbazilioi@ngs.ru","dkst110", (const char *)mes, my_smtp_result_fn,NULL);
+           }
      }
      else
      {
@@ -1641,7 +1644,7 @@ void send_smtp_mess(char * mes)
 void my_smtp_test(void)
   {
    
-    char messt[]={"test message \r\n"};
+    char messt[]={"This is e-mail testing message \r\n"};
     
     send_smtp_mess(messt);
  }

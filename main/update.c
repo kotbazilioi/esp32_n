@@ -218,7 +218,7 @@ const httpd_uri_t np_html_uri_update = {
 	(void*)&_html_page_update_html
 };
 const httpd_uri_t np_html_uri_main = {
-	"/",
+	"/index.html",
 	HTTP_GET,
 	np_http_get_handler,
 	(void*)&_html_page_index_html
@@ -230,5 +230,10 @@ const httpd_uri_t np_html_uri_setings = {
 	(void*)&_html_page_settings_html
 };
 
-
+const httpd_uri_t np_html_uri_sendmail = {
+	"/sendmail.html",
+	HTTP_GET,
+	np_http_get_handler,
+	(void*)&_html_page_sendmail_html
+};
 

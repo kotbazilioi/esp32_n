@@ -11,7 +11,7 @@
 #include "mime.h"
 #include "app.h"
 #include "LOGS.h"
-
+#include "smtp.h"
 #define STORAGE_NAMESPACE "storage"
 #define TAG_http "http mes"
 #define HTTPD_401      "401 UNAUTHORIZED"           /*!< HTTP Response 401 */
@@ -115,6 +115,75 @@ static esp_err_t io_get_cgi_handler(httpd_req_t *req) {
 	sprintf(buf_temp,
 			"{name:\"IO_port2\",direction:0,delay:500,level_out:0,pulse_dur:10,level:1,nf_legend_high:\"\",nf_legend_low:\"\",colors:82}];");
 	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var fwver='v110.0.0';");
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var sys_location='Barnaul';");
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var hwmodel=110;");
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var hwver=1;");
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "var sys_name='%s';", FW_data.sys.V_Name_dev);
+	strcat(buf, buf_temp);
+
+	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+	return ESP_OK;
+}
+
+static esp_err_t email_send_test_cgi_handler(httpd_req_t *req) {
+	httpd_resp_set_type(req, mime_sse);
+	   httpd_resp_set_status(req, HTTPD_200);
+		httpd_resp_set_hdr(req, "Connection", "Close");
+		char buf[256];
+		my_smtp_test();
+
+		httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+		return ESP_OK;
+}
+
+
+static esp_err_t sendmail_get_cgi_handler(httpd_req_t *req) {
+#warning "******** where is no error processing !  *******"
+	httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
+	httpd_resp_set_type(req, mime_js);
+
+	const esp_partition_t *running = esp_ota_get_running_partition();
+	esp_app_desc_t app_desc;
+	esp_err_t ret = esp_ota_get_partition_description(running, &app_desc);
+	if (ret != ESP_OK) {
+		httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR,
+				"Can't read FW version!");
+		return ESP_FAIL;
+	}
+	char buf[1024];
+	char buf_temp[256];
+	sprintf(buf,"var packfmt={fqdn:{offs:0,len:64},port:{offs:64,len:2},flags:{offs:66,len:1},user:{offs:68,len:48},passwd:{offs:116,len:32},from:{offs:148,len:48},to:{offs:196,len:48},cc_1:{offs:308,len:48},cc_2:{offs:356,len:48},cc_3:{offs:404,len:48},reports:{offs:244,len:64},__len:452};");
+	sprintf(buf_temp, "var data={fqdn:\"%s\",",FW_data.smtp.V_NAME_SMTP);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"port:%d,flags:129,",FW_data.smtp.V_FLAG_EMAIL_PORT);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"user:\"%s\",",FW_data.smtp.V_LOGIN_SMTP);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"passwd:\"%s\",",FW_data.smtp.V_PASSWORD_SMTP);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"from:\"%s\",",FW_data.smtp.V_EMAIL_FROM);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"to:\"%s\",",FW_data.smtp.V_EMAIL_TO);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"cc_1:\"%s\",",FW_data.smtp.V_EMAIL_CC1);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"cc_2:\"%s\",",FW_data.smtp.V_EMAIL_CC2);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"cc_3:\"%s\",",FW_data.smtp.V_EMAIL_CC3);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"reports:\"\",");
+	strcat(buf, buf_temp);
+	sprintf(buf_temp,"default_from:\"%s\"};",FW_data.smtp.V_EMAIL_FROM);
+	strcat(buf, buf_temp);
+
+
 	sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var fwver='v110.0.0';");
@@ -461,6 +530,71 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 		httpd_resp_send_chunk(req, NULL, 0);
 		return ESP_OK;
 	}
+void char2_to_hex (char* in,uint8_t* out,uint32_t len )
+{
+	for(uint32_t ct=0;ct<len;ct++)
+		{
+		if (in[ct*2]>0x47)
+			{
+			 in[ct*2]=in[ct*2]-0x48;
+			}
+		else if (in[ct*2]>0x2f)
+			{
+			in[ct*2]=in[ct*2]-0x30;
+			}
+//		else
+//			{
+//
+//			}
+
+
+		if (in[ct*2+1]>0x47)
+		  {
+			in[ct*2+1]=in[ct*2+1]-0x48;
+		  }
+		else if (in[ct*2+1]>0x2f)
+		  {
+			in[ct*2+1]=in[ct*2+1]-0x30;
+		  }
+		out[ct]=(in[ct*2]<<4)|in[ct*2+1];
+		}
+
+}
+	static esp_err_t sendmail_set_post_handler(httpd_req_t *req) {
+		esp_err_t err;
+		nvs_handle_t my_handle;
+
+		char buf[1000];
+		char buf_temp[256];
+		memset(buf,0,1000);
+		int ret, remaining = req->content_len;
+
+
+			if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf))))
+					<= 0) {
+			}
+			char2_to_hex((char*)(buf+7),(uint8_t*)buf_temp,10);
+
+			//memset(FW_data.http.V_LOGIN,0,16);
+			memcpy(FW_data.smtp.V_EMAIL_ADDR,(char*)(buf_temp),10);
+			//memset(FW_data.http.V_PASSWORD,0,16);
+			//memcpy(FW_data.http.V_PASSWORD,(char*)(buf+37),buf[36]);
+
+
+
+
+
+			//	save_data_blok();
+
+	//	}
+
+
+		// End response
+		httpd_resp_send_chunk(req, NULL, 0);
+		return ESP_OK;
+	}
+
+
 // HTTP Error (404) Handler - Redirects all requests to the root page
 	esp_err_t http_404_error_handler(httpd_req_t *req, httpd_err_code_t err) {
 		// Set status
@@ -605,6 +739,10 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 					setup_get_cgi_handler, .user_ctx = 0 };
 	static const httpd_uri_t io_get_cgi = { .uri = "/io_get.cgi", .method =
 			HTTP_GET, .handler = io_get_cgi_handler, .user_ctx = 0 };
+			static const httpd_uri_t email_send_test_cgi = { .uri = "/email_send_test.cgi", .method =
+						HTTP_GET, .handler = email_send_test_cgi_handler, .user_ctx = 0 };
+	static const httpd_uri_t sendmail_get_cgi = { .uri = "/sendmail_get.cgi", .method =
+					HTTP_GET, .handler = sendmail_get_cgi_handler, .user_ctx = 0 };
 	static const httpd_uri_t io_get_api = { .uri = "/io.cgi", .method =
 			HTTP_GET, .handler = io_cgi_api_handler, .user_ctx = 0 };
 	static const httpd_uri_t log_get_cgi = { .uri = "/log.cgi", .method =
@@ -618,9 +756,10 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 			 * context to demonstrate it's usage */
 			.user_ctx = 0 //(char*)(data__IOv3_setup_bin+data__IOv3_setup_bin_shift)
 			};
-
 	static const httpd_uri_t setup_set = { .uri = "/setup_set.cgi", .method =
-			HTTP_POST, .handler = setup_set_post_handler, .user_ctx = NULL };
+				HTTP_POST, .handler = setup_set_post_handler, .user_ctx = NULL };
+	static const httpd_uri_t sendmail_set = { .uri = "/sendmail_set.cgi", .method =
+			HTTP_POST, .handler = sendmail_set_post_handler, .user_ctx = NULL };
 
 	static const httpd_uri_t ip_set = { .uri = "/ip_set.cgi", .method =
 			HTTP_POST, .handler = ip_set_post_handler, .user_ctx = NULL };
@@ -651,27 +790,31 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 
 			httpd_register_uri_handler(server, &ip_set);
 			httpd_register_uri_handler(server, &rtcset);
-			httpd_register_uri_handler(server, &setup_set);
+			httpd_register_uri_handler(server, &setup_set);// kotbazilioi@ngs.ru
+			httpd_register_uri_handler(server, &sendmail_set);
 			httpd_register_uri_handler(server, &eeprom_clone_get);
 			httpd_register_uri_handler(server, &setup_get_cgi);
 			httpd_register_uri_handler(server, &io_get_cgi);
+			httpd_register_uri_handler(server, &email_send_test_cgi);
 			httpd_register_uri_handler(server, &log_get_cgi);
 			httpd_register_uri_handler(server, &sse_get_cgi);///io.cgi
 			httpd_register_uri_handler(server, &io_get_api);
+			httpd_register_uri_handler(server, &sendmail_get_cgi);
 			for (int i = 0; i < NP_HTML_HEADERS_NUMBER; ++i) {
 				httpd_register_uri_handler(server, &np_html_uri[i]);
 			}
 			httpd_register_uri_handler(server, &np_html_uri_main);
 			httpd_register_uri_handler(server, &np_html_uri_update);
 			httpd_register_uri_handler(server, &np_html_uri_setings);
+			httpd_register_uri_handler(server, &np_html_uri_sendmail);
 			httpd_register_uri_handler(server, &np_html_uri_update_set);
 			httpd_register_uri_handler(server, &np_html_uri_devname_cgi);
 			httpd_register_uri_handler(server, &np_html_uri_reboot_cgi);
 			httpd_register_err_handler(server, HTTPD_404_NOT_FOUND,
 					http_404_error_handler);
-			  #if CONFIG_EXAMPLE_BASIC_AUTH
+		//	  #if CONFIG_EXAMPLE_BASIC_AUTH
 			   httpd_register_basic_auth(server);
-			 #endif
+		//	 #endif
 			return server;
 		}
 

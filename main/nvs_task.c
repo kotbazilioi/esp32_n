@@ -414,26 +414,26 @@ uint8_t load_def_data(void)
 
 
      memset((uint8_t*)&FW_data.smtp.V_NAME_SMTP,0,32);
-     memcpy((uint8_t*)&FW_data.smtp.V_NAME_SMTP, (uint8_t *)"Name SMTP ",sizeof("Name SMTP"));
+     memcpy((uint8_t*)&FW_data.smtp.V_NAME_SMTP, (uint8_t *)"smtpforcustomers.netping.ru",sizeof("smtpforcustomers.netping.ru"));
      FW_data.snmp.V_PORT_SNMP = 162;
      memset((uint8_t*)&FW_data.smtp.V_LOGIN_SMTP,0,32);
-     memcpy((uint32_t*)&FW_data.smtp.V_LOGIN_SMTP, (uint32_t *)"admin", 5);
+     memcpy((uint32_t*)&FW_data.smtp.V_LOGIN_SMTP, (uint32_t *)"users_auto_mail@netping.ru", sizeof("users_auto_mail@netping.ru"));
      memset((uint8_t*)&FW_data.smtp.V_PASSWORD_SMTP,0,32);
-     memcpy((uint32_t*)&FW_data.smtp.V_PASSWORD_SMTP, (uint32_t *)"admin", 5);
-     FW_data.smtp.V_FLAG_EMAIL_PORT=25;
+     memcpy((uint32_t*)&FW_data.smtp.V_PASSWORD_SMTP, (uint32_t *)"dTRvdjc5cXN3eWEw",sizeof("dTRvdjc5cXN3eWEw"));
+     FW_data.smtp.V_FLAG_EMAIL_PORT=2525;
 
      FW_data.smtp.V_FLAG_DEF_EMAIL=1;
      FW_data.smtp.V_FLAG_EN_EMAIL=1;
 
 
      memset((uint8_t*)&FW_data.smtp.V_EMAIL_ADDR,0,32);
-     //memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_ADDR, (uint32_t *)"", 5);
+
 
      memset((uint8_t*)&FW_data.smtp.V_EMAIL_FROM,0,32);
      memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_FROM, (uint32_t *)"dkst110@smtp.netping.ru", sizeof("dkst110@smtp.netping.ru"));
 
      memset((uint8_t*)&FW_data.smtp.V_EMAIL_TO,0,32);
-     memcpy((uint32_t*)&FW_data.smtp.V_EMAIL_TO, (uint32_t *)"kotbazilioi@ngs.ru", sizeof("kotbazilioi@ngs.ru"));
+
 
 
 
