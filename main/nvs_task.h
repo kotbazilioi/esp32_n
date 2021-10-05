@@ -101,6 +101,11 @@ typedef struct
  uint8_t month;
  uint8_t year;
 } data_swich_elem;
+typedef struct
+{
+   uint8_t data_param;
+
+}nvs_flags_t;
 
 typedef struct
 {
@@ -232,6 +237,7 @@ logs_t V_logs_struct;
 
 extern FW_data_t FW_data;
 extern nvs_handle_t nvs_data_handle;
+extern nvs_flags_t nvs_flags;
 
 void nvs_task(void *pvParameters);
 uint8_t load_struct_flash_data (void);

@@ -16,6 +16,7 @@
 #define get_name(x) #x
 FW_data_t FW_data;
 nvs_handle_t nvs_data_handle;
+nvs_flags_t nvs_flags;
 
 esp_err_t save_data_blok(void)
 {
@@ -567,6 +568,13 @@ void nvs_task(void *pvParameters)
     	{
     		GET_reple(&reple_to_save);
     		save_reple_log(reple_to_save);
+    	}
+    	if (nvs_flags.data_param!=0)
+    	{
+    		save_data_blok();
+    		//load_def_data();
+    	//	esp_restart();
+    		nvs_flags.data_param=0;
     	}
         vTaskDelay(50 / portTICK_PERIOD_MS);
     }

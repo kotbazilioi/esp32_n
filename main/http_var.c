@@ -436,7 +436,8 @@ static esp_err_t ip_set_post_handler(httpd_req_t *req) {
 	FW_data.net.V_IP_MASK[0] = 0x000000ff & (mask_temp >> 24);
 	FW_data.smtp.V_FLAG_DEF_EMAIL = 1;
 	FW_data.smtp.V_FLAG_EN_EMAIL = 1;
-	save_data_blok();
+//	save_data_blok();
+	nvs_flags.data_param=1;
 
 //		/* Send back the same data */
 //		httpd_resp_send_chunk(req, buf, ret);
@@ -502,7 +503,8 @@ static esp_err_t setup_set_post_handler(httpd_req_t *req) {
 //				FW_data.smtp.V_FLAG_DEF_EMAIL = 1;
 //				FW_data.smtp.V_FLAG_EN_EMAIL = 1;
 
-	save_data_blok();
+
+	nvs_flags.data_param=1;
 
 	//	}
 
@@ -597,10 +599,13 @@ static esp_err_t sendmail_set_post_handler(httpd_req_t *req) {
 	esp_err_t err;
 	nvs_handle_t my_handle;
 	uint8_t len;
-	httpd_resp_set_status(req, HTTPD_200);
-//	httpd_resp_set_hdr(req, "Connection", "Close");
-	httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
-	httpd_resp_set_type(req, mime_js);
+//	httpd_resp_set_status(req, HTTPD_200);
+//	httpd_resp_set_status(req, "303 See Other");
+	httpd_resp_set_status(req, "302 Temporary Redirect");
+	httpd_resp_set_hdr(req, "Location", "\sendmail.html");
+	//httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
+	httpd_resp_set_type(req, mime_html);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 	char buf[1000] = { 0 };
 	char buf_temp[256] = { 0 };
 	memset(buf, 0, 1000);
@@ -645,19 +650,19 @@ static esp_err_t sendmail_set_post_handler(httpd_req_t *req) {
 	len = read_mess_smtp((char*) (buf + 813), (uint8_t*) buf_temp);
 	memset(FW_data.smtp.V_EMAIL_CC3, 0, 32);
 	memcpy(FW_data.smtp.V_EMAIL_CC3, (char*) (buf_temp), len);
-	buf[138] = buf[138] - 0x30;
-	if ((buf[138] & 0x01) != 0) {
+	uint8_t flag = buf[138] - 0x30;
+	if ((flag & 0x01) != 0) {
 		FW_data.smtp.V_FLAG_DEF_EMAIL = 1;
 	} else {
 		FW_data.smtp.V_FLAG_DEF_EMAIL = 0;
 	}
-	if ((buf[138] & 0x02) != 0) {
+	if ((flag & 0x02) != 0) {
 		FW_data.smtp.V_FLAG_EN_EMAIL = 1;
 	} else {
 		FW_data.smtp.V_FLAG_EN_EMAIL = 0;
 	}
-
-	save_data_blok();
+	nvs_flags.data_param=1;
+//	save_data_blok();
 
 	//	}
 
