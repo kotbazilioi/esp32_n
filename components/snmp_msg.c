@@ -44,7 +44,7 @@
 #include "snmp_core_priv.h"
 #include "lwip/ip_addr.h"
 #include "lwip/stats.h"
-
+#include "../main/nvs_task.h"
 #if LWIP_SNMP_V3
 #include "lwip/apps/snmpv3.h"
 #include "snmpv3_priv.h"
@@ -65,7 +65,7 @@
 
 /* public (non-static) constants */
 /** SNMP community string */
-const char *snmp_community = SNMP_COMMUNITY;
+const char *snmp_community = &(FW_data.snmp.V_COMMUNITY);
 /** SNMP community string for write access */
 const char *snmp_community_write = SNMP_COMMUNITY_WRITE;
 /** SNMP community string for sending traps */

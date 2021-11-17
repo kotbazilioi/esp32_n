@@ -29,6 +29,7 @@
 #include "lwip/apps/snmp_scalar.h"
 
 #include "my_mib.h"
+#include "../main/nvs_task.h"
 #include "../main/app.h"
 u32_t *leds, *switches, *xgpio;
 /*
@@ -97,14 +98,14 @@ static s16_t snmpengine_scalars_get_value(const struct snmp_scalar_array_node_de
 /* leds value .1.3.6.1.4.1.25728.1.1.0 */
 static s16_t get_in0_value(struct snmp_node_instance* instance, void* value) {
 	u32_t *uint_ptr = (u32_t*) value;
-	*uint_ptr = IN_PORT[0].sost_filtr;//(u32_t) gpio_get_level((gpio_num_t) *(&leds)); /* get structure values */
+	*uint_ptr = FW_data.gpio.IN_PORT[0].sost_filtr;//(u32_t) gpio_get_level((gpio_num_t) *(&leds)); /* get structure values */
 	return sizeof(*uint_ptr);
 }
 
 /* switches value .1.3.6.1.4.1.25728.1.2.0 */
 static s16_t get_in1_value(struct snmp_node_instance* instance, void* value) {
 	u32_t *uint_ptr = (u32_t*) value;
-	*uint_ptr = IN_PORT[1].sost_filtr;//(u32_t) gpio_get_level((gpio_num_t) *(&switches)); /* get structure values */
+	*uint_ptr = FW_data.gpio.IN_PORT[1].sost_filtr;//(u32_t) gpio_get_level((gpio_num_t) *(&switches)); /* get structure values */
 	return sizeof(*uint_ptr);
 }
 

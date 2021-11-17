@@ -4,7 +4,8 @@
 #include "nvs_task.h";
 #include "app.h";
 #include "smtp.h"
-
+#include "config_pj.h"
+#include "ping.h"
 //#include "flash_if.h"
 //#include "syslog.h"
 log_reple_t reple_to_save;
@@ -12,6 +13,8 @@ log_reple_t reple_to_email;
 // RTC_DateTypeDef dates;
 // RTC_TimeTypeDef times;
 struct tm timeinfo;
+time_t now;
+uint32_t timeup;
 SemaphoreHandle_t flag_global_save_log = NULL;
 
 void swich_mess_event(uint8_t event, char *mess) {
@@ -160,23 +163,91 @@ void swich_mess_event(uint8_t event, char *mess) {
 	case SEND_EMAIL: {
 		sprintf(mess, "Отправлено E-mail сообщение\n");
 	}
-	break;
+		break;
 	case IN_PORT0_RISE: {
 		sprintf(mess, "На вход №0 подан высокий уровень\n");
 	}
-	break;
+		break;
 	case IN_PORT1_RISE: {
 		sprintf(mess, "На вход №1 подан высокий уровень\n");
 	}
-	break;
+		break;
+	case IN_PORT2_RISE: {
+		sprintf(mess, "На вход №2 подан высокий уровень\n");
+	}
+		break;
+	case IN_PORT3_RISE: {
+		sprintf(mess, "На вход №3 подан высокий уровень\n");
+	}
+		break;
 	case IN_PORT0_FALL: {
 		sprintf(mess, "На вход №0 подан низкий уровень\n");
 	}
-	break;
+		break;
 	case IN_PORT1_FALL: {
 		sprintf(mess, "На вход №1 подан низкий уровень\n");
 	}
 		break;
+	case IN_PORT2_FALL: {
+		sprintf(mess, "На вход №2 подан низкий уровень\n");
+	}
+		break;
+	case IN_PORT3_FALL: {
+		sprintf(mess, "На вход №3 подан низкий уровень\n");
+	}
+		break;
+	case SNMP_OUT_PORT0_SET: {
+		sprintf(mess, "Включена нагрузка по SNMP интерфейсу PORT0\n");
+	}
+		break;
+	case SNMP_OUT_PORT0_RES: {
+		sprintf(mess, "Выключена нагрузка по SNMP интерфейсу PORT0\n");
+	}
+		break;
+	case SNMP_OUT_PORT0_TOL: {
+		sprintf(mess,
+				"Произведен импульсный сброс нагрузки по SNMP интерфейсу PORT0\n");
+	}
+		break;
+	case SNMP_OUT_PORT1_SET: {
+		sprintf(mess, "Включена нагрузка по SNMP интерфейсу PORT1\n");
+	}
+		break;
+	case SNMP_OUT_PORT1_RES: {
+		sprintf(mess, "Выключена нагрузка по SNMP интерфейсу PORT1\n");
+	}
+		break;
+	case SNMP_OUT_PORT1_TOL: {
+		sprintf(mess,
+				"Произведен импульсный сброс нагрузки по SNMP интерфейсу PORT1\n");
+	}
+		break;
+	case WEB_OUT_PORT0_SET: {
+		sprintf(mess, "Включена нагрузка по WEB интерфейсу PORT0\n");
+	}
+		break;
+	case WEB_OUT_PORT0_RES: {
+		sprintf(mess, "Выключена нагрузка по WEB интерфейсу PORT0\n");
+	}
+		break;
+	case WEB_OUT_PORT0_TOL: {
+		sprintf(mess,
+				"Произведен импульсный сброс нагрузки по WEB интерфейсу PORT0\n");
+	}
+		break;
+	case WEB_OUT_PORT1_SET: {
+		sprintf(mess, "Включена нагрузка по WEB интерфейсу PORT1\n");
+	}
+		break;
+	case WEB_OUT_PORT1_RES: {
+		sprintf(mess, "Выключена нагрузка по WEB интерфейсу PORT1\n");
+	}
+		break;
+	case WEB_OUT_PORT1_TOL: {
+		sprintf(mess,
+				"Произведен импульсный сброс нагрузки по WEB интерфейсу PORT1\n");
+	}
+
 	}
 }
 
@@ -326,6 +397,58 @@ void swich_mess_event_en(uint8_t event, char *mess) {
 		sprintf(mess, "Saving device settings  \n\r");
 	}
 		break;
+	case SNMP_OUT_PORT0_SET: {
+		sprintf(mess, "Load from SNMP interface is enabled PORT0  \n\r");
+	}
+		break;
+	case SNMP_OUT_PORT0_RES: {
+		sprintf(mess, "Disabled load from SNMP interface PORT0  \n\r");
+	}
+		break;
+	case SNMP_OUT_PORT0_TOL: {
+		sprintf(mess,
+				"Pulse load shedding from SNMP interface has been performed PORT0  \n\r");
+	}
+		break;
+	case SNMP_OUT_PORT1_SET: {
+		sprintf(mess, "Load from SNMP interface is enabled PORT1  \n\r");
+	}
+		break;
+	case SNMP_OUT_PORT1_RES: {
+		sprintf(mess, "Disabled load from SNMP interface PORT1  \n\r");
+	}
+		break;
+	case SNMP_OUT_PORT1_TOL: {
+		sprintf(mess,
+				"Pulse load shedding from SNMP interface has been performed PORT1  \n\r");
+	}
+		break;
+	case WEB_OUT_PORT0_SET: {
+		sprintf(mess, "Load from WEB interface is enabled PORT0  \n\r");
+	}
+		break;
+	case WEB_OUT_PORT0_RES: {
+		sprintf(mess, "Disabled load from WEB interface PORT0  \n\r");
+	}
+		break;
+	case WEB_OUT_PORT0_TOL: {
+		sprintf(mess,
+				"Pulse load shedding from WEB interface has been performed PORT0  \n\r");
+	}
+		break;
+	case WEB_OUT_PORT1_SET: {
+		sprintf(mess, "Load from WEB interface is enabled PORT1  \n\r");
+	}
+		break;
+	case WEB_OUT_PORT1_RES: {
+		sprintf(mess, "Disabled load from WEB interface PORT1  \n\r");
+	}
+		break;
+	case WEB_OUT_PORT1_TOL: {
+		sprintf(mess,
+				"Pulse load shedding from WEB interface has been performed PORT1  \n\r");
+	}
+
 	}
 }
 
@@ -389,15 +512,15 @@ void form_reple_to_smtp(uint8_t event) {
 	////////////// xSemaphoreTake (flag_global_save_log, (TickType_t) 100);
 }
 
-uint8_t  logs_read(uint16_t n_mess, char *mess) {
-	char name_str[6]={0};
+uint8_t logs_read(uint16_t n_mess, char *mess) {
+	char name_str[6] = { 0 };
 
-	uint16_t size=128;
-	sprintf(name_str,"%d", n_mess);
+	uint16_t size = 128;
+	sprintf(name_str, "%d", n_mess);
 	esp_err_t err = nvs_open_from_partition("nvs", "storage", NVS_READWRITE,
 			&nvs_data_handle);
 	err = nvs_get_str(nvs_data_handle, name_str, mess, &size);
-	if ((err == ESP_ERR_NVS_PART_NOT_FOUND)||(err ==ESP_ERR_NVS_NOT_FOUND)) {
+	if ((err == ESP_ERR_NVS_PART_NOT_FOUND) || (err == ESP_ERR_NVS_NOT_FOUND)) {
 		err = ESP_OK;
 		mess = NULL;
 		printf("zero mess");
@@ -412,85 +535,1299 @@ void save_reple_log(log_reple_t reple2) {
 	char name_str[6];
 	char mess[256];
 	char event_mess[100];
-	uint16_t size=128;
+	uint16_t size = 128;
 	uint16_t number_mess;
 
-	reple_to_email.type_event=reple2.type_event;
-	reple_to_email.dicr=1;
-
+	reple_to_email.type_event = reple2.type_event;
+	reple_to_email.dicr = 1;
 
 	esp_err_t err = nvs_open_from_partition("nvs", "storage", NVS_READWRITE,
 			&nvs_data_handle);
 	swich_mess_event(reple2.type_event, event_mess);
 	err = nvs_get_u16(nvs_data_handle, "number_mess", &number_mess);
-	if ((err == ESP_ERR_NVS_PART_NOT_FOUND)||(err ==ESP_ERR_NVS_NOT_FOUND)) {
+	if ((err == ESP_ERR_NVS_PART_NOT_FOUND) || (err == ESP_ERR_NVS_NOT_FOUND)) {
 		err = ESP_OK;
 		number_mess = 0;
 	}
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
-	sprintf(mess, " %02d.%02d.%02d  %02d:%02d:%02d   %s ", reple2.day, reple2.month,
-				reple2.year, reple2.reple_hours, reple2.reple_minuts,
-				reple2.reple_seconds, event_mess);
+	sprintf(mess, " %02d.%02d.%02d  %02d:%02d:%02d   %s ", reple2.day,
+			reple2.month, reple2.year, reple2.reple_hours, reple2.reple_minuts,
+			reple2.reple_seconds, event_mess);
 
 	if ((err == ESP_OK) && (number_mess < max_log_mess))
 		number_mess++;
-	if ((number_mess == max_log_mess)||(number_mess > max_log_mess))
+	if ((number_mess == max_log_mess) || (number_mess > max_log_mess))
 		number_mess = 0;
 
 	err = nvs_commit(nvs_data_handle);
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
-
 
 	sprintf(name_str, "%d", number_mess);
 
 //	send_smtp_mess(mess);
 
-
 	err = nvs_set_str(nvs_data_handle, name_str, mess);
 	err = nvs_set_u16(nvs_data_handle, "number_mess", number_mess);
-	printf("save %d log mess committing updates in NVS ... ",number_mess);
+	printf("save %d log mess committing updates in NVS ... ", number_mess);
 	err = nvs_commit(nvs_data_handle);
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 	nvs_close(nvs_data_handle);
 }
 void log_task(void *pvParameters) {
-
+	uint8_t ct;
 
 	while (1) {
+		for (ct = 0; ct < in_port_n; ct++) {
 
-		if (IN_PORT[0].event == 1) {
-			if (IN_PORT[0].sost_rise == 1) {
-				reple_to_save.type_event=IN_PORT0_RISE;
-				reple_to_save.dicr=1;
-				IN_PORT[0].sost_rise = 0;
-				IN_PORT[0].event=0;
+			if (FW_data.gpio.IN_PORT[ct].event == 1) {
+				if (FW_data.gpio.IN_PORT[ct].sost_rise == 1) {
+					reple_to_save.type_event = IN_PORT0_RISE + ct + out_port_n;
+					reple_to_save.dicr = 1;
+					FW_data.gpio.IN_PORT[ct].sost_rise = 0;
+					FW_data.gpio.IN_PORT[ct].event = 0;
 
-			}
-			if (IN_PORT[0].sost_fall == 1) {
+				}
+				if (FW_data.gpio.IN_PORT[ct].sost_fall == 1) {
 
-				reple_to_save.type_event=IN_PORT0_FALL;
-				reple_to_save.dicr=1;
-				IN_PORT[0].sost_fall = 0;
-				IN_PORT[0].event=0;
-			}
-		}
-		if (IN_PORT[1].event == 1) {
-			if (IN_PORT[1].sost_rise == 1) {
-				reple_to_save.type_event=IN_PORT1_RISE;
-				reple_to_save.dicr=1;
-				IN_PORT[1].sost_rise = 0;
-				IN_PORT[1].event=0;
-
-
-			}
-			if (IN_PORT[1].sost_fall == 1) {
-				reple_to_save.type_event=IN_PORT1_FALL;
-				reple_to_save.dicr=1;
-				IN_PORT[1].sost_fall = 0;
-				IN_PORT[1].event=0;
-
+					reple_to_save.type_event = IN_PORT0_FALL + ct + out_port_n;
+					reple_to_save.dicr = 1;
+					FW_data.gpio.IN_PORT[ct].sost_fall = 0;
+					FW_data.gpio.IN_PORT[ct].event = 0;
+				}
 			}
 		}
+		for (ct = 0; ct < out_port_n; ct++) {
+			if (FW_data.gpio.OUT_PORT[ct].event != 0) {
+				reple_to_save.type_event = FW_data.gpio.OUT_PORT[ct].event;
+				reple_to_save.dicr = 1;
+				FW_data.gpio.OUT_PORT[ct].event = 0;
+				reple_to_save.dicr = 1;
+
+			}
+
+			if (FW_data.gpio.OUT_PORT[ct].input_str.event == 1) {
+				if (FW_data.gpio.OUT_PORT[ct].input_str.sost_rise == 1) {
+					reple_to_save.type_event = IN_PORT0_RISE + ct;
+					reple_to_save.dicr = 1;
+					FW_data.gpio.OUT_PORT[ct].input_str.sost_rise = 0;
+					FW_data.gpio.OUT_PORT[ct].input_str.event = 0;
+
+				}
+				if (FW_data.gpio.OUT_PORT[ct].input_str.sost_fall == 1) {
+
+					reple_to_save.type_event = IN_PORT0_FALL + ct;
+					reple_to_save.dicr = 1;
+					FW_data.gpio.OUT_PORT[ct].input_str.sost_fall = 0;
+					FW_data.gpio.OUT_PORT[ct].input_str.event = 0;
+				}
+			}
+
+		}
+//		if (FW_data.gpio.IN_PORT[1].event == 1) {
+//			if (FW_data.gpio.IN_PORT[1].sost_rise == 1) {
+//				reple_to_save.type_event=IN_PORT1_RISE;
+//				reple_to_save.dicr=1;
+//				FW_data.gpio.IN_PORT[1].sost_rise = 0;
+//				FW_data.gpio.IN_PORT[1].event=0;
+//
+//
+//			}
+//			if (FW_data.gpio.IN_PORT[1].sost_fall == 1) {
+//				reple_to_save.type_event=IN_PORT1_FALL;
+//				reple_to_save.dicr=1;
+//				FW_data.gpio.IN_PORT[1].sost_fall = 0;
+//				FW_data.gpio.IN_PORT[1].event=0;
+//
+//			}
+//	}
+
+
+
+//
+//
+//		if ((FW_data.wdt[0].V_EN_WATCHDOG == 1) && (flag_delay_ping == 0)) {
+//			if (FW_data.wdt[0].V_TYPE_LOGIC == 0) {
+//				if ((ping_data.flag_err[0] != 0) || (ping_data.flag_err[1] != 0)
+//						|| (ping_data.flag_err[2] != 0)) {
+//
+//					if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+//						flag_delay_ping = 1;
+//						form_reple_to_save(SWICH_TOLG_WATCH);
+//						//flag_global_swich_out = SWICH_TOLG_WATCH;
+//						if (FW_data.wdt[0].V_N_OUT == 1) {
+//							FW_data.gpio.OUT_PORT[0].old_sost =
+//									FW_data.gpio.OUT_PORT[0].sost;
+//							FW_data.gpio.OUT_PORT[0].sost = 1;
+//							FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//							FW_data.gpio.OUT_PORT[0].aflag = 1;
+//						} else if (FW_data.wdt[0].V_N_OUT == 2){
+//							FW_data.gpio.OUT_PORT[1].old_sost =
+//									FW_data.gpio.OUT_PORT[1].sost;
+//							FW_data.gpio.OUT_PORT[1].sost = 1;
+//							FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//							FW_data.gpio.OUT_PORT[1].aflag = 1;
+//						}
+//						//  HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//
+//						ct_res_wdt();
+//						ct_cn_a = 0;
+//						ct_cn_b = 0;
+//						ct_cn_c = 0;
+//					} else {
+//						if (ct_max_res
+//								< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+//							flag_delay_ping = 1;
+//							form_reple_to_save(SWICH_TOLG_WATCH);
+//							//flag_global_swich_out = SWICH_TOLG_WATCH;
+//							if (FW_data.wdt[0].V_N_OUT == 1) {
+//								FW_data.gpio.OUT_PORT[0].old_sost =
+//										FW_data.gpio.OUT_PORT[0].sost;
+//								FW_data.gpio.OUT_PORT[0].sost = 1;
+//								FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//								FW_data.gpio.OUT_PORT[0].event =
+//										WEB_OUT_PORT0_TOL;
+//								FW_data.gpio.OUT_PORT[0].aflag = 1;
+//							} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//								FW_data.gpio.OUT_PORT[1].old_sost =
+//										FW_data.gpio.OUT_PORT[1].sost;
+//								FW_data.gpio.OUT_PORT[1].sost = 1;
+//								FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//								FW_data.gpio.OUT_PORT[1].event =
+//										WEB_OUT_PORT1_TOL;
+//								FW_data.gpio.OUT_PORT[1].aflag = 1;
+//							}
+//							///    HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//							ct_max_res++;
+//
+//							ct_res_wdt();
+//							ct_cn_a = 0;
+//							ct_cn_b = 0;
+//							ct_cn_c = 0;
+//
+//						}
+//						//         else
+//						//          {
+//						//
+//						//           en_ping_a=0;
+//						//           en_ping_b=0;
+//						//           en_ping_c=0;
+//						//           ping_data.flag_err[0]=0;
+//						//           ping_data.flag_err[1]=0;
+//						//           ping_data.flag_err[2]=0;
+//						//
+//						//
+//						//          }
+//					}
+//				} else {
+//					ct_max_res = 0;
+//				}
+//			}
+//			if (FW_data.wdt[0].V_TYPE_LOGIC == 1) {
+//				if ((ping_data.flag_err[0] != 0) && (ping_data.flag_err[1] != 0)
+//						&& (ping_data.flag_err[2] != 0)) {
+//
+//					if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+//						form_reple_to_save(SWICH_TOLG_WATCH);
+//						//flag_global_swich_out=SWICH_TOLG_WATCH;/
+//						if (FW_data.wdt[0].V_N_OUT == 1) {
+//							FW_data.gpio.OUT_PORT[0].old_sost =
+//									FW_data.gpio.OUT_PORT[0].sost;
+//							FW_data.gpio.OUT_PORT[0].sost = 1;
+//							FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//							FW_data.gpio.OUT_PORT[0].aflag = 1;
+//						} else  if (FW_data.wdt[0].V_N_OUT == 2){
+//							FW_data.gpio.OUT_PORT[1].old_sost =
+//									FW_data.gpio.OUT_PORT[1].sost;
+//							FW_data.gpio.OUT_PORT[1].sost = 1;
+//							FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//							FW_data.gpio.OUT_PORT[1].aflag = 1;
+//						}
+//						//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//						flag_delay_ping = 1;
+//						ct_res_wdt();
+//						ct_cn_a = 0;
+//						ct_cn_b = 0;
+//						ct_cn_c = 0;
+//					} else {
+//						if (ct_max_res
+//								< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+//							form_reple_to_save(SWICH_TOLG_WATCH);
+//							//flag_global_swich_out=SWICH_TOLG_WATCH;
+//							if (FW_data.wdt[0].V_N_OUT == 1) {
+//								FW_data.gpio.OUT_PORT[0].old_sost =
+//										FW_data.gpio.OUT_PORT[0].sost;
+//								FW_data.gpio.OUT_PORT[0].sost = 1;
+//								FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//								FW_data.gpio.OUT_PORT[0].event =
+//										WEB_OUT_PORT0_TOL;
+//								FW_data.gpio.OUT_PORT[0].aflag = 1;
+//							} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//								FW_data.gpio.OUT_PORT[1].old_sost =
+//										FW_data.gpio.OUT_PORT[1].sost;
+//								FW_data.gpio.OUT_PORT[1].sost = 1;
+//								FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//								FW_data.gpio.OUT_PORT[1].event =
+//										WEB_OUT_PORT1_TOL;
+//								FW_data.gpio.OUT_PORT[1].aflag = 1;
+//							}
+//							//        HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//							ct_max_res++;
+//							flag_delay_ping = 1;
+//							ct_res_wdt();
+//							ct_cn_a = 0;
+//							ct_cn_b = 0;
+//							ct_cn_c = 0;
+//						}
+//						//         else
+//						//          {
+//						//           en_ping_a=0;
+//						//           en_ping_b=0;
+//						//           en_ping_c=0;
+//						//           ping_data.flag_err[0]=0;
+//						//           ping_data.flag_err[1]=0;
+//						//           ping_data.flag_err[2]=0;
+//						//          }
+//					}
+//				} else {
+//					ct_max_res = 0;
+//				}
+//			}
+//			if (FW_data.wdt[0].V_TYPE_LOGIC == 2) {
+//				if (((ping_data.flag_err[0] != 0)
+//						&& (ping_data.flag_err[1] != 0))
+//						|| ((ping_data.flag_err[0] != 0)
+//								&& (ping_data.flag_err[2] != 0))) {
+//
+//					if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+//						form_reple_to_save(SWICH_TOLG_WATCH);
+//						//    flag_global_swich_out=SWICH_TOLG_WATCH;
+//						if (FW_data.wdt[0].V_N_OUT == 1) {
+//							FW_data.gpio.OUT_PORT[0].old_sost =
+//									FW_data.gpio.OUT_PORT[0].sost;
+//							FW_data.gpio.OUT_PORT[0].sost = 1;
+//							FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//							FW_data.gpio.OUT_PORT[0].aflag = 1;
+//						} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//							FW_data.gpio.OUT_PORT[1].old_sost =
+//									FW_data.gpio.OUT_PORT[1].sost;
+//							FW_data.gpio.OUT_PORT[1].sost = 1;
+//							FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//							FW_data.gpio.OUT_PORT[1].aflag = 1;
+//						}
+//						//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//						flag_delay_ping = 1;
+//						ct_res_wdt();
+//						ct_cn_a = 0;
+//						ct_cn_b = 0;
+//						ct_cn_c = 0;
+//					} else {
+//						if (ct_max_res
+//								< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+//							form_reple_to_save(SWICH_TOLG_WATCH);
+//							// flag_global_swich_out=SWICH_TOLG_WATCH;
+//							//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//							if (FW_data.wdt[0].V_N_OUT == 1) {
+//								FW_data.gpio.OUT_PORT[0].old_sost =
+//										FW_data.gpio.OUT_PORT[0].sost;
+//								FW_data.gpio.OUT_PORT[0].sost = 1;
+//								FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//								FW_data.gpio.OUT_PORT[0].event =
+//										WEB_OUT_PORT0_TOL;
+//								FW_data.gpio.OUT_PORT[0].aflag = 1;
+//							} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//								FW_data.gpio.OUT_PORT[1].old_sost =
+//										FW_data.gpio.OUT_PORT[1].sost;
+//								FW_data.gpio.OUT_PORT[1].sost = 1;
+//								FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//								FW_data.gpio.OUT_PORT[1].event =
+//										WEB_OUT_PORT1_TOL;
+//								FW_data.gpio.OUT_PORT[1].aflag = 1;
+//							}
+//							ct_max_res++;
+//							flag_delay_ping = 1;
+//							ct_res_wdt();
+//							ct_cn_a = 0;
+//							ct_cn_b = 0;
+//							ct_cn_c = 0;
+//						}
+//						//          else
+//						//          {
+//						//           en_ping_a=0;
+//						//           en_ping_b=0;
+//						//           en_ping_c=0;
+//						//           ping_data.flag_err[0]=0;
+//						//           ping_data.flag_err[1]=0;
+//						//           ping_data.flag_err[2]=0;
+//						//          }
+//					}
+//				} else {
+//					ct_max_res = 0;
+//				}
+//			}
+//			if (FW_data.wdt[0].V_TYPE_LOGIC == 3) {
+//				if (((ping_data.flag_err[0] != 0)
+//						&& (ping_data.flag_err[1] != 1))
+//						&& ((ping_data.flag_err[0] != 0)
+//								&& (ping_data.flag_err[2] != 1))) {
+//					if (ct_max_res < FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+//						form_reple_to_save(SWICH_TOLG_WATCH);
+//						//  flag_global_swich_out=SWICH_TOLG_WATCH;
+//						if (FW_data.wdt[0].V_N_OUT == 1) {
+//							FW_data.gpio.OUT_PORT[0].old_sost =
+//									FW_data.gpio.OUT_PORT[0].sost;
+//							FW_data.gpio.OUT_PORT[0].sost = 1;
+//							FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//							FW_data.gpio.OUT_PORT[0].aflag = 1;
+//						} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//							FW_data.gpio.OUT_PORT[1].old_sost =
+//									FW_data.gpio.OUT_PORT[1].sost;
+//							FW_data.gpio.OUT_PORT[1].sost = 1;
+//							FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//							FW_data.gpio.OUT_PORT[1].aflag = 1;
+//						}
+//						//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//						ct_max_res++;
+//						flag_delay_ping = 1;
+//						ct_res_wdt();
+//						ct_cn_a = 0;
+//						ct_cn_b = 0;
+//						ct_cn_c = 0;
+//					}
+//					if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+//						form_reple_to_save(SWICH_TOLG_WATCH);
+//						//  flag_global_swich_out=SWICH_TOLG_WATCH;
+//						if (FW_data.wdt[0].V_N_OUT == 1) {
+//							FW_data.gpio.OUT_PORT[0].old_sost =
+//									FW_data.gpio.OUT_PORT[0].sost;
+//							FW_data.gpio.OUT_PORT[0].sost = 1;
+//							FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//							FW_data.gpio.OUT_PORT[0].aflag = 1;
+//						} else  if (FW_data.wdt[0].V_N_OUT == 2){
+//							FW_data.gpio.OUT_PORT[1].old_sost =
+//									FW_data.gpio.OUT_PORT[1].sost;
+//							FW_data.gpio.OUT_PORT[1].sost = 1;
+//							FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//							FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//							FW_data.gpio.OUT_PORT[1].aflag = 1;
+//						}
+//						//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//						flag_delay_ping = 1;
+//						ct_res_wdt();
+//						ct_cn_a = 0;
+//						ct_cn_b = 0;
+//						ct_cn_c = 0;
+//					}
+//				} else {
+//					ct_max_res = 0;
+//				}
+//			}
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//			if ((FW_data.wdt[0].V_EN_WATCHDOG == 1) && (flag_delay_ping == 0)) {
+//						if (FW_data.wdt[0].V_TYPE_LOGIC == 0) {
+//							if ((ping_data.flag_err[0] != 0) || (ping_data.flag_err[1] != 0)
+//									|| (ping_data.flag_err[2] != 0)) {
+//
+//								if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+//									flag_delay_ping = 1;
+//									form_reple_to_save(SWICH_TOLG_WATCH);
+//									//flag_global_swich_out = SWICH_TOLG_WATCH;
+//									if (FW_data.wdt[0].V_N_OUT == 1) {
+//										FW_data.gpio.OUT_PORT[0].old_sost =
+//												FW_data.gpio.OUT_PORT[0].sost;
+//										FW_data.gpio.OUT_PORT[0].sost = 1;
+//										FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//										FW_data.gpio.OUT_PORT[0].aflag = 1;
+//									} else if (FW_data.wdt[0].V_N_OUT == 2){
+//										FW_data.gpio.OUT_PORT[1].old_sost =
+//												FW_data.gpio.OUT_PORT[1].sost;
+//										FW_data.gpio.OUT_PORT[1].sost = 1;
+//										FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//										FW_data.gpio.OUT_PORT[1].aflag = 1;
+//									}
+//									//  HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//
+//									ct_res_wdt();
+//									ct_cn_a = 0;
+//									ct_cn_b = 0;
+//									ct_cn_c = 0;
+//								} else {
+//									if (ct_max_res
+//											< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+//										flag_delay_ping = 1;
+//										form_reple_to_save(SWICH_TOLG_WATCH);
+//										//flag_global_swich_out = SWICH_TOLG_WATCH;
+//										if (FW_data.wdt[0].V_N_OUT == 1) {
+//											FW_data.gpio.OUT_PORT[0].old_sost =
+//													FW_data.gpio.OUT_PORT[0].sost;
+//											FW_data.gpio.OUT_PORT[0].sost = 1;
+//											FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//											FW_data.gpio.OUT_PORT[0].event =
+//													WEB_OUT_PORT0_TOL;
+//											FW_data.gpio.OUT_PORT[0].aflag = 1;
+//										} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//											FW_data.gpio.OUT_PORT[1].old_sost =
+//													FW_data.gpio.OUT_PORT[1].sost;
+//											FW_data.gpio.OUT_PORT[1].sost = 1;
+//											FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//											FW_data.gpio.OUT_PORT[1].event =
+//													WEB_OUT_PORT1_TOL;
+//											FW_data.gpio.OUT_PORT[1].aflag = 1;
+//										}
+//										///    HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//										ct_max_res++;
+//
+//										ct_res_wdt();
+//										ct_cn_a = 0;
+//										ct_cn_b = 0;
+//										ct_cn_c = 0;
+//
+//									}
+//									//         else
+//									//          {
+//									//
+//									//           en_ping_a=0;
+//									//           en_ping_b=0;
+//									//           en_ping_c=0;
+//									//           ping_data.flag_err[0]=0;
+//									//           ping_data.flag_err[1]=0;
+//									//           ping_data.flag_err[2]=0;
+//									//
+//									//
+//									//          }
+//								}
+//							} else {
+//								ct_max_res = 0;
+//							}
+//						}
+//						if (FW_data.wdt[0].V_TYPE_LOGIC == 1) {
+//							if ((ping_data.flag_err[0] != 0) && (ping_data.flag_err[1] != 0)
+//									&& (ping_data.flag_err[2] != 0)) {
+//
+//								if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+//									form_reple_to_save(SWICH_TOLG_WATCH);
+//									//flag_global_swich_out=SWICH_TOLG_WATCH;/
+//									if (FW_data.wdt[0].V_N_OUT == 1) {
+//										FW_data.gpio.OUT_PORT[0].old_sost =
+//												FW_data.gpio.OUT_PORT[0].sost;
+//										FW_data.gpio.OUT_PORT[0].sost = 1;
+//										FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//										FW_data.gpio.OUT_PORT[0].aflag = 1;
+//									} else  if (FW_data.wdt[0].V_N_OUT == 2){
+//										FW_data.gpio.OUT_PORT[1].old_sost =
+//												FW_data.gpio.OUT_PORT[1].sost;
+//										FW_data.gpio.OUT_PORT[1].sost = 1;
+//										FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//										FW_data.gpio.OUT_PORT[1].aflag = 1;
+//									}
+//									//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//									flag_delay_ping = 1;
+//									ct_res_wdt();
+//									ct_cn_a = 0;
+//									ct_cn_b = 0;
+//									ct_cn_c = 0;
+//								} else {
+//									if (ct_max_res
+//											< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+//										form_reple_to_save(SWICH_TOLG_WATCH);
+//										//flag_global_swich_out=SWICH_TOLG_WATCH;
+//										if (FW_data.wdt[0].V_N_OUT == 1) {
+//											FW_data.gpio.OUT_PORT[0].old_sost =
+//													FW_data.gpio.OUT_PORT[0].sost;
+//											FW_data.gpio.OUT_PORT[0].sost = 1;
+//											FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//											FW_data.gpio.OUT_PORT[0].event =
+//													WEB_OUT_PORT0_TOL;
+//											FW_data.gpio.OUT_PORT[0].aflag = 1;
+//										} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//											FW_data.gpio.OUT_PORT[1].old_sost =
+//													FW_data.gpio.OUT_PORT[1].sost;
+//											FW_data.gpio.OUT_PORT[1].sost = 1;
+//											FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//											FW_data.gpio.OUT_PORT[1].event =
+//													WEB_OUT_PORT1_TOL;
+//											FW_data.gpio.OUT_PORT[1].aflag = 1;
+//										}
+//										//        HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//										ct_max_res++;
+//										flag_delay_ping = 1;
+//										ct_res_wdt();
+//										ct_cn_a = 0;
+//										ct_cn_b = 0;
+//										ct_cn_c = 0;
+//									}
+//									//         else
+//									//          {
+//									//           en_ping_a=0;
+//									//           en_ping_b=0;
+//									//           en_ping_c=0;
+//									//           ping_data.flag_err[0]=0;
+//									//           ping_data.flag_err[1]=0;
+//									//           ping_data.flag_err[2]=0;
+//									//          }
+//								}
+//							} else {
+//								ct_max_res = 0;
+//							}
+//						}
+//						if (FW_data.wdt[0].V_TYPE_LOGIC == 2) {
+//							if (((ping_data.flag_err[0] != 0)
+//									&& (ping_data.flag_err[1] != 0))
+//									|| ((ping_data.flag_err[0] != 0)
+//											&& (ping_data.flag_err[2] != 0))) {
+//
+//								if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+//									form_reple_to_save(SWICH_TOLG_WATCH);
+//									//    flag_global_swich_out=SWICH_TOLG_WATCH;
+//									if (FW_data.wdt[0].V_N_OUT == 1) {
+//										FW_data.gpio.OUT_PORT[0].old_sost =
+//												FW_data.gpio.OUT_PORT[0].sost;
+//										FW_data.gpio.OUT_PORT[0].sost = 1;
+//										FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//										FW_data.gpio.OUT_PORT[0].aflag = 1;
+//									} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//										FW_data.gpio.OUT_PORT[1].old_sost =
+//												FW_data.gpio.OUT_PORT[1].sost;
+//										FW_data.gpio.OUT_PORT[1].sost = 1;
+//										FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//										FW_data.gpio.OUT_PORT[1].aflag = 1;
+//									}
+//									//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//									flag_delay_ping = 1;
+//									ct_res_wdt();
+//									ct_cn_a = 0;
+//									ct_cn_b = 0;
+//									ct_cn_c = 0;
+//								} else {
+//									if (ct_max_res
+//											< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+//										form_reple_to_save(SWICH_TOLG_WATCH);
+//										// flag_global_swich_out=SWICH_TOLG_WATCH;
+//										//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//										if (FW_data.wdt[0].V_N_OUT == 1) {
+//											FW_data.gpio.OUT_PORT[0].old_sost =
+//													FW_data.gpio.OUT_PORT[0].sost;
+//											FW_data.gpio.OUT_PORT[0].sost = 1;
+//											FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//											FW_data.gpio.OUT_PORT[0].event =
+//													WEB_OUT_PORT0_TOL;
+//											FW_data.gpio.OUT_PORT[0].aflag = 1;
+//										} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//											FW_data.gpio.OUT_PORT[1].old_sost =
+//													FW_data.gpio.OUT_PORT[1].sost;
+//											FW_data.gpio.OUT_PORT[1].sost = 1;
+//											FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//											FW_data.gpio.OUT_PORT[1].event =
+//													WEB_OUT_PORT1_TOL;
+//											FW_data.gpio.OUT_PORT[1].aflag = 1;
+//										}
+//										ct_max_res++;
+//										flag_delay_ping = 1;
+//										ct_res_wdt();
+//										ct_cn_a = 0;
+//										ct_cn_b = 0;
+//										ct_cn_c = 0;
+//									}
+//									//          else
+//									//          {
+//									//           en_ping_a=0;
+//									//           en_ping_b=0;
+//									//           en_ping_c=0;
+//									//           ping_data.flag_err[0]=0;
+//									//           ping_data.flag_err[1]=0;
+//									//           ping_data.flag_err[2]=0;
+//									//          }
+//								}
+//							} else {
+//								ct_max_res = 0;
+//							}
+//						}
+//						if (FW_data.wdt[0].V_TYPE_LOGIC == 3) {
+//							if (((ping_data.flag_err[0] != 0)
+//									&& (ping_data.flag_err[1] != 1))
+//									&& ((ping_data.flag_err[0] != 0)
+//											&& (ping_data.flag_err[2] != 1))) {
+//								if (ct_max_res < FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+//									form_reple_to_save(SWICH_TOLG_WATCH);
+//									//  flag_global_swich_out=SWICH_TOLG_WATCH;
+//									if (FW_data.wdt[0].V_N_OUT == 1) {
+//										FW_data.gpio.OUT_PORT[0].old_sost =
+//												FW_data.gpio.OUT_PORT[0].sost;
+//										FW_data.gpio.OUT_PORT[0].sost = 1;
+//										FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//										FW_data.gpio.OUT_PORT[0].aflag = 1;
+//									} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+//										FW_data.gpio.OUT_PORT[1].old_sost =
+//												FW_data.gpio.OUT_PORT[1].sost;
+//										FW_data.gpio.OUT_PORT[1].sost = 1;
+//										FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//										FW_data.gpio.OUT_PORT[1].aflag = 1;
+//									}
+//									//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//									ct_max_res++;
+//									flag_delay_ping = 1;
+//									ct_res_wdt();
+//									ct_cn_a = 0;
+//									ct_cn_b = 0;
+//									ct_cn_c = 0;
+//								}
+//								if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+//									form_reple_to_save(SWICH_TOLG_WATCH);
+//									//  flag_global_swich_out=SWICH_TOLG_WATCH;
+//									if (FW_data.wdt[0].V_N_OUT == 1) {
+//										FW_data.gpio.OUT_PORT[0].old_sost =
+//												FW_data.gpio.OUT_PORT[0].sost;
+//										FW_data.gpio.OUT_PORT[0].sost = 1;
+//										FW_data.gpio.OUT_PORT[0].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+//										FW_data.gpio.OUT_PORT[0].aflag = 1;
+//									} else  if (FW_data.wdt[0].V_N_OUT == 2){
+//										FW_data.gpio.OUT_PORT[1].old_sost =
+//												FW_data.gpio.OUT_PORT[1].sost;
+//										FW_data.gpio.OUT_PORT[1].sost = 1;
+//										FW_data.gpio.OUT_PORT[1].type_logic = 3;
+//										FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+//										FW_data.gpio.OUT_PORT[1].aflag = 1;
+//									}
+//									//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+//									flag_delay_ping = 1;
+//									ct_res_wdt();
+//									ct_cn_a = 0;
+//									ct_cn_b = 0;
+//									ct_cn_c = 0;
+//								}
+//							} else {
+//								ct_max_res = 0;
+//							}
+//						}
+//		}
+//
+
+
+
+
+			if ((FW_data.wdt[0].V_EN_WATCHDOG == 1) && (flag_delay_ping == 0)) {
+				if (FW_data.wdt[0].V_TYPE_LOGIC == 0) {
+					if ((ping_data.flag_err[0] != 0) || (ping_data.flag_err[1] != 0)
+							|| (ping_data.flag_err[2] != 0)) {
+
+						if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+							flag_delay_ping = 1;
+							form_reple_to_save(SWICH_TOLG_WATCH);
+							//flag_global_swich_out = SWICH_TOLG_WATCH;
+							if (FW_data.wdt[0].V_N_OUT == 1) {
+								FW_data.gpio.OUT_PORT[0].old_sost =
+										FW_data.gpio.OUT_PORT[0].sost;
+								FW_data.gpio.OUT_PORT[0].sost = 1;
+								FW_data.gpio.OUT_PORT[0].type_logic = 3;
+								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+								FW_data.gpio.OUT_PORT[0].aflag = 1;
+							} else if (FW_data.wdt[0].V_N_OUT == 2){
+								FW_data.gpio.OUT_PORT[1].old_sost =
+										FW_data.gpio.OUT_PORT[1].sost;
+								FW_data.gpio.OUT_PORT[1].sost = 1;
+								FW_data.gpio.OUT_PORT[1].type_logic = 3;
+								FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+								FW_data.gpio.OUT_PORT[1].aflag = 1;
+							}
+							//  HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+
+							ct_res_wdt();
+							ct_cn_a = 0;
+							ct_cn_b = 0;
+							ct_cn_c = 0;
+						} else {
+							if (ct_max_res
+									< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+								flag_delay_ping = 1;
+								form_reple_to_save(SWICH_TOLG_WATCH);
+								//flag_global_swich_out = SWICH_TOLG_WATCH;
+								if (FW_data.wdt[0].V_N_OUT == 1) {
+									FW_data.gpio.OUT_PORT[0].old_sost =
+											FW_data.gpio.OUT_PORT[0].sost;
+									FW_data.gpio.OUT_PORT[0].sost = 1;
+									FW_data.gpio.OUT_PORT[0].type_logic = 3;
+									FW_data.gpio.OUT_PORT[0].event =
+											WEB_OUT_PORT0_TOL;
+									FW_data.gpio.OUT_PORT[0].aflag = 1;
+								} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+									FW_data.gpio.OUT_PORT[1].old_sost =
+											FW_data.gpio.OUT_PORT[1].sost;
+									FW_data.gpio.OUT_PORT[1].sost = 1;
+									FW_data.gpio.OUT_PORT[1].type_logic = 3;
+									FW_data.gpio.OUT_PORT[1].event =
+											WEB_OUT_PORT1_TOL;
+									FW_data.gpio.OUT_PORT[1].aflag = 1;
+								}
+								///    HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+								ct_max_res++;
+
+								ct_res_wdt();
+								ct_cn_a = 0;
+								ct_cn_b = 0;
+								ct_cn_c = 0;
+
+							}
+							//         else
+							//          {
+							//
+							//           en_ping_a=0;
+							//           en_ping_b=0;
+							//           en_ping_c=0;
+							//           ping_data.flag_err[0]=0;
+							//           ping_data.flag_err[1]=0;
+							//           ping_data.flag_err[2]=0;
+							//
+							//
+							//          }
+						}
+					} else {
+						ct_max_res = 0;
+					}
+				}
+				if (FW_data.wdt[0].V_TYPE_LOGIC == 1) {
+					if ((ping_data.flag_err[0] != 0) && (ping_data.flag_err[1] != 0)
+							&& (ping_data.flag_err[2] != 0)) {
+
+						if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+							form_reple_to_save(SWICH_TOLG_WATCH);
+							//flag_global_swich_out=SWICH_TOLG_WATCH;/
+							if (FW_data.wdt[0].V_N_OUT == 1) {
+								FW_data.gpio.OUT_PORT[0].old_sost =
+										FW_data.gpio.OUT_PORT[0].sost;
+								FW_data.gpio.OUT_PORT[0].sost = 1;
+								FW_data.gpio.OUT_PORT[0].type_logic = 3;
+								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+								FW_data.gpio.OUT_PORT[0].aflag = 1;
+							} else  if (FW_data.wdt[0].V_N_OUT == 2){
+								FW_data.gpio.OUT_PORT[1].old_sost =
+										FW_data.gpio.OUT_PORT[1].sost;
+								FW_data.gpio.OUT_PORT[1].sost = 1;
+								FW_data.gpio.OUT_PORT[1].type_logic = 3;
+								FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+								FW_data.gpio.OUT_PORT[1].aflag = 1;
+							}
+							//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+							flag_delay_ping = 1;
+							ct_res_wdt();
+							ct_cn_a = 0;
+							ct_cn_b = 0;
+							ct_cn_c = 0;
+						} else {
+							if (ct_max_res
+									< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+								form_reple_to_save(SWICH_TOLG_WATCH);
+								//flag_global_swich_out=SWICH_TOLG_WATCH;
+								if (FW_data.wdt[0].V_N_OUT == 1) {
+									FW_data.gpio.OUT_PORT[0].old_sost =
+											FW_data.gpio.OUT_PORT[0].sost;
+									FW_data.gpio.OUT_PORT[0].sost = 1;
+									FW_data.gpio.OUT_PORT[0].type_logic = 3;
+									FW_data.gpio.OUT_PORT[0].event =
+											WEB_OUT_PORT0_TOL;
+									FW_data.gpio.OUT_PORT[0].aflag = 1;
+								} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+									FW_data.gpio.OUT_PORT[1].old_sost =
+											FW_data.gpio.OUT_PORT[1].sost;
+									FW_data.gpio.OUT_PORT[1].sost = 1;
+									FW_data.gpio.OUT_PORT[1].type_logic = 3;
+									FW_data.gpio.OUT_PORT[1].event =
+											WEB_OUT_PORT1_TOL;
+									FW_data.gpio.OUT_PORT[1].aflag = 1;
+								}
+								//        HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+								ct_max_res++;
+								flag_delay_ping = 1;
+								ct_res_wdt();
+								ct_cn_a = 0;
+								ct_cn_b = 0;
+								ct_cn_c = 0;
+							}
+							//         else
+							//          {
+							//           en_ping_a=0;
+							//           en_ping_b=0;
+							//           en_ping_c=0;
+							//           ping_data.flag_err[0]=0;
+							//           ping_data.flag_err[1]=0;
+							//           ping_data.flag_err[2]=0;
+							//          }
+						}
+					} else {
+						ct_max_res = 0;
+					}
+				}
+				if (FW_data.wdt[0].V_TYPE_LOGIC == 2) {
+					if (((ping_data.flag_err[0] != 0)
+							&& (ping_data.flag_err[1] != 0))
+							|| ((ping_data.flag_err[0] != 0)
+									&& (ping_data.flag_err[2] != 0))) {
+
+						if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+							form_reple_to_save(SWICH_TOLG_WATCH);
+							//    flag_global_swich_out=SWICH_TOLG_WATCH;
+							if (FW_data.wdt[0].V_N_OUT == 1) {
+								FW_data.gpio.OUT_PORT[0].old_sost =
+										FW_data.gpio.OUT_PORT[0].sost;
+								FW_data.gpio.OUT_PORT[0].sost = 1;
+								FW_data.gpio.OUT_PORT[0].type_logic = 3;
+								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+								FW_data.gpio.OUT_PORT[0].aflag = 1;
+							} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+								FW_data.gpio.OUT_PORT[1].old_sost =
+										FW_data.gpio.OUT_PORT[1].sost;
+								FW_data.gpio.OUT_PORT[1].sost = 1;
+								FW_data.gpio.OUT_PORT[1].type_logic = 3;
+								FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+								FW_data.gpio.OUT_PORT[1].aflag = 1;
+							}
+							//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+							flag_delay_ping = 1;
+							ct_res_wdt();
+							ct_cn_a = 0;
+							ct_cn_b = 0;
+							ct_cn_c = 0;
+						} else {
+							if (ct_max_res
+									< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+								form_reple_to_save(SWICH_TOLG_WATCH);
+								// flag_global_swich_out=SWICH_TOLG_WATCH;
+								//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+								if (FW_data.wdt[0].V_N_OUT == 1) {
+									FW_data.gpio.OUT_PORT[0].old_sost =
+											FW_data.gpio.OUT_PORT[0].sost;
+									FW_data.gpio.OUT_PORT[0].sost = 1;
+									FW_data.gpio.OUT_PORT[0].type_logic = 3;
+									FW_data.gpio.OUT_PORT[0].event =
+											WEB_OUT_PORT0_TOL;
+									FW_data.gpio.OUT_PORT[0].aflag = 1;
+								} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+									FW_data.gpio.OUT_PORT[1].old_sost =
+											FW_data.gpio.OUT_PORT[1].sost;
+									FW_data.gpio.OUT_PORT[1].sost = 1;
+									FW_data.gpio.OUT_PORT[1].type_logic = 3;
+									FW_data.gpio.OUT_PORT[1].event =
+											WEB_OUT_PORT1_TOL;
+									FW_data.gpio.OUT_PORT[1].aflag = 1;
+								}
+								ct_max_res++;
+								flag_delay_ping = 1;
+								ct_res_wdt();
+								ct_cn_a = 0;
+								ct_cn_b = 0;
+								ct_cn_c = 0;
+							}
+							//          else
+							//          {
+							//           en_ping_a=0;
+							//           en_ping_b=0;
+							//           en_ping_c=0;
+							//           ping_data.flag_err[0]=0;
+							//           ping_data.flag_err[1]=0;
+							//           ping_data.flag_err[2]=0;
+							//          }
+						}
+					} else {
+						ct_max_res = 0;
+					}
+				}
+				if (FW_data.wdt[0].V_TYPE_LOGIC == 3) {
+					if (((ping_data.flag_err[0] != 0)
+							&& (ping_data.flag_err[1] != 1))
+							&& ((ping_data.flag_err[0] != 0)
+									&& (ping_data.flag_err[2] != 1))) {
+						if (ct_max_res < FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
+							form_reple_to_save(SWICH_TOLG_WATCH);
+							//  flag_global_swich_out=SWICH_TOLG_WATCH;
+							if (FW_data.wdt[0].V_N_OUT == 1) {
+								FW_data.gpio.OUT_PORT[0].old_sost =
+										FW_data.gpio.OUT_PORT[0].sost;
+								FW_data.gpio.OUT_PORT[0].sost = 1;
+								FW_data.gpio.OUT_PORT[0].type_logic = 3;
+								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+								FW_data.gpio.OUT_PORT[0].aflag = 1;
+							} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+								FW_data.gpio.OUT_PORT[1].old_sost =
+										FW_data.gpio.OUT_PORT[1].sost;
+								FW_data.gpio.OUT_PORT[1].sost = 1;
+								FW_data.gpio.OUT_PORT[1].type_logic = 3;
+								FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+								FW_data.gpio.OUT_PORT[1].aflag = 1;
+							}
+							//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+							ct_max_res++;
+							flag_delay_ping = 1;
+							ct_res_wdt();
+							ct_cn_a = 0;
+							ct_cn_b = 0;
+							ct_cn_c = 0;
+						}
+						if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
+							form_reple_to_save(SWICH_TOLG_WATCH);
+							//  flag_global_swich_out=SWICH_TOLG_WATCH;
+							if (FW_data.wdt[0].V_N_OUT == 1) {
+								FW_data.gpio.OUT_PORT[0].old_sost =
+										FW_data.gpio.OUT_PORT[0].sost;
+								FW_data.gpio.OUT_PORT[0].sost = 1;
+								FW_data.gpio.OUT_PORT[0].type_logic = 3;
+								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+								FW_data.gpio.OUT_PORT[0].aflag = 1;
+							} else  if (FW_data.wdt[0].V_N_OUT == 2){
+								FW_data.gpio.OUT_PORT[1].old_sost =
+										FW_data.gpio.OUT_PORT[1].sost;
+								FW_data.gpio.OUT_PORT[1].sost = 1;
+								FW_data.gpio.OUT_PORT[1].type_logic = 3;
+								FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+								FW_data.gpio.OUT_PORT[1].aflag = 1;
+							}
+							//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+							flag_delay_ping = 1;
+							ct_res_wdt();
+							ct_cn_a = 0;
+							ct_cn_b = 0;
+							ct_cn_c = 0;
+						}
+					} else {
+						ct_max_res = 0;
+					}
+				}
+
+
+
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+				if ((FW_data.wdt[1].V_EN_WATCHDOG == 1) && (flag_delay_ping1 == 0)) {
+							if (FW_data.wdt[1].V_TYPE_LOGIC == 0) {
+								if ((ping_data1.flag_err[0] != 0) || (ping_data1.flag_err[1] != 0)
+										|| (ping_data1.flag_err[2] != 0)) {
+
+									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 0) {
+										flag_delay_ping1 = 1;
+										form_reple_to_save(SWICH_TOLG_WATCH);
+										//flag_global_swich_out = SWICH_TOLG_WATCH;
+										if (FW_data.wdt[1].V_N_OUT == 1) {
+											FW_data.gpio.OUT_PORT[0].old_sost =
+													FW_data.gpio.OUT_PORT[0].sost;
+											FW_data.gpio.OUT_PORT[0].sost = 1;
+											FW_data.gpio.OUT_PORT[0].type_logic = 3;
+											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+											FW_data.gpio.OUT_PORT[0].aflag = 1;
+										} else if (FW_data.wdt[1].V_N_OUT == 2){
+											FW_data.gpio.OUT_PORT[1].old_sost =
+													FW_data.gpio.OUT_PORT[1].sost;
+											FW_data.gpio.OUT_PORT[1].sost = 1;
+											FW_data.gpio.OUT_PORT[1].type_logic = 3;
+											FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+											FW_data.gpio.OUT_PORT[1].aflag = 1;
+										}
+										//  HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+
+										ct_res_wdt1();
+										ct_cn_a1 = 0;
+										ct_cn_b1 = 0;
+										ct_cn_c1 = 0;
+									} else {
+										if (ct_max_res1
+												< FW_data.wdt[1].V_MAX_RESEND_PACET_RESET) {
+											flag_delay_ping1 = 1;
+											form_reple_to_save(SWICH_TOLG_WATCH);
+											//flag_global_swich_out = SWICH_TOLG_WATCH;
+											if (FW_data.wdt[1].V_N_OUT == 1) {
+												FW_data.gpio.OUT_PORT[0].old_sost =
+														FW_data.gpio.OUT_PORT[0].sost;
+												FW_data.gpio.OUT_PORT[0].sost = 1;
+												FW_data.gpio.OUT_PORT[0].type_logic = 3;
+												FW_data.gpio.OUT_PORT[0].event =
+														WEB_OUT_PORT0_TOL;
+												FW_data.gpio.OUT_PORT[0].aflag = 1;
+											} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+												FW_data.gpio.OUT_PORT[1].old_sost =
+														FW_data.gpio.OUT_PORT[1].sost;
+												FW_data.gpio.OUT_PORT[1].sost = 1;
+												FW_data.gpio.OUT_PORT[1].type_logic = 3;
+												FW_data.gpio.OUT_PORT[1].event =
+														WEB_OUT_PORT1_TOL;
+												FW_data.gpio.OUT_PORT[1].aflag = 1;
+											}
+											///    HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+											ct_max_res1++;
+
+											ct_res_wdt1();
+											ct_cn_a1 = 0;
+											ct_cn_b1 = 0;
+											ct_cn_c1 = 0;
+
+										}
+										//         else
+										//          {
+										//
+										//           en_ping_a=0;
+										//           en_ping_b=0;
+										//           en_ping_c=0;
+										//           ping_data.flag_err[0]=0;
+										//           ping_data.flag_err[1]=0;
+										//           ping_data.flag_err[2]=0;
+										//
+										//
+										//          }
+									}
+								} else {
+									ct_max_res1 = 0;
+								}
+							}
+							if (FW_data.wdt[1].V_TYPE_LOGIC == 1) {
+								if ((ping_data1.flag_err[0] != 0) && (ping_data1.flag_err[1] != 0)
+										&& (ping_data1.flag_err[2] != 0)) {
+
+									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 0) {
+										form_reple_to_save(SWICH_TOLG_WATCH);
+										//flag_global_swich_out=SWICH_TOLG_WATCH;/
+										if (FW_data.wdt[1].V_N_OUT == 1) {
+											FW_data.gpio.OUT_PORT[0].old_sost =
+													FW_data.gpio.OUT_PORT[0].sost;
+											FW_data.gpio.OUT_PORT[0].sost = 1;
+											FW_data.gpio.OUT_PORT[0].type_logic = 3;
+											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+											FW_data.gpio.OUT_PORT[0].aflag = 1;
+										} else  if (FW_data.wdt[1].V_N_OUT == 2){
+											FW_data.gpio.OUT_PORT[1].old_sost =
+													FW_data.gpio.OUT_PORT[1].sost;
+											FW_data.gpio.OUT_PORT[1].sost = 1;
+											FW_data.gpio.OUT_PORT[1].type_logic = 3;
+											FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+											FW_data.gpio.OUT_PORT[1].aflag = 1;
+										}
+										//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+										flag_delay_ping1 = 1;
+										ct_res_wdt1();
+										ct_cn_a1 = 0;
+										ct_cn_b1 = 0;
+										ct_cn_c1 = 0;
+									} else {
+										if (ct_max_res1
+												< FW_data.wdt[1].V_MAX_RESEND_PACET_RESET) {
+											form_reple_to_save(SWICH_TOLG_WATCH);
+											//flag_global_swich_out=SWICH_TOLG_WATCH;
+											if (FW_data.wdt[1].V_N_OUT == 1) {
+												FW_data.gpio.OUT_PORT[0].old_sost =
+														FW_data.gpio.OUT_PORT[0].sost;
+												FW_data.gpio.OUT_PORT[0].sost = 1;
+												FW_data.gpio.OUT_PORT[0].type_logic = 3;
+												FW_data.gpio.OUT_PORT[0].event =
+														WEB_OUT_PORT0_TOL;
+												FW_data.gpio.OUT_PORT[0].aflag = 1;
+											} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+												FW_data.gpio.OUT_PORT[1].old_sost =
+														FW_data.gpio.OUT_PORT[1].sost;
+												FW_data.gpio.OUT_PORT[1].sost = 1;
+												FW_data.gpio.OUT_PORT[1].type_logic = 3;
+												FW_data.gpio.OUT_PORT[1].event =
+														WEB_OUT_PORT1_TOL;
+												FW_data.gpio.OUT_PORT[1].aflag = 1;
+											}
+											//        HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+											ct_max_res1++;
+											flag_delay_ping1 = 1;
+											ct_res_wdt1();
+											ct_cn_a1 = 0;
+											ct_cn_b1 = 0;
+											ct_cn_c1 = 0;
+										}
+										//         else
+										//          {
+										//           en_ping_a=0;
+										//           en_ping_b=0;
+										//           en_ping_c=0;
+										//           ping_data.flag_err[0]=0;
+										//           ping_data.flag_err[1]=0;
+										//           ping_data.flag_err[2]=0;
+										//          }
+									}
+								} else {
+									ct_max_res1 = 0;
+								}
+							}
+							if (FW_data.wdt[1].V_TYPE_LOGIC == 2) {
+								if (((ping_data1.flag_err[0] != 0)
+										&& (ping_data1.flag_err[1] != 0))
+										|| ((ping_data1.flag_err[0] != 0)
+												&& (ping_data1.flag_err[2] != 0))) {
+
+									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 0) {
+										form_reple_to_save(SWICH_TOLG_WATCH);
+										//    flag_global_swich_out=SWICH_TOLG_WATCH;
+										if (FW_data.wdt[1].V_N_OUT == 1) {
+											FW_data.gpio.OUT_PORT[0].old_sost =
+													FW_data.gpio.OUT_PORT[0].sost;
+											FW_data.gpio.OUT_PORT[0].sost = 1;
+											FW_data.gpio.OUT_PORT[0].type_logic = 3;
+											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+											FW_data.gpio.OUT_PORT[0].aflag = 1;
+										} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+											FW_data.gpio.OUT_PORT[1].old_sost =
+													FW_data.gpio.OUT_PORT[1].sost;
+											FW_data.gpio.OUT_PORT[1].sost = 1;
+											FW_data.gpio.OUT_PORT[1].type_logic = 3;
+											FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+											FW_data.gpio.OUT_PORT[1].aflag = 1;
+										}
+										//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+										flag_delay_ping1 = 1;
+										ct_res_wdt1();
+										ct_cn_a1 = 0;
+										ct_cn_b1 = 0;
+										ct_cn_c1 = 0;
+									} else {
+										if (ct_max_res1
+												< FW_data.wdt[1].V_MAX_RESEND_PACET_RESET) {
+											form_reple_to_save(SWICH_TOLG_WATCH);
+											// flag_global_swich_out=SWICH_TOLG_WATCH;
+											//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+											if (FW_data.wdt[1].V_N_OUT == 1) {
+												FW_data.gpio.OUT_PORT[0].old_sost =
+														FW_data.gpio.OUT_PORT[0].sost;
+												FW_data.gpio.OUT_PORT[0].sost = 1;
+												FW_data.gpio.OUT_PORT[0].type_logic = 3;
+												FW_data.gpio.OUT_PORT[0].event =
+														WEB_OUT_PORT0_TOL;
+												FW_data.gpio.OUT_PORT[0].aflag = 1;
+											} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+												FW_data.gpio.OUT_PORT[1].old_sost =
+														FW_data.gpio.OUT_PORT[1].sost;
+												FW_data.gpio.OUT_PORT[1].sost = 1;
+												FW_data.gpio.OUT_PORT[1].type_logic = 3;
+												FW_data.gpio.OUT_PORT[1].event =
+														WEB_OUT_PORT1_TOL;
+												FW_data.gpio.OUT_PORT[1].aflag = 1;
+											}
+											ct_max_res1++;
+											flag_delay_ping1 = 1;
+											ct_res_wdt1();
+											ct_cn_a1 = 0;
+											ct_cn_b1 = 0;
+											ct_cn_c1 = 0;
+										}
+										//          else
+										//          {
+										//           en_ping_a=0;
+										//           en_ping_b=0;
+										//           en_ping_c=0;
+										//           ping_data.flag_err[0]=0;
+										//           ping_data.flag_err[1]=0;
+										//           ping_data.flag_err[2]=0;
+										//          }
+									}
+								} else {
+									ct_max_res1 = 0;
+								}
+							}
+							if (FW_data.wdt[1].V_TYPE_LOGIC == 3) {
+								if (((ping_data1.flag_err[0] != 0)
+										&& (ping_data1.flag_err[1] != 1))
+										&& ((ping_data1.flag_err[0] != 0)
+												&& (ping_data1.flag_err[2] != 1))) {
+									if (ct_max_res1 < FW_data.wdt[1].V_MAX_RESEND_PACET_RESET) {
+										form_reple_to_save(SWICH_TOLG_WATCH);
+										//  flag_global_swich_out=SWICH_TOLG_WATCH;
+										if (FW_data.wdt[1].V_N_OUT == 1) {
+											FW_data.gpio.OUT_PORT[0].old_sost =
+													FW_data.gpio.OUT_PORT[0].sost;
+											FW_data.gpio.OUT_PORT[0].sost = 1;
+											FW_data.gpio.OUT_PORT[0].type_logic = 3;
+											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+											FW_data.gpio.OUT_PORT[0].aflag = 1;
+										} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+											FW_data.gpio.OUT_PORT[1].old_sost =
+													FW_data.gpio.OUT_PORT[1].sost;
+											FW_data.gpio.OUT_PORT[1].sost = 1;
+											FW_data.gpio.OUT_PORT[1].type_logic = 3;
+											FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+											FW_data.gpio.OUT_PORT[1].aflag = 1;
+										}
+										//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+										ct_max_res1++;
+										flag_delay_ping1 = 1;
+										ct_res_wdt1();
+										ct_cn_a1 = 0;
+										ct_cn_b1 = 0;
+										ct_cn_c1 = 0;
+									}
+									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 0) {
+										form_reple_to_save(SWICH_TOLG_WATCH);
+										//  flag_global_swich_out=SWICH_TOLG_WATCH;
+										if (FW_data.wdt[1].V_N_OUT == 1) {
+											FW_data.gpio.OUT_PORT[0].old_sost =
+													FW_data.gpio.OUT_PORT[0].sost;
+											FW_data.gpio.OUT_PORT[0].sost = 1;
+											FW_data.gpio.OUT_PORT[0].type_logic = 3;
+											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+											FW_data.gpio.OUT_PORT[0].aflag = 1;
+										} else  if (FW_data.wdt[1].V_N_OUT == 2){
+											FW_data.gpio.OUT_PORT[1].old_sost =
+													FW_data.gpio.OUT_PORT[1].sost;
+											FW_data.gpio.OUT_PORT[1].sost = 1;
+											FW_data.gpio.OUT_PORT[1].type_logic = 3;
+											FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+											FW_data.gpio.OUT_PORT[1].aflag = 1;
+										}
+										//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
+										flag_delay_ping1 = 1;
+										ct_res_wdt1();
+										ct_cn_a1 = 0;
+										ct_cn_b1 = 0;
+										ct_cn_c1 = 0;
+									}
+								} else {
+									ct_max_res1 = 0;
+								}
+							}
+			}
+
+
 
 		vTaskDelay(300 / portTICK_PERIOD_MS);
 

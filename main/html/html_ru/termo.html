@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1251">
+<title>Веб-интерфейс</title>
+<link rel="stylesheet" href="index.css">
+<script src="menu.js"></script>
+<script src="termo_get.cgi?add_devname_menu"></script>
+<style>
+body {min-width:1330px;}
+form {max-width:1300px;}
+#middle {padding-top:30px}
+td {border-top:none}
+input[type="text"],input[type="button"] {width:120px;margin-left:0px;margin-right:0px;}
+caption input[type="button"] {width:auto;min-width:120px;}
+caption {caption-side:bottom;}
+.edtdiv 
+{
+position: absolute;
+z-index:100;
+border: solid 1px green;
+background-color: white;
+padding:25px;
+left:100;
+top:100;
+box-shadow: 15px 15px 20px rgba(0,0,0,0.3);
+visibility:hidden;
+}
+#ediv h2 {margin-top:0px;}
+#edt td, #edt th {text-align:center;min-width:80px;}
+#edt td:first-child, #edt th:first-child {text-align:left;}
+tr.suffixes td {padding-top:15px;}
+</style>
+</head>
+<body>
+<script>
+menu('Термодатчики');
+
+var termo_status_txt=['отказ','ниже нормы','в норме','выше нормы'];
+
+function getid(a) { return document.getElementById(a); }
+
+function chk_ow_addr(f)
+{
+ f.value=f.value.trim();
+ if(f.value=="") return [0,0,0,0,0,0,0,0];
+ var a=f.value.match(/[0-9a-f]{2}/ig);
+ seterr(f, (!a) || (!a.length) || (a.length != 8));
+ for(var i in a) a[i]=parseInt(a[i],16);
+ return a;
+}
+
+function chkfrm() 
+{
+ var ow=Array(8);
+ var d='',f,ch;
+ for(ch in data)
+ {
+  f={};
+  f.name=frm._name[ch].value;
+  if(typeof data[0].ow_addr != 'undefined') 
+  {
+   f.ow_addr=chk_ow_addr(frm.ow_addr[ch]);
+   ow[ch]=f.ow_addr.toString();
+   if(ow[ch]!=([0,0,0,0,0,0,0,0]).toString()) for(var i=0;i<ch;++i) 
+   {
+    if(ow[i]==ow[ch]) 
+    { 
+     try { seterr(frm.ow_addr[ch],true); } catch(e) {}
+     try { seterr(frm.ow_addr[i],true); } catch(e) {}
+     alert("Дублирование уникальных номеров 1Wire датчиков недопустимо!"); 
+     throw ch;
+    }
+   }
+  }
+  f.top=range(frm.top[ch],-70,127);
+  f.bottom=range(frm.bottom[ch],-70,127);
+  if(f.top<f.bottom) 
+  {
+   alert("Верхняя граница нормы задана меньше нижней!");
+   showerr(frm.top[ch],true);
+   seterr(frm.bottom[ch],true);
+  }
+  if(f.top-f.bottom<data_double_hyst)
+  {
+   alert("Мин. диапазон нормы "+data_double_hyst+" град.C!");
+   showerr(frm.top[ch],true);
+   seterr(frm.bottom[ch],true); 
+  }
+  d+=pack(packfmt,f);
+ } // for ch
+ document.sender.data.value=d;
+ document.sender.submit();
+ return false;
+}
+</script>
+
+<div id="middle">
+<div id="push_margin"></div>
+
+<form name="frm" method="post" action="error.html">
+<table id="edt_x_ref" class="paramtable">
+
+<caption class="send_button_container">
+<div id="error" class="alert" style="float:left;visibility:hidden;">Нет связи с устройством! Данные устарели!</div>
+<div style="float:right"><input type="button" value="Применить изменения" onclick="chkfrm()"></div>
+<div style="clear:both"></div>
+</caption>
+
+<tr>
+<th>Параметр
+<th>Датчик _ch1_
+<tr>
+<td id="edt_y_ref">Памятка
+<td><input type="text" name="_name" maxlength="16" style="color:#009020">
+<tr>
+<td>Уникальный номер 1W датчика
+<td><input type="text" name="ow_addr" style="font-size:9pt">
+<tr>
+<td>Текущая температура, &deg;C
+<td><input type="text" name="_value" readonly>
+<tr>
+<td>Статус
+<td><input type="text" name="_status" readonly>
+<tr>
+<td>Верхняя граница нормы, &deg;C
+<td><input type="text" name="top">
+<tr>
+<td>Нижняя граница нормы, &deg;C
+<td><input type="text" name="bottom">
+<tr>
+<td>Уведомления при смене статуса
+<td><input type="button" onclick="edit_notif(_ch_)" value="Настроить">
+
+</table>
+</form>
+
+<form name="sender" style="display:none" method="post" action="termo_set.cgi">
+<input type="hidden" name="data">
+</form>
+
+<script>
+expand_table(frm,data.length);
+
+var n,d;
+for(n in data)
+{
+ d=data[n]; 
+ frm._name[n].value=d.name;
+ frm.ow_addr[n].value=d.ow_addr;
+ frm.top[n].value=d.top;
+ frm.bottom[n].value=d.bottom;
+
+ frm._value[n].value=d.value;
+ frm._status[n].value=termo_status_txt[d.status];
+}
+
+function response()
+{
+ var d,i,err=getid('error').style;
+ d=this.responseText;
+ if(this.status!=200 || !d || d=='') { err.visibility="visible"; return; }
+ err.visibility="hidden";
+ d=eval(d);
+ for(i in d)
+ {
+  frm._value[i].value=d[i].value;
+  frm._status[i].value=termo_status_txt[d[i].status];
+ }
+}
+
+function monitor()
+{
+ var req=new XMLHttpRequest();
+ req.open("GET","/termo_data.cgi",true);
+ req.onload=response;
+ req.timeout=5900;
+ req.ontimeout=function(){getid('error').style.visibility="visible";};
+ req.send();
+}
+
+setInterval(monitor,10000);
+
+function edit_notif(ch)
+{
+ if(getid('ediv').style.visibility=='visible') return;
+ var req=new XMLHttpRequest();
+ req.open("GET","/notify_get.cgi?nfid=01"+hexb(ch),false);//termo
+ req.send(null);
+ var d=req.responseText;
+ if(req.readyState!=4 || req.status!=200 || d=='error' || d=='') return;
+ d=eval(d);
+ getid('notif_ch').innerHTML=parseInt(ch)+1;
+ set_nf_cb('3',d.high);
+ set_nf_cb('2',d.norm);
+ set_nf_cb('1',d.low);
+ set_nf_cb('0',d.fail);
+ set_nf_cb('_r',d.report);
+ nf_cb_changed();
+ document.notif_frm.repeat_alarm.selectedIndex=d.repeat_alarm;
+ x=getid('edt_x_ref').scrollWidth/2 - getid('ediv').scrollWidth/2; if(x<20) x=20;
+ y=getid('edt_y_ref').offsetTop+100;
+ getid('ediv').style.top=y+'px';
+ getid('ediv').style.left=x+'px'; 
+ getid('ediv').style.visibility='visible';
+}
+
+function save_notif(y)
+{
+ if(!y)
+ {
+  getid('ediv').style.visibility='hidden';
+ }
+ else
+ {
+  var nfreq=new XMLHttpRequest();
+  nfreq.open("POST","/notify_set.cgi",true);
+  nfreq.onloadend = function() 
+  {
+   if(this.status==200)
+    getid('ediv').style.visibility='hidden';
+  }
+  var ch=parseInt(getid('notif_ch').innerHTML)-1;
+  var d='data=01'+hexb(ch);//termo
+  d+=get_nf_cb_hex('3');
+  d+=get_nf_cb_hex('2');
+  d+=get_nf_cb_hex('1');
+  d+=get_nf_cb_hex('0');  
+  d+=get_nf_cb_hex('_r');
+  d+='0000'+'00'; // reserved0,flags
+  d+=hexb(document.notif_frm.repeat_alarm.selectedIndex);
+  d+='000000'; // reserved2[]
+  nfreq.send(d);
+ }
+}
+
+function set_nf_cb_all(evt,state)
+{
+ var msk=state?31/*all media*/:0;
+ set_nf_cb('3',msk);
+ set_nf_cb('2',msk);
+ set_nf_cb('1',msk);
+ set_nf_cb('0',msk);
+ set_nf_cb('_r',msk);
+ document.notif_frm.atonce.indeterminate=false;
+ evt.stopPropagation();
+}
+</script>
+
+<div id="ediv" class="edtdiv">
+<form name="notif_frm">
+<h2>Уведомления для термодатчика&nbsp;<span id="notif_ch">0</span></h2>
+<table id="edt" onchange="nf_cb_changed()">
+<caption class="send_button">
+<input type="button" value="Отменить изменения" onclick="save_notif(0)">
+<input type="button" value="Сохранить изменения" onclick="save_notif(1)">
+</caption>
+
+<tr>
+<th>Событие
+<th>Журнал
+<th>Syslog
+<th>E-mail
+<th>SMS
+<th>SNMP Trap
+
+<tr>
+<td>Температура выше нормы
+<td><input type="checkbox" name="nf_log3">
+<td><input type="checkbox" name="nf_syslog3">
+<td><input type="checkbox" name="nf_email3">
+<td><input type="checkbox" name="nf_sms3">
+<td><input type="checkbox" name="nf_trap3">
+<tr>
+<td>Температура в норме
+<td><input type="checkbox" name="nf_log2">
+<td><input type="checkbox" name="nf_syslog2">
+<td><input type="checkbox" name="nf_email2">
+<td><input type="checkbox" name="nf_sms2">
+<td><input type="checkbox" name="nf_trap2">
+<tr>
+<td>Температура ниже нормы
+<td><input type="checkbox" name="nf_log1">
+<td><input type="checkbox" name="nf_syslog1">
+<td><input type="checkbox" name="nf_email1">
+<td><input type="checkbox" name="nf_sms1">
+<td><input type="checkbox" name="nf_trap1">
+<tr>
+<td>Отказ датчика
+<td><input type="checkbox" name="nf_log0">
+<td><input type="checkbox" name="nf_syslog0">
+<td><input type="checkbox" name="nf_email0">
+<td><input type="checkbox" name="nf_sms0">
+<td><input type="checkbox" name="nf_trap0">
+<tr>
+<td>Периодический отчёт
+<td><input type="checkbox" name="nf_log_r" disabled>
+<td><input type="checkbox" name="nf_syslog_r" disabled>
+<td><input type="checkbox" name="nf_email_r">
+<td><input type="checkbox" name="nf_sms_r">
+<td><input type="checkbox" name="nf_trap_r" disabled>
+<tr>
+<td>Вкл/выкл все уведомления
+<td colspan="4">
+<td><input type="checkbox" name="atonce" onchange="set_nf_cb_all(event,this.checked)">
+<tr class="suffixes">
+<td colspan="5">Повторить 3р тревожное уведомление с периодом
+<td>
+<select name="repeat_alarm">
+<option>Выкл</option>
+<option>5 мин</option>
+<option>30 мин</option>
+<option>2ч</option>
+<option>6ч</option>
+<option>12ч</option>
+<option>24ч</option>
+</select>
+
+</table>
+</form> <!--notif_frm-->
+</div><!--ediv-->
+
+
+</div><!--#middle-->
+<div id="footer"></div>
+</body>
+</html>

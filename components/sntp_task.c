@@ -11,7 +11,7 @@
 #include "esp_log.h"
 #include "esp_attr.h"
 #include "esp_sleep.h"
-
+#include "../main/LOGS.h"
 #include "sntp_task.h"
 
 
@@ -50,7 +50,7 @@ void obtain_time(void) {
 	time(&now);
 	localtime_r(&now, &timeinfo);
 
-	//   ESP_ERROR_CHECK( example_disconnect() );
+
 }
 
 // xTaskCreate(&vTaskNTP, "vTaskNTP", 2048, NULL, 10, &xHandleNTP);
@@ -58,6 +58,8 @@ void obtain_time(void) {
 
 void vTaskNTP(void *pvParameters) {
 	initialize_sntp();
+	obtain_time();
+	timeup=timeinfo.tm_sec+timeinfo.tm_min*60+timeinfo.tm_hour*60*60+timeinfo.tm_yday*60*60*24+(timeinfo.tm_year-70)*60*60*8766;
 	for (;;) {
 		obtain_time();
 

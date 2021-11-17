@@ -23,7 +23,7 @@
 #include "html_data_simple_ru.h"
 #include "LOGS.h"
 static const char *TAG = "update_app";
-
+esp_app_desc_t app_desc;
 esp_err_t np_http_get_handler(httpd_req_t *req)
 {
 
@@ -154,7 +154,7 @@ esp_err_t np_http_devname_cgi(httpd_req_t *req)
 	httpd_resp_set_type(req, mime_js);
 
     const esp_partition_t *running = esp_ota_get_running_partition();
-    esp_app_desc_t app_desc;
+    //esp_app_desc_t app_desc;
     esp_err_t ret = esp_ota_get_partition_description(running, &app_desc);
     if(ret != ESP_OK)
     {
@@ -223,6 +223,22 @@ const httpd_uri_t np_html_uri_main = {
 	np_http_get_handler,
 	(void*)&_html_page_index_html
 };
+
+const httpd_uri_t np_html_uri_wdog = {
+	"/wdog.html",
+	HTTP_GET,
+	np_http_get_handler,
+	(void*)&_html_page_wdog_html
+};
+
+const httpd_uri_t np_html_uri_termo = {
+	"/termo.html",
+	HTTP_GET,
+	np_http_get_handler,
+	(void*)&_html_page_termo_html
+};
+
+
 const httpd_uri_t np_html_uri_setings = {
 	"/settings.html",
 	HTTP_GET,

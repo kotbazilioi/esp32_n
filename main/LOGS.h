@@ -16,4 +16,6 @@ extern log_reple_t reple_to_email;
 //extern RTC_TimeTypeDef times;
 extern struct tm timeinfo;
 extern SemaphoreHandle_t flag_global_save_log;
+extern uint32_t timeup;
+extern time_t now;
 

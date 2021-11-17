@@ -2,7 +2,7 @@
 <html><head>
 <!-- source is in UTF-8, packed and served in windows-1251! -->
 <meta http-equiv=Content-Type content="text/html; charset=windows-1251">
-<title>Р’РµР±-РёРЅС‚РµСЂС„РµР№СЃ</title>
+<title>Веб-интерфейс</title>
 <link rel="stylesheet" href="index.css">
 <script src="wdog_get.cgi"></script>
 <script src="devname.cgi"></script>
@@ -33,7 +33,7 @@ visibility:hidden;
 <body>
 
 <script>
-menu('РЎС‚РѕСЂРѕР¶');
+menu('Сторож');
 
 function getid(a) { return document.getElementById(a); }
 
@@ -105,87 +105,87 @@ function chkfrm()
 <form name="frm" method="post" action="error.html" onsubmit="function(){return false;}">
 <table class="paramtable" id="edt_x_ref">
 <caption class="send_button_container">
-<input type="button" value="РџСЂРёРјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ" onclick="chkfrm()">
+<input type="button" value="Применить изменения" onclick="chkfrm()">
 </caption>
 <tr>
-<th>РџР°СЂР°РјРµС‚СЂ
-<th>РљР°РЅР°Р» _ch1_
+<th>Параметр
+<th>Канал _ch1_
 <tr>
-<td>Р Р°Р·СЂРµС€РёС‚СЊ СЃР±СЂРѕСЃС‹
+<td>Разрешить сбросы
 <td><input type="checkbox" name="_enable">
 <tr>
-<td>РџР°РјСЏС‚РєР° (С‡С‚Рѕ РїРѕРґРєР»СЋС‡РµРЅРѕ)
+<td>Памятка (что подключено)
 <td><input type="text" name="_name" maxlength=30 readonly style="color:#009020">
 <tr>
-<td>РЈРїСЂР°РІР»СЏРµРјС‹Р№ РѕР±СЉРµРєС‚
+<td>Управляемый объект
 <td><select name="output">
-<option value=0>РўРµСЃС‚</option>
-<!--<option value=12800>Р РµР»Рµ 1</option>
-<option value=12801>Р РµР»Рµ 2</option>-->
-<option value=11008>IO РІС‹С…РѕРґ 1</option>
-<option value=11009>IO РІС‹С…РѕРґ 2</option>
+<option value=0>Тест</option>
+<!--<option value=12800>Реле 1</option>
+<option value=12801>Реле 2</option>-->
+<option value=11008>IO выход 1</option>
+<option value=11009>IO выход 2</option>
 </select>
 <tr>
-<td>Р’РєР»СЋС‡РёС‚СЊ РѕРїСЂРѕСЃ Р°РґСЂРµСЃРѕРІ A,B,C
+<td>Включить опрос адресов A,B,C
 <td>
 A<input type="checkbox" name="_active0">&nbsp;
 B<input type="checkbox" name="_active1">&nbsp;
 C<input type="checkbox" name="_active2">
 <tr>
-<td>РђРґСЂРµСЃ A
+<td>Адрес A
 <td><input type="text" name="addr0" maxlength=62>
 <tr>
-<td>РђРґСЂРµСЃ B
+<td>Адрес B
 <td><input type="text" name="addr1" maxlength=62>
 <tr>
-<td>РђРґСЂРµСЃ C
+<td>Адрес C
 <td><input type="text" name="addr2" maxlength=62>
 <tr>
-<td>РЎС‡С‘С‚С‡РёРє СЃР±СЂРѕСЃРѕРІ РєР°РЅР°Р»Р° (РѕР±РЅСѓР»СЏРµС‚СЃСЏ РїСЂРё РїРµСЂРµР·Р°РіСЂСѓР·РєРµ РїСЂРѕС€РёРІРєРё)
+<td>Счётчик сбросов канала (обнуляется при перезагрузке прошивки)
 <td><input type="text" readonly name="reset_count">
 <tr>
-<td>РџРµСЂРёРѕРґ РѕРїСЂРѕСЃР° РїРёРЅРіРѕРј, 10-300c
+<td>Период опроса пингом, 10-300c
 <td><input type="text" name="poll_period">
 <tr>
-<td>РўР°Р№РјР°СѓС‚ РїРµСЂРµРґ РїРѕРІС‚РѕСЂРѕРј РїРёРЅРіР°, 600-9000РјСЃ
+<td>Таймаут перед повтором пинга, 600-9000мс
 <td><input type="text" name="ping_timeout">
 <tr>
-<td>РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ РїРѕРІС‚РѕСЂРѕРІ РїСЂРё С‚Р°Р№РјР°СѓС‚Рµ
+<td>Максимальное число повторов при таймауте
 <td><input type="text" name="max_retry">
 <tr>
-<td>Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ СЃР±СЂРѕСЃР°, 1-900СЃ
+<td>Длительность сброса, 1-900с
 <td><input type="text" name="reset_time">
 <tr>
-<td>РџР°СѓР·Р° РїРѕСЃР»Рµ СЃР±СЂРѕСЃР° РїРµСЂРµРґ РІРѕР·РѕР±РЅРѕРІР»РµРЅРёРµРј РїРёРЅРіРѕРІ, 1-3600c
+<td>Пауза после сброса перед возобновлением пингов, 1-3600c
 <td><input type="text" name="reboot_pause">
 <tr>
-<td>РћРіСЂР°РЅРёС‡РµРЅРёРµ С‡РёСЃР»Р° РёРґСѓС‰РёС… РїРѕРґСЂСЏРґ СЃР±СЂРѕСЃРѕРІ, 1-255, 0 - РІС‹РєР»
+<td>Ограничение числа идущих подряд сбросов, 1-255, 0 - выкл
 <td><input type="text" name="doubling_pause_resets">
 <tr>
-<td>Р РµР¶РёРј СЃР±СЂРѕСЃР°
+<td>Режим сброса
 <td>
 <select name="reset_mode">
-<option>Р’С‹РєР»</option>
-<option>Р’РєР»</option>
+<option>Выкл</option>
+<option>Вкл</option>
 </select>
 <tr>
-<td>Р›РѕРіРёРєР° СЃСЂР°Р±Р°С‚С‹РІР°РЅРёСЏ СЃР±СЂРѕСЃР°
+<td>Логика срабатывания сброса
 <td>
 <tr>
-<td>&nbsp;&nbsp;РЅРµ РѕС‚РІРµС‚РёР» С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РѕРїСЂР°С€РёРІР°РµРјС‹Р№ Р°РґСЂРµСЃ (A,B,C)
+<td>&nbsp;&nbsp;не ответил хотя бы один опрашиваемый адрес (A,B,C)
 <td><input type="radio" name="lm_ch_" value="0">
 <tr>
-<td>&nbsp;&nbsp;РЅРµ РѕС‚РІРµС‚РёР» РЅРё РѕРґРёРЅ РёР· РѕРїСЂР°С€РёРІР°РµРјС‹С… Р°РґСЂРµСЃРѕРІ (A,B,C)
+<td>&nbsp;&nbsp;не ответил ни один из опрашиваемых адресов (A,B,C)
 <td><input type="radio" name="lm_ch_" value="1">
 <tr>
-<td>&nbsp;&nbsp;РЅРµ РѕС‚РІРµС‚РёР» Р°РґСЂРµСЃ Рђ Рё РѕРґРёРЅ РёР· B РёР»Рё C
+<td>&nbsp;&nbsp;не ответил адрес А и один из B или C
 <td><input type="radio" name="lm_ch_" value="2">
 <tr>
-<td>&nbsp;&nbsp;РЅРµ РѕС‚РІРµС‚РёР» Р°РґСЂРµСЃ Рђ, РѕРґРЅР°РєРѕ РѕС‚РІРµС‚РёР» B РёР»Рё C
+<td>&nbsp;&nbsp;не ответил адрес А, однако ответил B или C
 <td><input type="radio" name="lm_ch_" value="3">
 <tr>
-<td id="edt_y_ref">РЈРІРµРґРѕРјР»РµРЅРёСЏ
-<td><input type="button" value="РќР°СЃС‚СЂРѕРёС‚СЊ" onclick="edit_notif(_ch_)">
+<td id="edt_y_ref">Уведомления
+<td><input type="button" value="Настроить" onclick="edit_notif(_ch_)">
 
 </table>
 </form>
@@ -269,36 +269,36 @@ function save_notif(y)
 
 <div id="ediv" class="edtdiv">
 <form name="notif_frm">
-<h2>РЈРІРµРґРѕРјР»РµРЅРёСЏ РґР»СЏ РЎС‚РѕСЂРѕР¶Р°&nbsp;<span id="notif_ch">0</span></h2>
+<h2>Уведомления для Сторожа&nbsp;<span id="notif_ch">0</span></h2>
 <table id="edt">
 <caption class="send_button_container">
-<input type="button" value="РћС‚РјРµРЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ" onclick="save_notif(0)">
-<input type="button" value="РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ" onclick="save_notif(1)">
+<input type="button" value="Отменить изменения" onclick="save_notif(0)">
+<input type="button" value="Сохранить изменения" onclick="save_notif(1)">
 </caption>
 
 <tr>
-<th style="text-align:left">РЎРѕР±С‹С‚РёРµ
-<th>Р–СѓСЂРЅР°Р»
+<th style="text-align:left">Событие
+<th>Журнал
 <th>Syslog
 <th>E-mail
 <th>SMS
 <th>SNMP Trap
 <tr>
-<td style="text-align:left">РЎР±СЂРѕСЃ
+<td style="text-align:left">Сброс
 <td><input type="checkbox" name="nf_log0">
 <td><input type="checkbox" name="nf_syslog0">
 <td><input type="checkbox" name="nf_email0">
 <td><input type="checkbox" name="nf_sms0">
 <td><input type="checkbox" name="nf_trap0">
 <tr>
-<td style="text-align:left">РџСЂРёРѕСЃС‚Р°РЅРѕРІРєР° РїСЂРё С…СЂРѕРЅРёС‡РµСЃРєРѕРј РЅРµРѕС‚РІРµС‚Рµ
+<td style="text-align:left">Приостановка при хроническом неответе
 <td><input type="checkbox" name="nf_log1">
 <td><input type="checkbox" name="nf_syslog1">
 <td><input type="checkbox" name="nf_email1">
 <td><input type="checkbox" name="nf_sms1">
 <td><input type="checkbox" name="nf_trap1">
 <tr>
-<td style="text-align:left">РџРµСЂРёРѕРґРёС‡РµСЃРєРёР№ РѕС‚С‡С‘С‚
+<td style="text-align:left">Периодический отчёт
 <td><input type="checkbox" name="nf_log_r" disabled>
 <td><input type="checkbox" name="nf_syslog_r" disabled>
 <td><input type="checkbox" name="nf_email_r">

@@ -36,9 +36,10 @@
  */
 #ifndef LWIP_HDR_SNMP_H
 #define LWIP_HDR_SNMP_H
-#include "my_opt.h"
-#include "lwip/opt.h"
+
 #include "lwip/ip_addr.h"
+#include "lwip/opt.h"
+//#include "my_opt.h"
 
 #ifdef __cplusplus
 extern "C" {

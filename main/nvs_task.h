@@ -12,9 +12,9 @@
 #include <esp_event.h>
 #include <esp_log.h>
 #include <esp_system.h>
-#include <nvs_flash.h>
+///#include <nvs_flash.h>
 #include <sys/param.h>
-#include "nvs_flash.h"
+#include "C:\esp-idf-2\components\nvs_flash\include\nvs_flash.h"
 #include "esp_netif.h"
 #include "esp_eth.h"
 
@@ -22,10 +22,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/event_groups.h"
+#include "config_pj.h"
 #define Platform 110
 #define rev 0
 #define Assembly 0
 #define Bild 0
+
 
 enum logs_events_t {
   NO_RUN,
@@ -64,8 +66,25 @@ enum logs_events_t {
   SEND_EMAIL,
   IN_PORT0_RISE,
   IN_PORT1_RISE,
+  IN_PORT2_RISE,
+  IN_PORT3_RISE,
   IN_PORT0_FALL,
-  IN_PORT1_FALL
+  IN_PORT1_FALL,
+  IN_PORT2_FALL,
+  IN_PORT3_FALL,
+  SNMP_OUT_PORT0_SET,
+  SNMP_OUT_PORT1_SET,
+  SNMP_OUT_PORT0_RES,
+  SNMP_OUT_PORT1_RES,
+  SNMP_OUT_PORT0_TOL,
+  SNMP_OUT_PORT1_TOL,
+  WEB_OUT_PORT0_SET,
+  WEB_OUT_PORT1_SET,
+  WEB_OUT_PORT0_RES,
+  WEB_OUT_PORT1_RES,
+  WEB_OUT_PORT0_TOL,
+  WEB_OUT_PORT1_TOL
+
 };
 typedef struct
 {
@@ -133,8 +152,11 @@ typedef struct
 	char V_Name_dev[86];
 	char V_CALL_DATA[86];
 	signed char V_NTP_CIRCL;
+	uint8_t V_L_TIME;/************/
 	uint8_t V_TYPE_OUT;
-	uint8_t V_TYPE_LOGIC;
+	uint8_t V_IP_SOURCE[4] ;/************/
+	uint8_t V_MASK_SOURCE ;/**************/
+
 }FW_system_t;
 typedef struct
 {
@@ -146,7 +168,7 @@ typedef struct
 	uint8_t V_IP_NTP1[4];
 	uint8_t V_IP_NTP2[4];
 	uint16_t V_PORT_NTP;
-	uint8_t V_IP_SNMP[4];
+
 	uint16_t V_HTTP_IP;
 	uint8_t V_IP_SYSL[4];
 
@@ -171,7 +193,11 @@ typedef struct
 {
 	uint16_t V_SNMP;
 	uint16_t V_PORT_SNMP;
-
+	char V_COMMUNITY[16];
+    char V_COMMUNITY_WRITE[16];
+	uint8_t V_IP_SNMP[4];
+	uint8_t V_IP_SNMP_S[4];
+	uint8_t V_REFR_TRAP;  /**********/
 }FW_snmp_t;
 typedef struct
 {
@@ -191,6 +217,22 @@ typedef struct
 	uint16_t V_TIME_RESET_PULSE;
 	uint16_t V_PAUSE_RESET_TO_REPID;
 	uint16_t V_MAX_RESEND_PACET_RESET;
+	uint8_t V_TYPE_LOGIC;
+	uint16_t V_N_OUT;/*****/
+	uint8_t V_EVENT_L;
+	uint8_t V_EVENT_SL;
+	uint8_t V_EVENT_E;
+	uint8_t V_EVENT_S;
+	uint8_t V_EVENT_T;
+
+	uint8_t V_RESET_L;
+	uint8_t V_RESET_SL;
+	uint8_t V_RESET_E;
+	uint8_t V_RESET_S;
+	uint8_t V_RESET_T;
+	uint8_t V_RELOG_E;
+
+	char V_NAME[16];
 }FW_wdt_t;
 typedef struct
 {
@@ -218,9 +260,60 @@ uint8_t V_SOST_RESET;
 uint8_t V_SOST_ERR_RASP;
 }FW_rasp_t;
 
+typedef struct
+{
+ uint8_t sost_raw;
+ uint8_t sost_filtr_old;
+ uint8_t sost_filtr;
+ uint8_t sost_rise;
+ uint8_t sost_fall;
+ uint32_t filtr_time;
+ uint32_t filtr_count;
+ uint32_t count;
+ uint32_t semple_count;
+
+ uint8_t event;
+
+}input_port_t;
+
+typedef struct
+{
+	uint8_t event;
+	uint8_t type_logic;
+	uint8_t sost;
+	uint8_t old_sost;
+	uint8_t realtime;
+	uint16_t delay;
+	uint8_t aflag;
+	uint32_t count;
+	SemaphoreHandle_t S_gpio_port;
+	input_port_t input_str;
+}output_port_t;
+
+typedef struct
+{
+	input_port_t IN_PORT[in_port_n];
+	output_port_t OUT_PORT[out_port_n];
+	uint8_t dir[out_port_n+in_port_n];
+	char name[out_port_n+in_port_n][32];
+
+
+}FW_gpio_t;
+
+typedef struct
+{
+	char name[16];
+	uint8_t id[8];
+	int16_t temper;
+	float ftemper;
+	int16_t t_up;
+	int16_t t_dw;
+	uint8_t status;
+	uint8_t status_old;
 
 
 
+}FW_termo_t;
 
 typedef struct
 {
@@ -228,9 +321,11 @@ typedef struct
 	FW_network_t net;
 	FW_smtp_t smtp;
 	FW_snmp_t snmp;
-	FW_wdt_t wdt;
+	FW_wdt_t wdt[2];
 	FW_http_t http;
 	FW_rasp_t rasp;
+	FW_gpio_t gpio;
+	FW_termo_t termo[2];
 //uint8_t V_resv[956];
 logs_t V_logs_struct;
 }FW_data_t;

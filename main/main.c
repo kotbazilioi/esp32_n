@@ -10,19 +10,20 @@
 #include "http_var.h"
 #include "update.h"
 #include "smtp.h"
+#include "snmp.h"
 #include "LOGS.h"
 #define TAG_boot "main start"
 #include "app.h"
+#include "app_owb.h"
 #include "private_mib.h"
-
+#include "config_pj.h"
 
 #define DEVICE_USE_STATIC_IP	true
 #define DEVICE_IP          "192.168.1.159"
 #define DEVICE_GW          "192.168.1.1"
 #define DEVICE_NETMASK     "255.255.255.0"
 
-#define CONFIG_BLINK_GPIO 4
-#define BLINK_GPIO CONFIG_BLINK_GPIO
+
 
 /*
  * TODO: Setup SNMP server
@@ -45,7 +46,7 @@ static const char *TAG_SNMP = "Snmp_agent";
 * for your contact mail, SNMP_SYSNAME for your system name, SNMP_SYSLOCATION
 * for your location. Also consider the size of each string in _LEN functions.
 */
-static const struct snmp_mib *my_snmp_mibs[] = { &mib2, &mib_private, &mib_np_private};
+static const struct snmp_mib *my_snmp_mibs[] = { &mib2, &mib_private, &mib_np_private,&mib_termo_private};
 //1.3.6.1.2.1.1.1.0
 const u8_t * SNMP_SYSDESCR = (u8_t*) "Project 110";
 const u16_t SNMP_SYSDESCR_LEN = sizeof("Project 110");
@@ -70,7 +71,13 @@ u16_t snmp_buffer = 64;
 
 static void initialize_snmp(void)
 {
+	ip4_addr_t tipaddr;
 
+
+
+	*SNMP_COMMUNITY= &(FW_data.snmp.V_COMMUNITY);
+//    MEMCPY(SNMP_COMMUNITY, FW_data.snmp.V_COMMUNITY, strlen(FW_data.snmp.V_COMMUNITY));
+    MEMCPY(SNMP_COMMUNITY_WRITE, FW_data.snmp.V_COMMUNITY_WRITE, strlen(FW_data.snmp.V_COMMUNITY_WRITE));
 //	SNMP_SYSDESCR = FW_data.sys.
 //	SNMP_SYSDESCR_LEN
 	SNMP_SYSCONTACT = (u8_t*)FW_data.sys.V_CALL_DATA;
@@ -81,16 +88,20 @@ static void initialize_snmp(void)
 	SNMP_SYSLOCATION_LEN = strlen(FW_data.sys.V_GEOM_NAME);
 	lwip_privmib_init();
 
+
+	snmp_threadsync_init(&snmp_mib2_lwip_locks, snmp_mib2_lwip_synchronizer);
+
+
 	snmp_mib2_set_syscontact(SNMP_SYSCONTACT, &SNMP_SYSCONTACT_LEN, snmp_buffer);
 	snmp_mib2_set_syslocation(SNMP_SYSLOCATION, &SNMP_SYSLOCATION_LEN, snmp_buffer);
 	snmp_set_auth_traps_enabled(ENABLE);
 	snmp_mib2_set_sysdescr(SNMP_SYSDESCR, &SNMP_SYSDESCR_LEN);
 	snmp_mib2_set_sysname(SNMP_SYSNAME, &SNMP_SYSNAME_LEN, snmp_buffer);
 
-	ip_addr_t gw = { 0 };
-    ipaddr_aton((char*)SNMP_SERVER_IP,&gw);
 
-	snmp_trap_dst_ip_set(TRAP_DESTINATION_INDEX, &gw);
+//    ipaddr_aton((char*)SNMP_SERVER_IP,&gw);
+    IP4_ADDR(&tipaddr, FW_data.snmp.V_IP_SNMP[0], FW_data.snmp.V_IP_SNMP[1], FW_data.snmp.V_IP_SNMP[2], FW_data.snmp.V_IP_SNMP[3]);
+	snmp_trap_dst_ip_set(TRAP_DESTINATION_INDEX, &tipaddr);
 	snmp_trap_dst_enable(TRAP_DESTINATION_INDEX, ENABLE);
 	snmp_set_mibs(my_snmp_mibs, LWIP_ARRAYSIZE(my_snmp_mibs));
 
@@ -157,23 +168,29 @@ if (((FW_data.net.V_DHCP==1)||((FW_data.net.V_IP_CONFIG[0]==0)&&(FW_data.net.V_I
     /* Start the server for the first time */
 
     server = start_webserver();
-    time_t now;
+
       initialise_mdns();
       initialize_snmp();
       xTaskCreate(&start_task, "start_task", 12048, NULL, 10, NULL);
-      gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+
+ //    gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+
+
+//      struct timeval tv_now;
+//      gettimeofday(&tv_now, NULL);
+//      int64_t time_us = (int64_t)tv_now.tv_sec * 1000000L + (int64_t)tv_now.tv_usec;
            while(1) {
           	 time(&now);
           	 localtime_r(&now, &timeinfo);
-          	 sprintf(PAGE_BODY,"\n\r%d : %d : %d",timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
+       //   	 sprintf(PAGE_BODY,"\n\r%d : %d : %d",timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
 
-               /* Blink off (output low) */
-             //  printf("Turning off the LED\n");
-               gpio_set_level(BLINK_GPIO, 0);
+
+         ///      gpio_set_level(BLINK_GPIO, 0);
+
                vTaskDelay(300 / portTICK_PERIOD_MS);
-               /* Blink on (output high) */
-           //    printf("Turning on the LED\n");
-               gpio_set_level(BLINK_GPIO, 1);
+
+      //        gpio_set_level(BLINK_GPIO, 1);
+
                vTaskDelay(300 / portTICK_PERIOD_MS);
            }
 
@@ -182,6 +199,6 @@ if (((FW_data.net.V_DHCP==1)||((FW_data.net.V_IP_CONFIG[0]==0)&&(FW_data.net.V_I
 
 const __attribute__((used)) __attribute__((section(".rodata_custom_desc"))) char updater_js[]=
 		"75hd95kuDbvf8y3k"
-		"function fw_is_compatible(oldver){return oldver.startsWith('v32.');}/* **************************** */"
+		"function fw_is_compatible(oldver){return oldver.startsWith('v110.');}/* **************************** */"
 		"48fe99uA6k88eSDa";
 

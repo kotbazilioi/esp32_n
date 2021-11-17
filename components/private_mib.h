@@ -17,8 +17,10 @@ extern "C" {
 /* export MIB */
 extern const struct snmp_mib mib_private;
 extern const struct snmp_mib mib_np_private;
+extern const struct snmp_mib mib_termo_private;
 void lwip_privmib_init(void);
-
+void send_mess_trap (s32_t* OID_TR,char* mess,uint16_t lens_mess,uint8_t canal);
+void send_mess_trap_termo (s32_t* OID_TR,uint8_t canal);
 #ifdef __cplusplus
 }
 #endif

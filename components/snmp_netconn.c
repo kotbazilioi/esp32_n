@@ -117,7 +117,7 @@ void
 snmp_init(void)
 {
   LWIP_ASSERT_CORE_LOCKED();
-  sys_thread_new("snmp_netconn", snmp_netconn_thread, NULL, SNMP_STACK_SIZE, SNMP_THREAD_PRIO);
+  sys_thread_new("snmp_netconn", snmp_netconn_thread, NULL, 4096, SNMP_THREAD_PRIO);
 }
 
 #endif /* LWIP_SNMP && SNMP_USE_NETCONN */

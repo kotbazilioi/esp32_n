@@ -8,6 +8,13 @@ idf_component_register(SRCS
  "smtp.c"
  "LOGS.c"
  "app.c"
+ "app_owb.c"
+ "ping.c"
+ "owb.c"
+ "owb_gpio.c"
+ "owb_rmt.c"
+ "ds18b20.c"
+   
                     INCLUDE_DIRS ".")
 
 

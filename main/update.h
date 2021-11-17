@@ -19,9 +19,11 @@ extern const httpd_uri_t np_html_uri_reboot_cgi;
 extern const httpd_uri_t np_html_uri_update;
 extern const httpd_uri_t np_html_uri_setings;
 extern const httpd_uri_t np_html_uri_sendmail;
+extern const httpd_uri_t np_html_uri_wdog;
+extern const httpd_uri_t np_html_uri_termo;
 
 
-
+extern esp_app_desc_t app_desc;
 
 extern const httpd_uri_t np_html_uri[];
 #define NP_HTML_HEADERS_NUMBER    7//12
