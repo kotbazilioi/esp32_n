@@ -31,6 +31,8 @@ esp_err_t np_http_get_handler(httpd_req_t *req)
 	struct np_html_page_s *page = req->user_ctx;
 	httpd_resp_set_hdr(req, "Cache-Control", "max-age=30, private");
 	httpd_resp_set_type(req, page->mime);
+
+
 	if(page->flags & HTML_FLG_COMPRESSED)
 	  httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
 	httpd_resp_send(req, page->addr, page->size);

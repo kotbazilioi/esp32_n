@@ -52,7 +52,7 @@
    ---------- Platform specific locking ----------
    -----------------------------------------------
 */
-
+#define LWIP_MPU_COMPATIBLE 0
 
 
 /**

@@ -27,6 +27,8 @@ tcpip_adapter_ip_info_t ipInfo;
 esp_netif_dns_type_t dns_info;
 char SNMP_COMMUNITY[32];
 char SNMP_COMMUNITY_WRITE[32];
+
+
 //void gpio1_task(void *pvParameters) {
 //	gpio_set_direction(PORT_O2, GPIO_MODE_OUTPUT);
 //	gpio_set_direction(PORT_I0, GPIO_MODE_INPUT);
@@ -65,6 +67,8 @@ char SNMP_COMMUNITY_WRITE[32];
 //		vTaskDelay(300 / portTICK_PERIOD_MS);
 //	}
 //}
+
+
 void read_in(input_port_t *inpin, uint8_t pin) {
 	inpin->sost_raw = pin;
 	if (inpin->semple_count < inpin->filtr_time) {
@@ -152,6 +156,8 @@ void output_port(void *pvParameters) {
 					if (FW_data.gpio.OUT_PORT[ct].type_logic == 3) {
 						if (FW_data.gpio.OUT_PORT[ct].sost == 0) {
 							gpio_set_level(PORT_O[ct], 0);
+
+
 							send_mess_trap(OID_out, FW_data.http.V_OFF_MESS,
 									strlen(FW_data.http.V_OFF_MESS),ct);
 							FW_data.gpio.OUT_PORT[ct].realtime = 0;
@@ -164,6 +170,8 @@ void output_port(void *pvParameters) {
 									FW_data.gpio.OUT_PORT[ct].delay
 											/ portTICK_PERIOD_MS);
 							gpio_set_level(PORT_O[ct], 1);
+
+
 							send_mess_trap(OID_out, FW_data.http.V_ON_MESS,
 									strlen(FW_data.http.V_ON_MESS),ct);
 							FW_data.gpio.OUT_PORT[ct].count++;
@@ -262,7 +270,7 @@ void start_task(void *pvParameters) {
 
 	xTaskCreate(&vTaskNTP, "vTaskNTP", 2048, NULL, 5, &xHandleNTP);
 	xTaskCreate(&mdns_example_task, "mdns_example_task", 2048, NULL, 5, NULL);
-	xTaskCreate(&nvs_task, "nvs_task", 2048, NULL, 5, NULL);
+	xTaskCreate(&nvs_task, "nvs_task", 4096, NULL, 5, NULL);
 
 //	 xTaskCreate(&gpio1_task, "gpio1_task", 1024, NULL, 10, NULL);
 	xTaskCreate(&app_owb, "app_owb", 2024, NULL, 10, NULL);

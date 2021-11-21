@@ -27,8 +27,28 @@
 #define rev 0
 #define Assembly 0
 #define Bild 0
+enum in_stype_t {
+	WEB,
+	SNMP,
+	RASP,
+	WDT,
+	TERMO,
+	IO,
+	SMTP,
+	SETT,
+	MAIN
+};
 
 
+typedef struct
+{
+	uint8_t  source;
+	uint8_t smtp;
+	uint8_t log;
+	uint8_t syslog;
+	uint8_t snmp;
+	s32_t OID_out[12];
+}event_struct_t;
 enum logs_events_t {
   NO_RUN,
   RESETL,
@@ -89,6 +109,7 @@ enum logs_events_t {
 typedef struct
 {
 uint8_t dicr ;//0
+event_struct_t event_cfg;
 uint8_t type_event;//1
 uint8_t reple_hours;//2
 uint8_t reple_minuts;//3
@@ -152,10 +173,10 @@ typedef struct
 	char V_Name_dev[86];
 	char V_CALL_DATA[86];
 	signed char V_NTP_CIRCL;
-	uint8_t V_L_TIME;/************/
+	uint8_t V_L_TIME;
 	uint8_t V_TYPE_OUT;
-	uint8_t V_IP_SOURCE[4] ;/************/
-	uint8_t V_MASK_SOURCE ;/**************/
+	uint8_t V_IP_SOURCE[4] ;
+	uint8_t V_MASK_SOURCE ;
 
 }FW_system_t;
 typedef struct
@@ -173,6 +194,7 @@ typedef struct
 	uint8_t V_IP_SYSL[4];
 
 }FW_network_t;
+
 typedef struct
 {
 	uint8_t V_EMAIL_ERR[32];
@@ -197,7 +219,7 @@ typedef struct
     char V_COMMUNITY_WRITE[16];
 	uint8_t V_IP_SNMP[4];
 	uint8_t V_IP_SNMP_S[4];
-	uint8_t V_REFR_TRAP;  /**********/
+	uint8_t V_REFR_TRAP;
 }FW_snmp_t;
 typedef struct
 {
@@ -218,7 +240,9 @@ typedef struct
 	uint16_t V_PAUSE_RESET_TO_REPID;
 	uint16_t V_MAX_RESEND_PACET_RESET;
 	uint8_t V_TYPE_LOGIC;
-	uint16_t V_N_OUT;/*****/
+	uint16_t V_N_OUT;
+
+
 	uint8_t V_EVENT_L;
 	uint8_t V_EVENT_SL;
 	uint8_t V_EVENT_E;
@@ -295,6 +319,33 @@ typedef struct
 	input_port_t IN_PORT[in_port_n];
 	output_port_t OUT_PORT[out_port_n];
 	uint8_t dir[out_port_n+in_port_n];
+
+	uint8_t ALL_EVENT;
+	uint8_t RISE_L[out_port_n+in_port_n];
+	uint8_t RISE_SL[out_port_n+in_port_n];
+	uint8_t RISE_E[out_port_n+in_port_n];
+	uint8_t RISE_SM[out_port_n+in_port_n];
+	uint8_t RISE_SN[out_port_n+in_port_n];
+
+	uint8_t FALL_L[out_port_n+in_port_n];
+	uint8_t FALL_SL[out_port_n+in_port_n];
+	uint8_t FALL_E[out_port_n+in_port_n];
+	uint8_t FALL_SM[out_port_n+in_port_n];
+    uint8_t FALL_SN[out_port_n+in_port_n];
+
+    uint8_t CIKL_E[out_port_n+in_port_n];
+
+    uint8_t SET_COLOR[out_port_n+in_port_n];
+    uint8_t CLR_COLOR[out_port_n+in_port_n];
+    char mess_low[out_port_n+in_port_n][16];
+    char mess_hi[out_port_n+in_port_n][16];
+
+    uint8_t reactiv[out_port_n+in_port_n];
+    uint8_t cicle_t[out_port_n+in_port_n];
+
+
+
+
 	char name[out_port_n+in_port_n][32];
 
 
@@ -310,6 +361,35 @@ typedef struct
 	int16_t t_dw;
 	uint8_t status;
 	uint8_t status_old;
+
+	uint8_t TEMP_UP_L;
+	uint8_t TEMP_UP_SL;
+	uint8_t TEMP_UP_E;
+	uint8_t TEMP_UP_SM;
+	uint8_t TEMP_UP_SN;
+
+	uint8_t TEMP_DW_L;
+	uint8_t TEMP_DW_SL;
+	uint8_t TEMP_DW_E;
+	uint8_t TEMP_DW_SM;
+	uint8_t TEMP_DW_SN;
+
+	uint8_t TEMP_OK_L;
+	uint8_t TEMP_OK_SL;
+	uint8_t TEMP_OK_E;
+	uint8_t TEMP_OK_SM;
+	uint8_t TEMP_OK_SN;
+
+	uint8_t TEMP_ERR_L;
+	uint8_t TEMP_ERR_SL;
+	uint8_t TEMP_ERR_E;
+	uint8_t TEMP_ERR_SM;
+	uint8_t TEMP_ERR_SN;
+
+	uint8_t TEMP_CIKL_E;
+	uint8_t TEMP_CIKL_SM;
+	uint8_t ALL_EVENT;
+	uint8_t repit_3r;
 
 
 
@@ -338,6 +418,7 @@ void nvs_task(void *pvParameters);
 uint8_t load_struct_flash_data (void);
 esp_err_t save_data_blok(void);
 
+event_struct_t  event_io,event_wdt,event_termo,event_main;
 
 
 #endif /* COMPONENTS_NVS_TASK_H_ */

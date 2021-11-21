@@ -139,6 +139,7 @@ esp_err_t save_data_blok(void)
 
     err=err|nvs_set_u8(nvs_data_handle,get_name(V_TYPE_OUT),FW_data.sys.V_TYPE_OUT);
 
+
     err=err|nvs_set_i8(nvs_data_handle,get_name(V_NTP_CIRCL),FW_data.sys.V_NTP_CIRCL);
 
 
@@ -241,6 +242,14 @@ esp_err_t save_data_blok(void)
   	err=err|nvs_set_i16(nvs_data_handle,get_name(t1_up), FW_data.termo[1].t_up);
   	err=err|nvs_set_u8(nvs_data_handle,get_name(t1_st), FW_data.termo[1].status);
   	err=err|nvs_set_blob(nvs_data_handle,get_name(t1_name),&(FW_data.termo[1].name[0]),16);
+
+  	err=err|nvs_set_u8(nvs_data_handle,get_name(V_L_TIME), FW_data.sys.V_L_TIME);
+  	err=err|nvs_set_blob(nvs_data_handle,get_name(V_IP_SO),FW_data.sys.V_IP_SOURCE,4);
+  	err=err|nvs_set_u8(nvs_data_handle,get_name(V_MS_S), FW_data.sys.V_MASK_SOURCE);
+  	err=err|nvs_set_u8(nvs_data_handle,get_name(V_REFR_TR), FW_data.snmp.V_REFR_TRAP);
+  	err=err|nvs_set_u16(nvs_data_handle,get_name(V_N_O0),FW_data.wdt[0].V_N_OUT);
+  	err=err|nvs_set_u16(nvs_data_handle,get_name(V_N_O1),FW_data.wdt[1].V_N_OUT);
+
 
       printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
       printf("Committing updates in NVS ... ");
@@ -484,6 +493,82 @@ esp_err_t load_data_blok(void)
       	err=err|nvs_get_u8(nvs_data_handle,get_name(t1_st), &FW_data.termo[1].status);
       	err=err|nvs_get_blob(nvs_data_handle,get_name(t1_name),&(FW_data.termo[1].name[0]),&lens);
 
+
+      	err=err|nvs_get_u8(nvs_data_handle,get_name(V_L_TIME), &FW_data.sys.V_L_TIME);
+        lens=4;
+
+      	  	err=err|nvs_get_blob(nvs_data_handle,get_name(V_IP_SO),FW_data.sys.V_IP_SOURCE,&lens);
+      	  	err=err|nvs_get_u8(nvs_data_handle,get_name(V_MS_S), &FW_data.sys.V_MASK_SOURCE);
+      	  	err=err|nvs_get_u8(nvs_data_handle,get_name(V_REFR_TR), &FW_data.snmp.V_REFR_TRAP);
+      	  	err=err|nvs_get_u16(nvs_data_handle,get_name(V_N_O0),&FW_data.wdt[0].V_N_OUT);
+      	  	err=err|nvs_get_u16(nvs_data_handle,get_name(V_N_O1),&FW_data.wdt[1].V_N_OUT);
+
+
+//
+//      	  uint8_t ALL_EVENT;
+//      	  	uint8_t RISE_L[out_port_n+in_port_n];
+//      	  	uint8_t RISE_SL[out_port_n+in_port_n];
+//      	  	uint8_t RISE_E[out_port_n+in_port_n];
+//      	  	uint8_t RISE_SM[out_port_n+in_port_n];
+//      	  	uint8_t RISE_SN[out_port_n+in_port_n];
+//
+//      	  	uint8_t FALL_L[out_port_n+in_port_n];
+//      	  	uint8_t FALL_SL[out_port_n+in_port_n];
+//      	  	uint8_t FALL_E[out_port_n+in_port_n];
+//      	  	uint8_t FALL_SM[out_port_n+in_port_n];
+//      	      uint8_t FALL_SN[out_port_n+in_port_n];
+//
+//      	      uint8_t SET_COLOR;
+//      	      uint8_t CLR_COLOR;
+//      	    char mess_low[16];
+//      	    char mess_hi[16];
+//
+//      	      uint8_t reactiv;
+//      	      uint8_t cicle_t;
+
+//      	  uint8_t TEMP_UP_L;
+//      	  	uint8_t TEMP_UP_SL;
+//      	  	uint8_t TEMP_UP_E;
+//      	  	uint8_t TEMP_UP_SM;
+//      	  	uint8_t TEMP_UP_SN;
+//
+//      	  	uint8_t TEMP_DW_L;
+//      	  	uint8_t TEMP_DW_SL;
+//      	  	uint8_t TEMP_DW_E;
+//      	  	uint8_t TEMP_DW_SM;
+//      	  	uint8_t TEMP_DW_SN;
+//
+//      	  	uint8_t TEMP_OK_L;
+//      	  	uint8_t TEMP_OK_SL;
+//      	  	uint8_t TEMP_OK_E;
+//      	  	uint8_t TEMP_OK_SM;
+//      	  	uint8_t TEMP_OK_SN;
+//
+//      	  	uint8_t TEMP_ERR_L;
+//      	  	uint8_t TEMP_ERR_SL;
+//      	  	uint8_t TEMP_ERR_E;
+//      	  	uint8_t TEMP_ERR_SM;
+//      	  	uint8_t TEMP_ERR_SN;
+//
+//      	  	uint8_t TEMP_CIKL_E;
+//      	  	uint8_t TEMP_CIKL_SM;
+//      	  	uint8_t ALL_EVENT;
+//      	  	uint8_t repit_3r;
+
+
+
+//      		uint8_t V_EVENT_L;
+//      		uint8_t V_EVENT_SL;
+//      		uint8_t V_EVENT_E;
+//      		uint8_t V_EVENT_S;
+//      		uint8_t V_EVENT_T;
+//
+//      		uint8_t V_RESET_L;
+//      		uint8_t V_RESET_SL;
+//      		uint8_t V_RESET_E;
+//      		uint8_t V_RESET_S;
+//      		uint8_t V_RESET_T;
+//      		uint8_t V_RELOG_E;
 
 
       printf((err != ESP_OK) ? "Failed!\n" : "Done\n");

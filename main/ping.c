@@ -439,7 +439,7 @@ static void
 ping_thread1(void *arg)
 {
   int s;
-  int timeout = PING_RCV_TIMEO;
+ const int* timeout = PING_RCV_TIMEO;
 
   ip4_addr_t ping_target;
 //  uint32_t time_out_ping1;
@@ -451,9 +451,10 @@ ping_thread1(void *arg)
   if ((s = lwip_socket(AF_INET, SOCK_RAW, IP_PROTO_ICMP)) < 0) {
     return;
   }
-timeout++;
-  lwip_setsockopt(s, SOL_SOCKET, SO_RCVTIMEO,&timeout, sizeof(timeout));
-// sockets[0]->conn->recv_timeout=1000;
+//timeout++;
+  lwip_setsockopt(s, SOL_SOCKET, SO_RCVTIMEO,(const int *)timeout, sizeof(*timeout));
+
+
   while (1) {
   //    vTaskDelay(FW_data.V_TIME_RESEND_PING/3);
  if (FW_data.wdt[1].V_EN_WATCHDOG==1)
@@ -497,7 +498,7 @@ timeout++;
         }
 
       }
-    }while((ct_cn_a1!=0)&&(ct_cn_a1<FW_data.wdt[1].V_MAX_REPID_PING-1));
+    }while((ct_cn_a1!=0)&&(ping_data1.flag_err[0]==0));//while((ct_cn_a1!=0)&&(ct_cn_a1<FW_data.wdt[1].V_MAX_REPID_PING));
    }
 
 
@@ -540,7 +541,7 @@ timeout++;
 
 
       }
-    }while((ct_cn_b1!=0)&&(ct_cn_b1<FW_data.wdt[1].V_MAX_REPID_PING-1));
+    }while((ct_cn_b1!=0)&&(ping_data1.flag_err[1]==0));
   }
  //  vTaskDelay(FW_data.V_TIME_RESEND_PING/3);
    if ((FW_data.wdt[1].V_EN_WATCHDOG_CN_C==1)&&(en_ping_c1==0))
@@ -582,7 +583,7 @@ timeout++;
         }
 
       }
-     }while((ct_cn_c1!=0)&&(ct_cn_c1<FW_data.wdt[1].V_MAX_REPID_PING-1));
+     }while((ct_cn_c1!=0)&&(ping_data1.flag_err[2]==0));
   }
 
 

@@ -18,39 +18,21 @@
 #define HTTPD_401      "401 UNAUTHORIZED"           /*!< HTTP Response 401 */
 #define HTTPD_302      "302 Found Location: /index.html"           /*!< HTTP Response 401 */
 /* An HTTP GET handler */
-const uint8_t mask_dec[33][4]={{255,255,255,255},
-{255,255,255,254},
-{255,255,255,252},
-{255,255,255,248},
-{255,255,255,240},
-{255,255,255,224},
-{255,255,255,192},
-{255,255,255,128},
-{255,255,255,000},
-{255,255,254,000},
-{255,255,252,000},
-{255,255,248,000},
-{255,255,240,000},
-{255,255,224,000},
-{255,255,192,000},
-{255,255,128,000},
-{255,255,000,000},
-{255,254,000,000},
-{255,252,000,000},
-{255,248,000,000},
-{255,240,000,000},
-{255,224,000,000},
-{255,192,000,000},
-{255,128,000,000},
-{255,000,000,000},
-{254,000,000,000},
-{252,000,000,000},
-{248,000,000,000},
-{240,000,000,000},
-{224,000,000,000},
-{192,000,000,000},
-{128,000,000,000},
-{000,000,000,000}};
+const uint8_t mask_dec[33][4] = { { 255, 255, 255, 255 },
+		{ 255, 255, 255, 254 }, { 255, 255, 255, 252 }, { 255, 255, 255, 248 },
+		{ 255, 255, 255, 240 }, { 255, 255, 255, 224 }, { 255, 255, 255, 192 },
+		{ 255, 255, 255, 128 }, { 255, 255, 255, 000 }, { 255, 255, 254, 000 },
+		{ 255, 255, 252, 000 }, { 255, 255, 248, 000 }, { 255, 255, 240, 000 },
+		{ 255, 255, 224, 000 }, { 255, 255, 192, 000 }, { 255, 255, 128, 000 },
+		{ 255, 255, 000, 000 }, { 255, 254, 000, 000 }, { 255, 252, 000, 000 },
+		{ 255, 248, 000, 000 }, { 255, 240, 000, 000 }, { 255, 224, 000, 000 },
+		{ 255, 192, 000, 000 }, { 255, 128, 000, 000 }, { 255, 000, 000, 000 },
+		{ 254, 000, 000, 000 }, { 252, 000, 000, 000 }, { 248, 000, 000, 000 },
+		{ 240, 000, 000, 000 }, { 224, 000, 000, 000 }, { 192, 000, 000, 000 },
+		{ 128, 000, 000, 000 }, { 000, 000, 000, 000 } };
+
+uint8_t page_sost;
+
 void char2_to_hex(char *in, uint8_t *out, uint32_t len) {
 //	Bcd_To_Hex((unsigned char *)in, (unsigned char *)out, len);
 	for (uint32_t ct = 0; ct < len; ct++) {
@@ -103,9 +85,10 @@ uint8_t read_mess_smtp(char *in, uint8_t *out) {
 }
 
 static esp_err_t hello_get_handler(httpd_req_t *req) {
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_js);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_js);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 
 	const esp_partition_t *running = esp_ota_get_running_partition();
 	esp_app_desc_t app_desc;
@@ -154,37 +137,109 @@ static esp_err_t sse_get_cgi_handler(httpd_req_t *req) {
 	return ESP_OK;
 }
 
-
-
 //notify_get.cgi?nfid=0800
-		static esp_err_t notify_get_cgi_handler(httpd_req_t *req) {
-		#warning "******** where is no error processing !  *******"
-			httpd_resp_set_hdr(req, "Cache-Control",
-					"no-store\, no-cache\, must-revalidate");
-			httpd_resp_set_type(req, mime_js);
+static esp_err_t notify_get_cgi_handler(httpd_req_t *req) {
+#warning "******** where is no error processing !  *******"
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store\, no-cache\, must-revalidate");
+	httpd_resp_set_type(req, mime_js);
 
-			char buf[1024] = { 0 };
-			char buf_temp[256];
-			uint8_t number_mess;
+	char buf[1024] = { 0 };
+	char buf_temp[256];
+	uint8_t number_mess;
 
-			uint8_t reset,suspend,report;
-			uint8_t canal;
-			canal=(*req).uri[24]-0x30;
+	uint8_t reset, suspend, report;
+	uint8_t canal;
+	if (page_sost == WDT) {
+		canal = (*req).uri[24] - 0x30;
 
-			reset=(FW_data.wdt[canal].V_RESET_L<<0)|(FW_data.wdt[canal].V_RESET_SL<<1)|(FW_data.wdt[canal].V_RESET_E<<2)|(FW_data.wdt[canal].V_RESET_S<<3)|(FW_data.wdt[canal].V_RESET_T<<4);
-			suspend=(FW_data.wdt[canal].V_EVENT_L<<0)|(FW_data.wdt[canal].V_EVENT_SL<<1)|(FW_data.wdt[canal].V_EVENT_E<<2)|(FW_data.wdt[canal].V_EVENT_S<<3)|(FW_data.wdt[canal].V_EVENT_T<<4);
-			report=FW_data.wdt[canal].V_RELOG_E<<2;
-			sprintf(buf_temp,"({reset:%d,suspend:%d,report:%d})",reset,suspend,report);
-			strcat(buf, buf_temp);
+		reset = (FW_data.wdt[canal].V_RESET_L << 0)
+				| (FW_data.wdt[canal].V_RESET_SL << 1)
+				| (FW_data.wdt[canal].V_RESET_E << 2)
+				| (FW_data.wdt[canal].V_RESET_S << 3)
+				| (FW_data.wdt[canal].V_RESET_T << 4);
+		suspend = (FW_data.wdt[canal].V_EVENT_L << 0)
+				| (FW_data.wdt[canal].V_EVENT_SL << 1)
+				| (FW_data.wdt[canal].V_EVENT_E << 2)
+				| (FW_data.wdt[canal].V_EVENT_S << 3)
+				| (FW_data.wdt[canal].V_EVENT_T << 4);
+		report = FW_data.wdt[canal].V_RELOG_E << 2;
+		sprintf(buf_temp, "({reset:%d,suspend:%d,report:%d})", reset, suspend,
+				report);
+		strcat(buf, buf_temp);
+	}
 
+	if (page_sost == TERMO) {
+		canal = (*req).uri[24] - 0x30;
+		uint8_t high, norm, low, fail, flags, repeat_alarm;
+		high = (FW_data.termo[canal].TEMP_UP_L << 0)
+				| (FW_data.termo[canal].TEMP_UP_SL << 1)
+				| (FW_data.termo[canal].TEMP_UP_E << 2)
+				| (FW_data.termo[canal].TEMP_UP_SM << 3)
+				| (FW_data.termo[canal].TEMP_UP_SN << 4);
+		norm = (FW_data.termo[canal].TEMP_UP_L << 0)
+				| (FW_data.termo[canal].TEMP_OK_SL << 1)
+				| (FW_data.termo[canal].TEMP_OK_E << 2)
+				| (FW_data.termo[canal].TEMP_OK_SM << 3)
+				| (FW_data.termo[canal].TEMP_OK_SN << 4);
 
-			//sprintf(buf,"11.05.21 Tu 07:38:15.040 Watchdog: reset of chan.1 \"Сигнал\"\. A (8.8.8.8) no reply, B (192.168.0.55) no reply, C (124.211.45.11) is ignored.\r\n");
+		low = (FW_data.termo[canal].TEMP_DW_L << 0)
+				| (FW_data.termo[canal].TEMP_DW_SL << 1)
+				| (FW_data.termo[canal].TEMP_DW_E << 2)
+				| (FW_data.termo[canal].TEMP_DW_SM << 3)
+				| (FW_data.termo[canal].TEMP_DW_SN << 4);
 
-			httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
-			return ESP_OK;
-		}
+		fail = (FW_data.termo[canal].TEMP_ERR_L << 0)
+				| (FW_data.termo[canal].TEMP_ERR_SL << 1)
+				| (FW_data.termo[canal].TEMP_ERR_E << 2)
+				| (FW_data.termo[canal].TEMP_ERR_SM << 3)
+				| (FW_data.termo[canal].TEMP_ERR_SN << 4);
 
+		report = (FW_data.termo[canal].TEMP_CIKL_E & 0x01) << 2;
 
+		repeat_alarm = FW_data.termo[canal].repit_3r;
+		sprintf(buf_temp,
+				"({high:%d,norm:%d,low:%d,fail:%d,report:%d,flags:0,repeat_alarm:%d})",
+				high, norm, low, fail, report, repeat_alarm);
+		strcat(buf, buf_temp);
+		//({high:4,norm:4,low:4,fail:4,report:4,flags:0,repeat_alarm:1})
+	}
+
+	if (page_sost == IO) {
+		uint8_t high, low, colors, rep_filter_mode, rep_filter_time;
+		canal = (*req).uri[24] - 0x30;
+
+		high = (FW_data.gpio.RISE_L[canal] << 0)
+				| (FW_data.gpio.RISE_SL[canal] << 1)
+				| (FW_data.gpio.RISE_E[canal] << 2)
+				| (FW_data.gpio.RISE_SM[canal] << 3)
+				| (FW_data.gpio.RISE_SN[canal] << 4);
+		low = (FW_data.gpio.FALL_L[canal] << 0)
+				| (FW_data.gpio.FALL_SL[canal] << 1)
+				| (FW_data.gpio.FALL_E[canal] << 2)
+				| (FW_data.gpio.FALL_SM[canal] << 3)
+				| (FW_data.gpio.FALL_SN[canal] << 4);
+
+		colors = (FW_data.gpio.SET_COLOR[canal] << 4)
+				| FW_data.gpio.CLR_COLOR[canal];
+		rep_filter_mode = FW_data.gpio.reactiv[canal];
+		rep_filter_time = FW_data.gpio.cicle_t[canal];
+		report = (FW_data.gpio.CIKL_E[canal] & 0x01) << 2;
+
+		sprintf(buf_temp,
+				"({high:%d,low:%d,report:%d,legend_high:\"%s\",legend_low:\"%s\",colors:%d,rep_filter_mode:%d,rep_filter_time:%d})",
+				high, low, report, FW_data.gpio.mess_hi[canal],
+				FW_data.gpio.mess_low[canal], colors, rep_filter_mode,
+				rep_filter_time);
+		strcat(buf, buf_temp);
+	}
+	///({high:19,low:19,report:0,legend_high:"",legend_low:"",colors:82,rep_filter_mode:0,rep_filter_time:0})
+
+	//sprintf(buf,"11.05.21 Tu 07:38:15.040 Watchdog: reset of chan.1 \"Сигнал\"\. A (8.8.8.8) no reply, B (192.168.0.55) no reply, C (124.211.45.11) is ignored.\r\n");
+
+	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+	return ESP_OK;
+}
 
 static esp_err_t log_get_cgi_handler(httpd_req_t *req) {
 #warning "******** where is no error processing !  *******"
@@ -222,7 +277,8 @@ static esp_err_t log_get_cgi_handler(httpd_req_t *req) {
 }
 static esp_err_t io_get_cgi_handler(httpd_req_t *req) {
 #warning "******** where is no error processing !  *******"
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_js);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 
@@ -234,6 +290,7 @@ static esp_err_t io_get_cgi_handler(httpd_req_t *req) {
 				"Can't read FW version!");
 		return ESP_FAIL;
 	}
+	page_sost = IO;
 	char buf[2048];
 	char buf_temp[256];
 	sprintf(buf,
@@ -266,9 +323,9 @@ static esp_err_t io_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var fwver='v%.31s';",app_desc.version);
+	sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var sys_location='%s';",FW_data.sys.V_GEOM_NAME);
+	sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var hwmodel=110;");
 	strcat(buf, buf_temp);
@@ -294,9 +351,10 @@ static esp_err_t email_send_test_cgi_handler(httpd_req_t *req) {
 
 static esp_err_t sendmail_get_cgi_handler(httpd_req_t *req) {
 #warning "******** where is no error processing !  *******"
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_js);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_js);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 
 	const esp_partition_t *running = esp_ota_get_running_partition();
 	esp_app_desc_t app_desc;
@@ -306,6 +364,7 @@ static esp_err_t sendmail_get_cgi_handler(httpd_req_t *req) {
 				"Can't read FW version!");
 		return ESP_FAIL;
 	}
+	page_sost = SMTP;
 	char buf[1024];
 	char buf_temp[256];
 	sprintf(buf,
@@ -338,9 +397,9 @@ static esp_err_t sendmail_get_cgi_handler(httpd_req_t *req) {
 
 	sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var fwver='v%.32s';",app_desc.version);
+	sprintf(buf_temp, "var fwver='v%.32s';", app_desc.version);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var sys_location='%s';",FW_data.sys.V_GEOM_NAME);
+	sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var hwmodel=110;");
 	strcat(buf, buf_temp);
@@ -354,7 +413,8 @@ static esp_err_t sendmail_get_cgi_handler(httpd_req_t *req) {
 }
 static esp_err_t io_cgi_api_handler(httpd_req_t *req) {
 #warning "******** where is no error processing !  *******"
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_js);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 	char *buf;
@@ -398,7 +458,8 @@ static esp_err_t io_cgi_api_handler(httpd_req_t *req) {
 
 static esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 //#warning "******** where is no error processing !  *******"
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_js);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 	const esp_partition_t *running = esp_ota_get_running_partition();
@@ -409,6 +470,7 @@ static esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 				"Can't read FW version!");
 		return ESP_FAIL;
 	}
+	page_sost = TERMO;
 	char buf[1024];
 	char buf_temp[256];
 	sprintf(buf,
@@ -417,29 +479,38 @@ static esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 	sprintf(buf_temp, "var data_double_hyst=2;");
 	strcat(buf, buf_temp);
 
-	sprintf(buf_temp, " var data=[{name:\"%s\",",FW_data.termo[0].name);
+	sprintf(buf_temp, " var data=[{name:\"%s\",", FW_data.termo[0].name);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "ow_addr:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",FW_data.termo[0].id[0],FW_data.termo[0].id[1],FW_data.termo[0].id[2],FW_data.termo[0].id[3],FW_data.termo[0].id[4],FW_data.termo[0].id[5],FW_data.termo[0].id[6],FW_data.termo[0].id[7]);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "bottom:%d,top:%d,",FW_data.termo[0].t_dw,FW_data.termo[0].t_up);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "value:%d,",FW_data.termo[0].temper);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "status:%d}",FW_data.termo[0].status);
+	sprintf(buf_temp, "ow_addr:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
+			FW_data.termo[0].id[0], FW_data.termo[0].id[1],
+			FW_data.termo[0].id[2], FW_data.termo[0].id[3],
+			FW_data.termo[0].id[4], FW_data.termo[0].id[5],
+			FW_data.termo[0].id[6], FW_data.termo[0].id[7]);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "bottom:%d,top:%d,", FW_data.termo[0].t_dw,
+			FW_data.termo[0].t_up);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "value:%d,", FW_data.termo[0].temper);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "status:%d}", FW_data.termo[0].status);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, ",");
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "{name:\"%s\",",FW_data.termo[1].name);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "ow_addr:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",FW_data.termo[1].id[0],FW_data.termo[1].id[1],FW_data.termo[1].id[2],FW_data.termo[1].id[3],FW_data.termo[1].id[4],FW_data.termo[1].id[5],FW_data.termo[1].id[6],FW_data.termo[1].id[7]);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "bottom:%d,",FW_data.termo[1].t_dw);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "top:%d,",FW_data.termo[1].t_up);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "value:%d,",FW_data.termo[1].temper);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "status:%d}",FW_data.termo[1].status);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "{name:\"%s\",", FW_data.termo[1].name);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "ow_addr:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
+			FW_data.termo[1].id[0], FW_data.termo[1].id[1],
+			FW_data.termo[1].id[2], FW_data.termo[1].id[3],
+			FW_data.termo[1].id[4], FW_data.termo[1].id[5],
+			FW_data.termo[1].id[6], FW_data.termo[1].id[7]);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "bottom:%d,", FW_data.termo[1].t_dw);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "top:%d,", FW_data.termo[1].t_up);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "value:%d,", FW_data.termo[1].temper);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "status:%d}", FW_data.termo[1].status);
 	strcat(buf, buf_temp);
 //	sprintf(buf_temp, ",");
 //			strcat(buf, buf_temp);
@@ -468,13 +539,13 @@ static esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 //	sprintf(buf_temp, "status:0}");
 //			strcat(buf, buf_temp);
 	sprintf(buf_temp, "];");
-			strcat(buf, buf_temp);
+	strcat(buf, buf_temp);
 
 	sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var fwver='v%.31s';",app_desc.version);
+	sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var sys_location='%s';",FW_data.sys.V_GEOM_NAME);
+	sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var hwmodel=110;");
 	strcat(buf, buf_temp);
@@ -490,7 +561,8 @@ static esp_err_t termo_get_cgi_api_handler(httpd_req_t *req) {
 
 static esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 //#warning "******** where is no error processing !  *******"
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_js);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 	const esp_partition_t *running = esp_ota_get_running_partition();
@@ -504,28 +576,37 @@ static esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 	char buf[1024];
 	char buf_temp[256];
 
-	sprintf(buf, " [{name:\"%s\",",FW_data.termo[0].name);
-	sprintf(buf_temp, "ow_addr:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",FW_data.termo[0].id[0],FW_data.termo[0].id[1],FW_data.termo[0].id[2],FW_data.termo[0].id[3],FW_data.termo[0].id[4],FW_data.termo[0].id[5],FW_data.termo[0].id[6],FW_data.termo[0].id[7]);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "bottom:%d,top:%d,",FW_data.termo[0].t_dw,FW_data.termo[0].t_up);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "value:%d,",FW_data.termo[0].temper);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "status:%d}",FW_data.termo[0].status);
+	sprintf(buf, " [{name:\"%s\",", FW_data.termo[0].name);
+	sprintf(buf_temp, "ow_addr:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
+			FW_data.termo[0].id[0], FW_data.termo[0].id[1],
+			FW_data.termo[0].id[2], FW_data.termo[0].id[3],
+			FW_data.termo[0].id[4], FW_data.termo[0].id[5],
+			FW_data.termo[0].id[6], FW_data.termo[0].id[7]);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "bottom:%d,top:%d,", FW_data.termo[0].t_dw,
+			FW_data.termo[0].t_up);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "value:%d,", FW_data.termo[0].temper);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "status:%d}", FW_data.termo[0].status);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, ",");
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "{name:\"%s\",",FW_data.termo[1].name);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "ow_addr:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",FW_data.termo[1].id[0],FW_data.termo[1].id[1],FW_data.termo[1].id[2],FW_data.termo[1].id[3],FW_data.termo[1].id[4],FW_data.termo[1].id[5],FW_data.termo[1].id[6],FW_data.termo[1].id[7]);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "bottom:%d,",FW_data.termo[1].t_dw);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "top:%d,",FW_data.termo[1].t_up);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "value:%d,",FW_data.termo[1].temper);
-			strcat(buf, buf_temp);
-	sprintf(buf_temp, "status:%d}",FW_data.termo[1].status);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "{name:\"%s\",", FW_data.termo[1].name);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "ow_addr:\"%02x%02x %02x%02x %02x%02x %02x%02x\",",
+			FW_data.termo[1].id[0], FW_data.termo[1].id[1],
+			FW_data.termo[1].id[2], FW_data.termo[1].id[3],
+			FW_data.termo[1].id[4], FW_data.termo[1].id[5],
+			FW_data.termo[1].id[6], FW_data.termo[1].id[7]);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "bottom:%d,", FW_data.termo[1].t_dw);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "top:%d,", FW_data.termo[1].t_up);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "value:%d,", FW_data.termo[1].temper);
+	strcat(buf, buf_temp);
+	sprintf(buf_temp, "status:%d}", FW_data.termo[1].status);
 	strcat(buf, buf_temp);
 //	sprintf(buf_temp, ",");
 //			strcat(buf, buf_temp);
@@ -555,13 +636,13 @@ static esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 //			strcat(buf, buf_temp);
 
 	sprintf(buf_temp, "];");
-			strcat(buf, buf_temp);
+	strcat(buf, buf_temp);
 
 	sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var fwver='v%.31s';",app_desc.version);
+	sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var sys_location='%s';",FW_data.sys.V_GEOM_NAME);
+	sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var hwmodel=110;");
 	strcat(buf, buf_temp);
@@ -575,16 +656,17 @@ static esp_err_t termo_data_cgi_api_handler(httpd_req_t *req) {
 	return ESP_OK;
 }
 static esp_err_t wdog_get_cgi_handler(httpd_req_t *req) {
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_js);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_js);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 
 	esp_err_t err;
 	nvs_handle_t my_handle;
 
 	char buf[9048];
 	char buf_temp[256];
-
+	page_sost = WDT;
 //	const esp_partition_t *running = esp_ota_get_running_partition();
 //	esp_app_desc_t app_desc;
 //	esp_err_t ret = esp_ota_get_partition_description(running, &app_desc);
@@ -595,8 +677,8 @@ static esp_err_t wdog_get_cgi_handler(httpd_req_t *req) {
 //	}
 
 	int mac = 5566223;
-	  vTaskDelay(300 / portTICK_PERIOD_MS);
-	sprintf(buf,"var packfmt={"
+	vTaskDelay(300 / portTICK_PERIOD_MS);
+	sprintf(buf, "var packfmt={"
 			"signature:{offs:0,len:4},"
 			"name:{offs:4,len:32},"
 			"output:{offs:62,len:2},"
@@ -616,16 +698,16 @@ static esp_err_t wdog_get_cgi_handler(httpd_req_t *req) {
 			"fqdn1:{offs:128,len:64},"
 			"fqdn2:{offs:192,len:64},"
 			"__len:256};\n");
-	uint32_t activ=0;
+	uint32_t activ = 0;
 
 	sprintf(buf_temp, "var data=[");
 	strcat(buf, buf_temp);
 
 	sprintf(buf_temp, "{signature:2893295841,");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "name:\"%s\",",FW_data.wdt[0].V_NAME);
+	sprintf(buf_temp, "name:\"%s\",", FW_data.wdt[0].V_NAME);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "output:%d,",FW_data.wdt[0].V_N_OUT);
+	sprintf(buf_temp, "output:%d,", FW_data.wdt[0].V_N_OUT);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "ip0:'8.8.8.8',");
 	strcat(buf, buf_temp);
@@ -633,49 +715,60 @@ static esp_err_t wdog_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "ip2:'98.98.8.8',");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "poll_period:%d,",FW_data.wdt[0].V_T_SEND_PING);
+	sprintf(buf_temp, "poll_period:%d,", FW_data.wdt[0].V_T_SEND_PING);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "ping_timeout:%d,",FW_data.wdt[0].V_TIME_RESEND_PING);
+	sprintf(buf_temp, "ping_timeout:%d,", FW_data.wdt[0].V_TIME_RESEND_PING);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "reset_time:%d,",FW_data.wdt[0].V_TIME_RESET_PULSE);
+	sprintf(buf_temp, "reset_time:%d,", FW_data.wdt[0].V_TIME_RESET_PULSE);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "reboot_pause:%d,",FW_data.wdt[0].V_PAUSE_RESET_TO_REPID);
+	sprintf(buf_temp, "reboot_pause:%d,",
+			FW_data.wdt[0].V_PAUSE_RESET_TO_REPID);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "max_retry:%d,",FW_data.wdt[0].V_MAX_REPID_PING);
+	sprintf(buf_temp, "max_retry:%d,", FW_data.wdt[0].V_MAX_REPID_PING);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "doubling_pause_resets:%d,",FW_data.wdt[0].V_MAX_RESEND_PACET_RESET);
+	sprintf(buf_temp, "doubling_pause_resets:%d,",
+			FW_data.wdt[0].V_MAX_RESEND_PACET_RESET);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "reset_mode:%d,",FW_data.sys.V_TYPE_OUT);
+	sprintf(buf_temp, "reset_mode:%d,", FW_data.sys.V_TYPE_OUT);
 	strcat(buf, buf_temp);
-	activ=0;
-	activ=((FW_data.wdt[0].V_EN_WATCHDOG<<7)|(FW_data.wdt[0].V_EN_WATCHDOG_CN_C<<2)|(FW_data.wdt[0].V_EN_WATCHDOG_CN_B<<1)|(FW_data.wdt[0].V_EN_WATCHDOG_CN_A));
-	sprintf(buf_temp, "active:%d,",activ);
+	activ = 0;
+	activ = ((FW_data.wdt[0].V_EN_WATCHDOG << 7)
+			| (FW_data.wdt[0].V_EN_WATCHDOG_CN_C << 2)
+			| (FW_data.wdt[0].V_EN_WATCHDOG_CN_B << 1)
+			| (FW_data.wdt[0].V_EN_WATCHDOG_CN_A));
+	sprintf(buf_temp, "active:%d,", activ);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "logic_mode:%d,",FW_data.wdt[0].V_TYPE_LOGIC);
+	sprintf(buf_temp, "logic_mode:%d,", FW_data.wdt[0].V_TYPE_LOGIC);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "fqdn0:\"%d.%d.%d.%d\",",FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[0],FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[1],FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[2],FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[3]);
+	sprintf(buf_temp, "fqdn0:\"%d.%d.%d.%d\",",
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[0],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[1],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[2],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "fqdn1:\"%d.%d.%d.%d\",",FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[0],FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[1],FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[2],FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[3]);
+	sprintf(buf_temp, "fqdn1:\"%d.%d.%d.%d\",",
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[0],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[1],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[2],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "fqdn2:\"%d.%d.%d.%d\",",FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[0],FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[1],FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[2],FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[3]);
+	sprintf(buf_temp, "fqdn2:\"%d.%d.%d.%d\",",
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[0],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[1],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[2],
+			FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "reset_count:%d}",FW_data.wdt[0].V_CT_RES_ALLSTART);
+	sprintf(buf_temp, "reset_count:%d}", FW_data.wdt[0].V_CT_RES_ALLSTART);
 	strcat(buf, buf_temp);
-
-
-
 
 	sprintf(buf_temp, ",");
 	strcat(buf, buf_temp);
 
-
-
-
 	sprintf(buf_temp, "{signature:2893295841,");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "name:\"%s\",",FW_data.wdt[1].V_NAME);
+	sprintf(buf_temp, "name:\"%s\",", FW_data.wdt[1].V_NAME);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "output:11009,");
+	sprintf(buf_temp, "output:%d,", FW_data.wdt[1].V_N_OUT);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "ip0:'8.8.8.8',");
 	strcat(buf, buf_temp);
@@ -683,40 +776,55 @@ static esp_err_t wdog_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "ip2:'98.98.8.8',");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "poll_period:%d,",FW_data.wdt[1].V_T_SEND_PING);
+	sprintf(buf_temp, "poll_period:%d,", FW_data.wdt[1].V_T_SEND_PING);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "ping_timeout:%d,",FW_data.wdt[1].V_TIME_RESEND_PING);
+	sprintf(buf_temp, "ping_timeout:%d,", FW_data.wdt[1].V_TIME_RESEND_PING);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "reset_time:%d,",FW_data.wdt[1].V_TIME_RESET_PULSE);
+	sprintf(buf_temp, "reset_time:%d,", FW_data.wdt[1].V_TIME_RESET_PULSE);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "reboot_pause:%d,",FW_data.wdt[1].V_PAUSE_RESET_TO_REPID);
+	sprintf(buf_temp, "reboot_pause:%d,",
+			FW_data.wdt[1].V_PAUSE_RESET_TO_REPID);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "max_retry:%d,",FW_data.wdt[1].V_MAX_REPID_PING);
+	sprintf(buf_temp, "max_retry:%d,", FW_data.wdt[1].V_MAX_REPID_PING);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "doubling_pause_resets:%d,",FW_data.wdt[1].V_MAX_RESEND_PACET_RESET);
+	sprintf(buf_temp, "doubling_pause_resets:%d,",
+			FW_data.wdt[1].V_MAX_RESEND_PACET_RESET);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "reset_mode:%d,",FW_data.sys.V_TYPE_OUT);
+	sprintf(buf_temp, "reset_mode:%d,", FW_data.sys.V_TYPE_OUT);
 	strcat(buf, buf_temp);
-	 activ=0;
-	activ=((FW_data.wdt[1].V_EN_WATCHDOG<<7)|(FW_data.wdt[1].V_EN_WATCHDOG_CN_C<<2)|(FW_data.wdt[1].V_EN_WATCHDOG_CN_B<<1)|(FW_data.wdt[1].V_EN_WATCHDOG_CN_A));
-	sprintf(buf_temp, "active:%d,",activ);
+	activ = 0;
+	activ = ((FW_data.wdt[1].V_EN_WATCHDOG << 7)
+			| (FW_data.wdt[1].V_EN_WATCHDOG_CN_C << 2)
+			| (FW_data.wdt[1].V_EN_WATCHDOG_CN_B << 1)
+			| (FW_data.wdt[1].V_EN_WATCHDOG_CN_A));
+	sprintf(buf_temp, "active:%d,", activ);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "logic_mode:%d,",FW_data.wdt[1].V_TYPE_LOGIC);
+	sprintf(buf_temp, "logic_mode:%d,", FW_data.wdt[1].V_TYPE_LOGIC);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "fqdn0:\"%d.%d.%d.%d\",",FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[0],FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[1],FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[2],FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[3]);
+	sprintf(buf_temp, "fqdn0:\"%d.%d.%d.%d\",",
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[0],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[1],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[2],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "fqdn1:\"%d.%d.%d.%d\",",FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[0],FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[1],FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[2],FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[3]);
+	sprintf(buf_temp, "fqdn1:\"%d.%d.%d.%d\",",
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[0],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[1],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[2],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "fqdn2:\"%d.%d.%d.%d\",",FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[0],FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[1],FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[2],FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[3]);
+	sprintf(buf_temp, "fqdn2:\"%d.%d.%d.%d\",",
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[0],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[1],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[2],
+			FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "reset_count:%d}",FW_data.wdt[1].V_CT_RES_ALLSTART);
+	sprintf(buf_temp, "reset_count:%d}", FW_data.wdt[1].V_CT_RES_ALLSTART);
 	strcat(buf, buf_temp);
 
-
-
-	sprintf(buf_temp,"];");
+	sprintf(buf_temp, "];");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var fwver='v%.31s';",app_desc.version);
+	sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var hwmodel=110;");
 	strcat(buf, buf_temp);
@@ -726,35 +834,26 @@ static esp_err_t wdog_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var sys_name='%s';", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var sys_location='%s';",FW_data.sys.V_GEOM_NAME);
+	sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var hwmodel=110;");
 	strcat(buf, buf_temp);
-  httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
-  return ESP_OK;
+	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
+	return ESP_OK;
 }
 
-
-
 static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_js);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_js);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 
 	esp_err_t err;
 	nvs_handle_t my_handle;
 
 	char buf[14096];
 	char buf_temp[256];
-
-//	const esp_partition_t *running = esp_ota_get_running_partition();
-//	esp_app_desc_t app_desc;
-//	esp_err_t ret = esp_ota_get_partition_description(running, &app_desc);
-//	if (ret != ESP_OK) {
-//		httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR,
-//				"Can't read FW version!");
-//		return ESP_FAIL;
-//	}
+	page_sost = SETT;
 
 	int mac = 5566223;
 
@@ -780,47 +879,63 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "dst:0,");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "http_port:%d,",FW_data.http.V_WEB_PORT);
+	sprintf(buf_temp, "http_port:%d,", FW_data.http.V_WEB_PORT);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "uname:\"%s\",", FW_data.http.V_LOGIN);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "passwd:\"%s\",", FW_data.http.V_PASSWORD);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "community_r:\"%s\"",FW_data.snmp.V_COMMUNITY);
+	sprintf(buf_temp, "community_r:\"%s\"", FW_data.snmp.V_COMMUNITY);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, ",community_w:\"%s\",",FW_data.snmp.V_COMMUNITY_WRITE);
+	sprintf(buf_temp, ",community_w:\"%s\",", FW_data.snmp.V_COMMUNITY_WRITE);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "filt_ip1:'%d.%d.%d.%d',",FW_data.sys.V_IP_SOURCE[0],FW_data.sys.V_IP_SOURCE[1],FW_data.sys.V_IP_SOURCE[2],FW_data.sys.V_IP_SOURCE[3]);
+	sprintf(buf_temp, "filt_ip1:'%d.%d.%d.%d',", FW_data.sys.V_IP_SOURCE[0],
+			FW_data.sys.V_IP_SOURCE[1], FW_data.sys.V_IP_SOURCE[2],
+			FW_data.sys.V_IP_SOURCE[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "filt_mask1:'%d.%d.%d.%d',",mask_dec[32-FW_data.sys.V_MASK_SOURCE][0],mask_dec[32-FW_data.sys.V_MASK_SOURCE][1],mask_dec[32-FW_data.sys.V_MASK_SOURCE][2],mask_dec[32-FW_data.sys.V_MASK_SOURCE][3]);
+	sprintf(buf_temp, "filt_mask1:'%d.%d.%d.%d',",
+			mask_dec[32 - FW_data.sys.V_MASK_SOURCE][0],
+			mask_dec[32 - FW_data.sys.V_MASK_SOURCE][1],
+			mask_dec[32 - FW_data.sys.V_MASK_SOURCE][2],
+			mask_dec[32 - FW_data.sys.V_MASK_SOURCE][3]);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "powersaving:0,");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "trap_refresh:%d,",FW_data.snmp.V_REFR_TRAP);
+	sprintf(buf_temp, "trap_refresh:%d,", FW_data.snmp.V_REFR_TRAP);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "trap_ip1:'%d.%d.%d.%d',",FW_data.snmp.V_IP_SNMP[0],FW_data.snmp.V_IP_SNMP[1],FW_data.snmp.V_IP_SNMP[2],FW_data.snmp.V_IP_SNMP[3]);
+	sprintf(buf_temp, "trap_ip1:'%d.%d.%d.%d',", FW_data.snmp.V_IP_SNMP[0],
+			FW_data.snmp.V_IP_SNMP[1], FW_data.snmp.V_IP_SNMP[2],
+			FW_data.snmp.V_IP_SNMP[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "trap_ip2:'%d.%d.%d.%d',",FW_data.snmp.V_IP_SNMP_S[0],FW_data.snmp.V_IP_SNMP_S[1],FW_data.snmp.V_IP_SNMP_S[2],FW_data.snmp.V_IP_SNMP_S[3]);
+	sprintf(buf_temp, "trap_ip2:'%d.%d.%d.%d',", FW_data.snmp.V_IP_SNMP_S[0],
+			FW_data.snmp.V_IP_SNMP_S[1], FW_data.snmp.V_IP_SNMP_S[2],
+			FW_data.snmp.V_IP_SNMP_S[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "ntp_ip1:'%d.%d.%d.%d',",FW_data.net.V_IP_NTP1[0],FW_data.net.V_IP_NTP1[1],FW_data.net.V_IP_NTP1[2],FW_data.net.V_IP_NTP1[3]);
+	sprintf(buf_temp, "ntp_ip1:'%d.%d.%d.%d',", FW_data.net.V_IP_NTP1[0],
+			FW_data.net.V_IP_NTP1[1], FW_data.net.V_IP_NTP1[2],
+			FW_data.net.V_IP_NTP1[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "ntp_ip2:'%d.%d.%d.%d',",FW_data.net.V_IP_NTP2[0],FW_data.net.V_IP_NTP2[1],FW_data.net.V_IP_NTP2[2],FW_data.net.V_IP_NTP2[3]);
+	sprintf(buf_temp, "ntp_ip2:'%d.%d.%d.%d',", FW_data.net.V_IP_NTP2[0],
+			FW_data.net.V_IP_NTP2[1], FW_data.net.V_IP_NTP2[2],
+			FW_data.net.V_IP_NTP2[3]);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "timezone:%d,",FW_data.sys.V_NTP_CIRCL);
+	sprintf(buf_temp, "timezone:%d,", FW_data.sys.V_NTP_CIRCL);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "syslog_ip1:'10%d.%d.%d.%d',",FW_data.net.V_IP_SYSL[0],FW_data.net.V_IP_SYSL[1],FW_data.net.V_IP_SYSL[2],FW_data.net.V_IP_SYSL[3]);
+	sprintf(buf_temp, "syslog_ip1:'10%d.%d.%d.%d',", FW_data.net.V_IP_SYSL[0],
+			FW_data.net.V_IP_SYSL[1], FW_data.net.V_IP_SYSL[2],
+			FW_data.net.V_IP_SYSL[3]);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "facility:16,severity:6,");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "snmp_port:%d,",FW_data.snmp.V_PORT_SNMP);
+	sprintf(buf_temp, "snmp_port:%d,", FW_data.snmp.V_PORT_SNMP);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "notification_email:\"\"");
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, ",hostname:\"%s\",",FW_data.sys.V_Name_dev);
+	sprintf(buf_temp, ",hostname:\"%s\",", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "location:\"%s\",",FW_data.sys.V_GEOM_NAME);
+	sprintf(buf_temp, "location:\"%s\",", FW_data.sys.V_GEOM_NAME);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "contact:\"%s\",",FW_data.sys.V_CALL_DATA);
+	sprintf(buf_temp, "contact:\"%s\",", FW_data.sys.V_CALL_DATA);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "dns_ip1:'%d.%d.%d.%d',", FW_data.net.V_IP_DNS[0],
 			FW_data.net.V_IP_DNS[1], FW_data.net.V_IP_DNS[2],
@@ -834,30 +949,31 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 //	strcat(buf, buf_temp);
 //	sprintf(buf_temp, "ntp_hostname2:\"\",");
 //	strcat(buf, buf_temp);
-	sprintf(buf_temp, "syslog_hostname1:\"%d.%d.%d.%d\"};",FW_data.net.V_IP_SYSL[0],FW_data.net.V_IP_SYSL[1],FW_data.net.V_IP_SYSL[2],FW_data.net.V_IP_SYSL[3]);
+	sprintf(buf_temp, "syslog_hostname1:\"%d.%d.%d.%d\"};",
+			FW_data.net.V_IP_SYSL[0], FW_data.net.V_IP_SYSL[1],
+			FW_data.net.V_IP_SYSL[2], FW_data.net.V_IP_SYSL[3]);
 	strcat(buf, buf_temp);
-	uint32_t  rtc_time;
-	rtc_time=timeinfo.tm_sec+timeinfo.tm_min*60+timeinfo.tm_hour*3600+timeinfo.tm_yday*86400+(timeinfo.tm_year-70)*31557600;
-	sprintf(buf_temp, "var data_rtc=%d;",rtc_time);
+	uint32_t rtc_time;
+	rtc_time = timeinfo.tm_sec + timeinfo.tm_min * 60 + timeinfo.tm_hour * 3600
+			+ timeinfo.tm_yday * 86400 + (timeinfo.tm_year - 70) * 31557600;
+	sprintf(buf_temp, "var data_rtc=%d;", rtc_time);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var uptime_100ms=%d;",rtc_time-timeup);
+	sprintf(buf_temp, "var uptime_100ms=%d;", rtc_time - timeup);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var devname='%s';", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var sys_name='%s';", FW_data.sys.V_Name_dev);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "var sys_location='%s';",FW_data.sys.V_GEOM_NAME);
+	sprintf(buf_temp, "var sys_location='%s';", FW_data.sys.V_GEOM_NAME);
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "var hwmodel=110;");
 	strcat(buf, buf_temp);
 
-	sprintf(buf_temp, "var fwver='v%.31s';",app_desc.version);
-    strcat(buf, buf_temp);
+	sprintf(buf_temp, "var fwver='v%.31s';", app_desc.version);
+	strcat(buf, buf_temp);
 
-
-		sprintf(buf_temp, "var hwver=1;");
-		strcat(buf, buf_temp);
-
+	sprintf(buf_temp, "var hwver=1;");
+	strcat(buf, buf_temp);
 
 	httpd_resp_send(req, buf, HTTPD_RESP_USE_STRLEN);
 	return ESP_OK;
@@ -868,13 +984,12 @@ static esp_err_t rtcset_post_handler(httpd_req_t *req) {
 	nvs_handle_t my_handle;
 	httpd_resp_set_status(req, "303 See Other");
 	httpd_resp_set_hdr(req, "Location", "\settings.html");
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_sse);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 
-
-
-	char buf[1000]={0};
+	char buf[1000] = { 0 };
 	char buf_temp[256] = { 0 };
 	int ret, remaining = req->content_len;
 
@@ -885,22 +1000,23 @@ static esp_err_t rtcset_post_handler(httpd_req_t *req) {
 //				}
 //				return ESP_FAIL;
 	}
-	    char2_to_hex((char*) (buf+9), (uint8_t*) buf_temp,8);
-	    struct timeval tv;
-	    struct timezone tz;
-	    struct timezone tz_utc = {0,0};
+	char2_to_hex((char*) (buf + 9), (uint8_t*) buf_temp, 8);
+	struct timeval tv;
+	struct timezone tz;
+	struct timezone tz_utc = { 0, 0 };
 
-	    // Set a fixed time of 2020-09-26 00:00:00, UTC  //1601216683
-	    tv.tv_sec = ((buf_temp[0]<<24)|(buf_temp[1]<<16)|(buf_temp[2]<<8)|(buf_temp[3]));
-	    tz.tz_minuteswest = FW_data.sys.V_NTP_CIRCL*60;
-	    tz.tz_dsttime = 0;
-	    settimeofday(&tv, &tz_utc);
-	    tzset();
+	// Set a fixed time of 2020-09-26 00:00:00, UTC  //1601216683
+	tv.tv_sec = ((buf_temp[0] << 24) | (buf_temp[1] << 16) | (buf_temp[2] << 8)
+			| (buf_temp[3]));
+	tz.tz_minuteswest = FW_data.sys.V_NTP_CIRCL * 60;
+	tz.tz_dsttime = 0;
+	settimeofday(&tv, &tz_utc);
+	tzset();
 
-	    time(&now);
-	    localtime_r(&now, &timeinfo);
-	    timeup=timeinfo.tm_sec+timeinfo.tm_min*60+timeinfo.tm_hour*3600+timeinfo.tm_yday*86400+(timeinfo.tm_year-70)*31557600;
-
+	time(&now);
+	localtime_r(&now, &timeinfo);
+	timeup = timeinfo.tm_sec + timeinfo.tm_min * 60 + timeinfo.tm_hour * 3600
+			+ timeinfo.tm_yday * 86400 + (timeinfo.tm_year - 70) * 31557600;
 
 	//rtc_time=timeinfo.tm_sec+timeinfo.tm_min*60+timeinfo.tm_hour*3600+timeinfo.tm_yday*86400+(timeinfo.tm_year-70)*31557600;
 //	memset(FW_data.http.V_LOGIN, 0, 16);
@@ -951,9 +1067,6 @@ static esp_err_t rtcset_post_handler(httpd_req_t *req) {
 //	FW_data.net.V_IP_SYSL[3] = buf[125];
 //	FW_data.sys.V_L_TIME = buf[15];
 
-
-
-
 	nvs_flags.data_param = 1;
 
 	//	}
@@ -966,10 +1079,11 @@ static esp_err_t ip_set_post_handler(httpd_req_t *req) {
 	esp_err_t err;
 	nvs_handle_t my_handle;
 	httpd_resp_set_status(req, "303 See Other");
-		httpd_resp_set_hdr(req, "Location", "\settings.html");
-		httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_sse);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+	httpd_resp_set_hdr(req, "Location", "\settings.html");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_sse);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 	char buf[1000];
 
 	int ret, remaining = req->content_len;
@@ -1002,8 +1116,8 @@ static esp_err_t ip_set_post_handler(httpd_req_t *req) {
 	FW_data.net.V_IP_MASK[0] = 0x000000ff & (mask_temp >> 24);
 	FW_data.smtp.V_FLAG_DEF_EMAIL = 1;
 	FW_data.smtp.V_FLAG_EN_EMAIL = 1;
-	FW_data.http.V_WEB_PORT=buf[16];
-	FW_data.snmp.V_PORT_SNMP=buf[132];
+	FW_data.http.V_WEB_PORT = buf[16];
+	FW_data.snmp.V_PORT_SNMP = buf[132];
 //	save_data_blok();
 	nvs_flags.data_param = 1;
 
@@ -1065,7 +1179,8 @@ static esp_err_t wdog_set_post_handler(httpd_req_t *req) {
 
 	httpd_resp_set_status(req, "303 See Other");
 	httpd_resp_set_hdr(req, "Location", "\wdog.html");
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_sse);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 
@@ -1073,79 +1188,75 @@ static esp_err_t wdog_set_post_handler(httpd_req_t *req) {
 
 	}
 
-	len=read_mess_smtp((char*) (buf+13), (uint8_t*) buf_temp);
+	len = read_mess_smtp((char*) (buf + 13), (uint8_t*) buf_temp);
 	memset(FW_data.wdt[0].V_NAME, 0, 16);
-	memcpy(FW_data.wdt[0].V_NAME, (char*) (buf_temp),len);
-	char2_to_hex((char*) (buf+13+64), (uint8_t*) buf_temp,219);
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[0]=buf_temp[0];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[1]=buf_temp[1];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[2]=buf_temp[2];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[3]=buf_temp[3];
+	memcpy(FW_data.wdt[0].V_NAME, (char*) (buf_temp), len);
+	char2_to_hex((char*) (buf + 13 + 64), (uint8_t*) buf_temp, 219);
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[0] = buf_temp[0];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[1] = buf_temp[1];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[2] = buf_temp[2];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_A[3] = buf_temp[3];
 
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[0]=buf_temp[4];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[1]=buf_temp[5];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[2]=buf_temp[6];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[3]=buf_temp[7];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[0] = buf_temp[4];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[1] = buf_temp[5];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[2] = buf_temp[6];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_B[3] = buf_temp[7];
 
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[0]=buf_temp[8];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[1]=buf_temp[9];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[2]=buf_temp[10];
-	FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[3]=buf_temp[11];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[0] = buf_temp[8];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[1] = buf_temp[9];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[2] = buf_temp[10];
+	FW_data.wdt[0].V_IP_WDT_ADDR_CN_C[3] = buf_temp[11];
 
-	FW_data.wdt[0].V_T_SEND_PING=(buf_temp[13]<<8)|buf_temp[12];
-	FW_data.wdt[0].V_TIME_RESEND_PING = (buf_temp[15]<<8)|buf_temp[14];
-	FW_data.wdt[0].V_TIME_RESET_PULSE = (buf_temp[17]<<8)|buf_temp[16];
-	FW_data.wdt[0].V_PAUSE_RESET_TO_REPID = (buf_temp[19]<<8)|buf_temp[18];
+	FW_data.wdt[0].V_T_SEND_PING = (buf_temp[13] << 8) | buf_temp[12];
+	FW_data.wdt[0].V_TIME_RESEND_PING = (buf_temp[15] << 8) | buf_temp[14];
+	FW_data.wdt[0].V_TIME_RESET_PULSE = (buf_temp[17] << 8) | buf_temp[16];
+	FW_data.wdt[0].V_PAUSE_RESET_TO_REPID = (buf_temp[19] << 8) | buf_temp[18];
 	FW_data.wdt[0].V_MAX_REPID_PING = buf_temp[20];
 	FW_data.wdt[0].V_MAX_RESEND_PACET_RESET = buf_temp[21];
-	FW_data.wdt[0].V_EN_WATCHDOG_CN_A = (buf_temp[23])&0x01;
-	FW_data.wdt[0].V_EN_WATCHDOG_CN_B = (buf_temp[23]>>1)&0x01;
-	FW_data.wdt[0].V_EN_WATCHDOG_CN_C = (buf_temp[23]>>2)&0x01;
-	FW_data.wdt[0].V_EN_WATCHDOG = (buf_temp[23]>>7)&0x01;
-	FW_data.wdt[0].V_N_OUT=(buf_temp[27]<<8)|buf_temp[26];
+	FW_data.wdt[0].V_EN_WATCHDOG_CN_A = (buf_temp[23]) & 0x01;
+	FW_data.wdt[0].V_EN_WATCHDOG_CN_B = (buf_temp[23] >> 1) & 0x01;
+	FW_data.wdt[0].V_EN_WATCHDOG_CN_C = (buf_temp[23] >> 2) & 0x01;
+	FW_data.wdt[0].V_EN_WATCHDOG = (buf_temp[23] >> 7) & 0x01;
+	FW_data.wdt[0].V_N_OUT = (buf_temp[27] << 8) | buf_temp[26];
 	FW_data.wdt[0].V_TYPE_LOGIC = buf_temp[24];
 
+	len = read_mess_smtp((char*) (buf + 525), (uint8_t*) buf_temp);
+	memset(FW_data.wdt[1].V_NAME, 0, 16);
+	memcpy(FW_data.wdt[1].V_NAME, (char*) (buf_temp), len);
+	char2_to_hex((char*) (buf + 589), (uint8_t*) buf_temp, 219);
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[0] = buf_temp[0];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[1] = buf_temp[1];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[2] = buf_temp[2];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[3] = buf_temp[3];
 
-	len=read_mess_smtp((char*) (buf+525), (uint8_t*) buf_temp);
-		memset(FW_data.wdt[1].V_NAME, 0, 16);
-		memcpy(FW_data.wdt[1].V_NAME, (char*) (buf_temp),len);
-		char2_to_hex((char*) (buf+589), (uint8_t*) buf_temp,219);
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[0]=buf_temp[0];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[1]=buf_temp[1];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[2]=buf_temp[2];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_A[3]=buf_temp[3];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[0] = buf_temp[4];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[1] = buf_temp[5];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[2] = buf_temp[6];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[3] = buf_temp[7];
 
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[0]=buf_temp[4];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[1]=buf_temp[5];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[2]=buf_temp[6];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_B[3]=buf_temp[7];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[0] = buf_temp[8];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[1] = buf_temp[9];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[2] = buf_temp[10];
+	FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[3] = buf_temp[11];
 
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[0]=buf_temp[8];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[1]=buf_temp[9];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[2]=buf_temp[10];
-		FW_data.wdt[1].V_IP_WDT_ADDR_CN_C[3]=buf_temp[11];
-
-		FW_data.wdt[1].V_T_SEND_PING=(buf_temp[13]<<8)|buf_temp[12];
-		FW_data.wdt[1].V_TIME_RESEND_PING = (buf_temp[15]<<8)|buf_temp[14];
-		FW_data.wdt[1].V_TIME_RESET_PULSE = (buf_temp[17]<<8)|buf_temp[16];
-		FW_data.wdt[1].V_PAUSE_RESET_TO_REPID = (buf_temp[19]<<8)|buf_temp[18];
-		FW_data.wdt[1].V_MAX_REPID_PING = buf_temp[20];
-		FW_data.wdt[1].V_MAX_RESEND_PACET_RESET = buf_temp[21];
-		FW_data.wdt[1].V_EN_WATCHDOG_CN_A = (buf_temp[23])&0x01;
-		FW_data.wdt[1].V_EN_WATCHDOG_CN_B = (buf_temp[23]>>1)&0x01;
-		FW_data.wdt[1].V_EN_WATCHDOG_CN_C = (buf_temp[23]>>2)&0x01;
-		FW_data.wdt[1].V_EN_WATCHDOG = (buf_temp[23]>>7)&0x01;
-		FW_data.wdt[1].V_N_OUT=(buf_temp[27]<<8)|buf_temp[26];
-		FW_data.wdt[1].V_TYPE_LOGIC = buf_temp[24];
-
+	FW_data.wdt[1].V_T_SEND_PING = (buf_temp[13] << 8) | buf_temp[12];
+	FW_data.wdt[1].V_TIME_RESEND_PING = (buf_temp[15] << 8) | buf_temp[14];
+	FW_data.wdt[1].V_TIME_RESET_PULSE = (buf_temp[17] << 8) | buf_temp[16];
+	FW_data.wdt[1].V_PAUSE_RESET_TO_REPID = (buf_temp[19] << 8) | buf_temp[18];
+	FW_data.wdt[1].V_MAX_REPID_PING = buf_temp[20];
+	FW_data.wdt[1].V_MAX_RESEND_PACET_RESET = buf_temp[21];
+	FW_data.wdt[1].V_EN_WATCHDOG_CN_A = (buf_temp[23]) & 0x01;
+	FW_data.wdt[1].V_EN_WATCHDOG_CN_B = (buf_temp[23] >> 1) & 0x01;
+	FW_data.wdt[1].V_EN_WATCHDOG_CN_C = (buf_temp[23] >> 2) & 0x01;
+	FW_data.wdt[1].V_EN_WATCHDOG = (buf_temp[23] >> 7) & 0x01;
+	FW_data.wdt[1].V_N_OUT = (buf_temp[27] << 8) | buf_temp[26];
+	FW_data.wdt[1].V_TYPE_LOGIC = buf_temp[24];
 
 	nvs_flags.data_param = 1;
 
 	httpd_resp_send_chunk(req, NULL, 0);
 	return ESP_OK;
 }
-
-
 
 static esp_err_t termo_set_post_handler(httpd_req_t *req) {
 	esp_err_t err;
@@ -1159,41 +1270,36 @@ static esp_err_t termo_set_post_handler(httpd_req_t *req) {
 
 	httpd_resp_set_status(req, "303 See Other");
 	httpd_resp_set_hdr(req, "Location", "\termo.html");
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_sse);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 
 	if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0) {
 
 	}
-	len=read_mess_smtp((char*) (buf+5), (uint8_t*) buf_temp);
+	len = read_mess_smtp((char*) (buf + 5), (uint8_t*) buf_temp);
 	memset(FW_data.termo[0].name, 0, 16);
-	memcpy(FW_data.termo[0].name, (char*) (buf_temp),len);
+	memcpy(FW_data.termo[0].name, (char*) (buf_temp), len);
 
-    len=read_mess_smtp((char*) (buf+73), (uint8_t*) buf_temp);
+	len = read_mess_smtp((char*) (buf + 73), (uint8_t*) buf_temp);
 	memset(FW_data.termo[1].name, 0, 16);
-    memcpy(FW_data.termo[1].name, (char*) (buf_temp),len);
+	memcpy(FW_data.termo[1].name, (char*) (buf_temp), len);
 
-   char2_to_hex((char*) (buf+40), (uint8_t*) buf_temp,35);
+	char2_to_hex((char*) (buf + 40), (uint8_t*) buf_temp, 35);
 
+	FW_data.termo[0].t_dw = buf[41] << 4 | buf[42];
+	FW_data.termo[0].t_up = buf[43] << 4 | buf[44];
 
-   FW_data.termo[0].t_dw=buf[41]<<4|buf[42];
-   FW_data.termo[0].t_up=buf[43]<<4|buf[44];
-
-
-
-
-  char2_to_hex((char*) (buf+100), (uint8_t*) buf_temp,70);
-   FW_data.termo[1].t_dw=buf[109]<<4|buf[110];
-   FW_data.termo[1].t_up=buf[111]<<4|buf[112];
+	char2_to_hex((char*) (buf + 100), (uint8_t*) buf_temp, 70);
+	FW_data.termo[1].t_dw = buf[109] << 4 | buf[110];
+	FW_data.termo[1].t_up = buf[111] << 4 | buf[112];
 
 	nvs_flags.data_param = 1;
 
 	httpd_resp_send_chunk(req, NULL, 0);
 	return ESP_OK;
 }
-
-
 
 static esp_err_t notify_set_post_handler(httpd_req_t *req) {
 	esp_err_t err;
@@ -1207,40 +1313,102 @@ static esp_err_t notify_set_post_handler(httpd_req_t *req) {
 
 	httpd_resp_set_status(req, "303 See Other");
 	httpd_resp_set_hdr(req, "Location", "\wdog.html");
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_sse);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 
 	if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0) {
 
 	}
-   uint8_t canal;
-   char2_to_hex((char*) (buf+7), (uint8_t*) buf_temp,25);
-   canal=buf_temp[0];
+	uint8_t canal;
 
-   FW_data.wdt[canal].V_EVENT_L=(buf_temp[3]>>0)&0x01;
-   FW_data.wdt[canal].V_EVENT_SL=(buf_temp[3]>>1)&0x01;
-   FW_data.wdt[canal].V_EVENT_E=(buf_temp[3]>>2)&0x01;
-   FW_data.wdt[canal].V_EVENT_S=(buf_temp[3]>>3)&0x01;
-   FW_data.wdt[canal].V_EVENT_T=(buf_temp[3]>>4)&0x01;
+	if (page_sost == WDT) {
+		char2_to_hex((char*) (buf + 7), (uint8_t*) buf_temp, 25);
+		canal = buf_temp[0];
+		FW_data.wdt[canal].V_EVENT_L = (buf_temp[3] >> 0) & 0x01;
+		FW_data.wdt[canal].V_EVENT_SL = (buf_temp[3] >> 1) & 0x01;
+		FW_data.wdt[canal].V_EVENT_E = (buf_temp[3] >> 2) & 0x01;
+		FW_data.wdt[canal].V_EVENT_S = (buf_temp[3] >> 3) & 0x01;
+		FW_data.wdt[canal].V_EVENT_T = (buf_temp[3] >> 4) & 0x01;
 
+		FW_data.wdt[canal].V_RESET_L = (buf_temp[1] >> 0) & 0x01;
+		FW_data.wdt[canal].V_RESET_SL = (buf_temp[1] >> 1) & 0x01;
+		FW_data.wdt[canal].V_RESET_E = (buf_temp[1] >> 2) & 0x01;
+		FW_data.wdt[canal].V_RESET_S = (buf_temp[1] >> 3) & 0x01;
+		FW_data.wdt[canal].V_RESET_T = (buf_temp[1] >> 4) & 0x01;
 
-   FW_data.wdt[canal].V_RESET_L=(buf_temp[1]>>0)&0x01;
-   FW_data.wdt[canal].V_RESET_SL=(buf_temp[1]>>1)&0x01;
-   FW_data.wdt[canal].V_RESET_E=(buf_temp[1]>>2)&0x01;
-   FW_data.wdt[canal].V_RESET_S=(buf_temp[1]>>3)&0x01;
-   FW_data.wdt[canal].V_RESET_T=(buf_temp[1]>>4)&0x01;
+		FW_data.wdt[canal].V_RELOG_E = (buf_temp[5] >> 2) & 0x01;
+	}
+	if (page_sost == TERMO) {
+		char2_to_hex((char*) (buf + 5), (uint8_t*) buf_temp, 25);
+		canal = buf_temp[1];
+		FW_data.termo[canal].TEMP_UP_L = (buf_temp[2] ) & 0x01;
+		FW_data.termo[canal].TEMP_UP_SL = (buf_temp[2] >> 1) & 0x01;
+		FW_data.termo[canal].TEMP_UP_E = (buf_temp[2] >> 2) & 0x01;
+		FW_data.termo[canal].TEMP_UP_SM = (buf_temp[2] >> 3) & 0x01;
+		FW_data.termo[canal].TEMP_UP_SN = (buf_temp[2] >> 4) & 0x01;
 
-   FW_data.wdt[canal].V_RELOG_E=(buf_temp[5]>>2)&0x01;
+		FW_data.termo[canal].TEMP_OK_L = (buf_temp[4] ) & 0x01;
+		FW_data.termo[canal].TEMP_OK_SL = (buf_temp[4] >> 1) & 0x01;
+		FW_data.termo[canal].TEMP_OK_E = (buf_temp[4] >> 2) & 0x01;
+		FW_data.termo[canal].TEMP_OK_SM = (buf_temp[4] >> 3) & 0x01;
+		FW_data.termo[canal].TEMP_OK_SN = (buf_temp[4] >> 4) & 0x01;
 
+		FW_data.termo[canal].TEMP_DW_L = (buf_temp[6] >> 0) & 0x01;
+		FW_data.termo[canal].TEMP_DW_SL = (buf_temp[6] >> 1) & 0x01;
+		FW_data.termo[canal].TEMP_DW_E = (buf_temp[6] >> 2) & 0x01;
+		FW_data.termo[canal].TEMP_DW_SM = (buf_temp[6] >> 3) & 0x01;
+		FW_data.termo[canal].TEMP_DW_SN = (buf_temp[6] >> 4) & 0x01;
 
+		FW_data.termo[canal].TEMP_UP_L = (buf_temp[8] >> 0) & 0x01;
+		FW_data.termo[canal].TEMP_ERR_SL = (buf_temp[8] >> 1) & 0x01;
+		FW_data.termo[canal].TEMP_ERR_E = (buf_temp[8] >> 2) & 0x01;
+		FW_data.termo[canal].TEMP_ERR_SM = (buf_temp[8] >> 3) & 0x01;
+		FW_data.termo[canal].TEMP_ERR_SN = (buf_temp[8] >> 4) & 0x01;
+
+		FW_data.termo[canal].TEMP_CIKL_E = (buf_temp[10] >> 2) & 0x01;
+
+		FW_data.termo[canal].repit_3r = buf_temp[15];
+
+	}
+	if (page_sost == IO) {
+
+		char2_to_hex((char*) (buf + 5), (uint8_t*) buf_temp, 2);
+		canal = buf_temp[1];
+		len = read_mess_smtp((char*) (buf + 9), (uint8_t*) buf_temp);
+		memset(FW_data.gpio.mess_hi[canal], 0, 16);
+		memcpy(FW_data.gpio.mess_hi[canal], (char*) (buf_temp), len);
+		len = read_mess_smtp((char*) (buf + 41), (uint8_t*) buf_temp);
+		memset(FW_data.gpio.mess_low[canal], 0, 16);
+		memcpy(FW_data.gpio.mess_low[canal], (char*) (buf_temp), len);
+		char2_to_hex((char*) (buf + 73), (uint8_t*) buf_temp, 20);
+		FW_data.gpio.RISE_L[canal] = (buf_temp[0] >> 0) & 0x01;
+		FW_data.gpio.RISE_SL[canal] = (buf_temp[0] >> 1) & 0x01;
+		FW_data.gpio.RISE_E[canal] = (buf_temp[0] >> 2) & 0x01;
+		FW_data.gpio.RISE_SM[canal] = (buf_temp[0] >> 3) & 0x01;
+		FW_data.gpio.RISE_SN[canal] = (buf_temp[0] >> 4) & 0x01;
+
+		FW_data.gpio.FALL_L[canal] = (buf_temp[2] >> 0) & 0x01;
+		FW_data.gpio.FALL_SL[canal] = (buf_temp[2] >> 1) & 0x01;
+		FW_data.gpio.FALL_E[canal] = (buf_temp[2] >> 2) & 0x01;
+		FW_data.gpio.FALL_SM[canal] = (buf_temp[2] >> 3) & 0x01;
+		FW_data.gpio.FALL_SN[canal] = (buf_temp[2] >> 4) & 0x01;
+
+		FW_data.gpio.CIKL_E[canal] = (buf_temp[2] >> 2) & 0x01;
+
+		FW_data.gpio.SET_COLOR[canal] = (buf_temp[8] >> 4) & 0x0f;
+		FW_data.gpio.CLR_COLOR[canal] = (buf_temp[8]) & 0x0f;
+		FW_data.gpio.reactiv[canal] = buf_temp[9];
+		FW_data.gpio.cicle_t[canal] = buf_temp[10];
+
+	}
 
 	nvs_flags.data_param = 1;
 
 	httpd_resp_send_chunk(req, NULL, 0);
 	return ESP_OK;
 }
-
 
 static esp_err_t io_set_post_handler(httpd_req_t *req) {
 	esp_err_t err;
@@ -1254,7 +1422,8 @@ static esp_err_t io_set_post_handler(httpd_req_t *req) {
 
 	httpd_resp_set_status(req, "303 See Other");
 	httpd_resp_set_hdr(req, "Location", "\io.html");
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_sse);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 
@@ -1321,7 +1490,8 @@ static esp_err_t io_set_pulse_post_handler(httpd_req_t *req) {
 
 	httpd_resp_set_status(req, "303 See Other");
 	httpd_resp_set_hdr(req, "Location", "\io.html");
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_sse);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 
@@ -1345,51 +1515,6 @@ static esp_err_t io_set_pulse_post_handler(httpd_req_t *req) {
 		FW_data.gpio.OUT_PORT[0].type_logic = 3;
 		FW_data.gpio.OUT_PORT[0].aflag = 1;
 	}
-//	for (ct=0;ct<(in_port_n+out_port_n);ct++)
-//	{
-//	len = read_mess_smtp((char*) (buf+ct*96 + 5), (uint8_t*) buf_temp);
-//
-//	memset(&(FW_data.gpio.name[ct][0]), 0, 32);
-//	memcpy(&(FW_data.gpio.name[ct][0]), (char*) (buf_temp), len);
-//	memset(buf_temp, 0, 256);
-//
-//	char2_to_hex((char*) (buf + 84+ct*96), (uint8_t*) buf_temp, 5);
-//	FW_data.gpio.dir[ct]=buf[90+ct*96];
-//	if (FW_data.gpio.dir[ct]==0)
-//	{
-//	 if(ct<out_port_n)
-//	 {
-//		 FW_data.gpio.OUT_PORT[ct].input_str.filtr_time=((buf[ct*96+88]<<8)|(buf[ct*96+85]<<4)|(buf[ct*96+86]));
-//	 }
-//	 else
-//	 {
-//		 FW_data.gpio.IN_PORT[ct-2].filtr_time = ((buf[ct*96+88]<<8)|(buf[ct*96+85]<<4)|(buf[ct*96+86]));
-//	 }
-//
-//	}
-//	else
-//	{
-//		FW_data.gpio.OUT_PORT[ct].input_str.filtr_time=((buf[ct*96+88]<<8)|(buf[ct*96+85]<<4)|(buf[ct*96+86]));
-//		FW_data.gpio.OUT_PORT[ct].sost =buf[92+ct*96];
-//		FW_data.gpio.OUT_PORT[ct].aflag=1;
-//		char2_to_hex((char*) (buf + 94+ct*96), (uint8_t*) buf_temp, 2);
-//		FW_data.gpio.OUT_PORT[ct].delay = ((buf[ct*96+95]<<4)|(buf[ct*96+96]))*100;
-//	}
-//
-//	if(FW_data.gpio.OUT_PORT[ct].sost>FW_data.gpio.OUT_PORT[ct].old_sost)
-//	  {
-//		FW_data.gpio.OUT_PORT[ct].old_sost=FW_data.gpio.OUT_PORT[ct].sost;
-//		FW_data.gpio.OUT_PORT[ct].event = WEB_OUT_PORT0_SET+ct;
-//	  }
-//	else if(FW_data.gpio.OUT_PORT[ct].sost<FW_data.gpio.OUT_PORT[ct].old_sost)
-//	  {
-//		FW_data.gpio.OUT_PORT[ct].old_sost=FW_data.gpio.OUT_PORT[ct].sost;
-//		FW_data.gpio.OUT_PORT[ct].event = WEB_OUT_PORT0_RES+ct;
-//	  }
-
-//	}
-
-	//nvs_flags.data_param=1;
 
 	httpd_resp_send_chunk(req, NULL, 0);
 	return ESP_OK;
@@ -1399,10 +1524,11 @@ static esp_err_t setup_set_post_handler(httpd_req_t *req) {
 	esp_err_t err;
 	nvs_handle_t my_handle;
 	httpd_resp_set_status(req, "303 See Other");
-		httpd_resp_set_hdr(req, "Location", "\settings.html");
-		httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
-		httpd_resp_set_type(req, mime_sse);
-		httpd_resp_set_hdr(req, "Connection", "Close");
+	httpd_resp_set_hdr(req, "Location", "\settings.html");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
+	httpd_resp_set_type(req, mime_sse);
+	httpd_resp_set_hdr(req, "Connection", "Close");
 	char buf[1000];
 	int ret, remaining = req->content_len;
 
@@ -1419,12 +1545,10 @@ static esp_err_t setup_set_post_handler(httpd_req_t *req) {
 	memset(FW_data.http.V_PASSWORD, 0, 16);
 	memcpy(FW_data.http.V_PASSWORD, (char*) (buf + 37), buf[36]);
 
-
-
 	memset(FW_data.snmp.V_COMMUNITY, 0, 16);
 	memcpy(FW_data.snmp.V_COMMUNITY, (char*) (buf + 55), buf[54]);
 	memset(FW_data.snmp.V_COMMUNITY_WRITE, 0, 16);
-    memcpy(FW_data.snmp.V_COMMUNITY_WRITE, (char*) (buf + 73), buf[72]);
+	memcpy(FW_data.snmp.V_COMMUNITY_WRITE, (char*) (buf + 73), buf[72]);
 
 	FW_data.sys.V_IP_SOURCE[0] = buf[90];
 	FW_data.sys.V_IP_SOURCE[1] = buf[91];
@@ -1433,26 +1557,25 @@ static esp_err_t setup_set_post_handler(httpd_req_t *req) {
 
 	FW_data.sys.V_MASK_SOURCE = buf[94];
 
-	FW_data.snmp.V_IP_SNMP[0]= buf[105];
-	FW_data.snmp.V_IP_SNMP[1]= buf[106];
-	FW_data.snmp.V_IP_SNMP[2]= buf[107];
-	FW_data.snmp.V_IP_SNMP[3]= buf[108];
+	FW_data.snmp.V_IP_SNMP[0] = buf[105];
+	FW_data.snmp.V_IP_SNMP[1] = buf[106];
+	FW_data.snmp.V_IP_SNMP[2] = buf[107];
+	FW_data.snmp.V_IP_SNMP[3] = buf[108];
 
-	FW_data.snmp.V_IP_SNMP_S[0]= buf[109];
-	FW_data.snmp.V_IP_SNMP_S[1]= buf[110];
-	FW_data.snmp.V_IP_SNMP_S[2]= buf[111];
-	FW_data.snmp.V_IP_SNMP_S[3]= buf[112];
+	FW_data.snmp.V_IP_SNMP_S[0] = buf[109];
+	FW_data.snmp.V_IP_SNMP_S[1] = buf[110];
+	FW_data.snmp.V_IP_SNMP_S[2] = buf[111];
+	FW_data.snmp.V_IP_SNMP_S[3] = buf[112];
 
-	FW_data.net.V_IP_NTP1[0]= buf[113];
-	FW_data.net.V_IP_NTP1[1]= buf[114];
-	FW_data.net.V_IP_NTP1[2]= buf[115];
-	FW_data.net.V_IP_NTP1[3]= buf[116];
+	FW_data.net.V_IP_NTP1[0] = buf[113];
+	FW_data.net.V_IP_NTP1[1] = buf[114];
+	FW_data.net.V_IP_NTP1[2] = buf[115];
+	FW_data.net.V_IP_NTP1[3] = buf[116];
 
-	FW_data.net.V_IP_NTP2[0]= buf[117];
-	FW_data.net.V_IP_NTP2[1]= buf[118];
-	FW_data.net.V_IP_NTP2[2]= buf[119];
-	FW_data.net.V_IP_NTP2[3]= buf[120];
-
+	FW_data.net.V_IP_NTP2[0] = buf[117];
+	FW_data.net.V_IP_NTP2[1] = buf[118];
+	FW_data.net.V_IP_NTP2[2] = buf[119];
+	FW_data.net.V_IP_NTP2[3] = buf[120];
 
 	FW_data.sys.V_NTP_CIRCL = buf[121];
 
@@ -1461,7 +1584,6 @@ static esp_err_t setup_set_post_handler(httpd_req_t *req) {
 	FW_data.net.V_IP_SYSL[2] = buf[124];
 	FW_data.net.V_IP_SYSL[3] = buf[125];
 	FW_data.sys.V_L_TIME = buf[15];
-
 
 //		        FW_data.net.V_IP_CONFIG[0] = buf[6];
 //				FW_data.net.V_IP_CONFIG[1] = buf[7];
@@ -1531,7 +1653,8 @@ static esp_err_t sendmail_set_post_handler(httpd_req_t *req) {
 //	httpd_resp_set_status(req, "303 See Other");
 	httpd_resp_set_status(req, "302 Temporary Redirect");
 	httpd_resp_set_hdr(req, "Location", "\sendmail.html");
-	httpd_resp_set_hdr(req, "Cache-Control", "no-store, no-cache, must-revalidate");
+	httpd_resp_set_hdr(req, "Cache-Control",
+			"no-store, no-cache, must-revalidate");
 	httpd_resp_set_type(req, mime_html);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 	char buf[1000] = { 0 };
@@ -1749,18 +1872,17 @@ static const httpd_uri_t sendmail_get_cgi = { .uri = "/sendmail_get.cgi",
 static const httpd_uri_t io_get_api = { .uri = "/io.cgi", .method = HTTP_GET,
 		.handler = io_cgi_api_handler, .user_ctx = 0 };
 
-static const httpd_uri_t  termo_get_api = { .uri = "/termo_get.cgi", .method = HTTP_GET,
-		.handler = termo_get_cgi_api_handler, .user_ctx = 0 };
+static const httpd_uri_t termo_get_api = { .uri = "/termo_get.cgi", .method =
+		HTTP_GET, .handler = termo_get_cgi_api_handler, .user_ctx = 0 };
 
-static const httpd_uri_t  termo_data_api = { .uri = "/termo_data.cgi", .method = HTTP_GET,
-				.handler = termo_data_cgi_api_handler, .user_ctx = 0 };
+static const httpd_uri_t termo_data_api = { .uri = "/termo_data.cgi", .method =
+		HTTP_GET, .handler = termo_data_cgi_api_handler, .user_ctx = 0 };
 
 static const httpd_uri_t log_get_cgi = { .uri = "/log.cgi", .method = HTTP_GET,
 		.handler = log_get_cgi_handler, .user_ctx = 0 };//({reset:19,suspend:19,report:0})
 
-static const httpd_uri_t notify_get_cgi = { .uri = "/notify_get.cgi", .method = HTTP_GET,
-		.handler = notify_get_cgi_handler, .user_ctx = 0 };
-
+static const httpd_uri_t notify_get_cgi = { .uri = "/notify_get.cgi", .method =
+		HTTP_GET, .handler = notify_get_cgi_handler, .user_ctx = 0 };
 
 static const httpd_uri_t sse_get_cgi = { .uri = "/sse.cgi", .method = HTTP_GET,
 		.handler = sse_get_cgi_handler, .user_ctx = 0 };
@@ -1776,15 +1898,14 @@ static const httpd_uri_t setup_set = { .uri = "/setup_set.cgi", .method =
 static const httpd_uri_t io_set = { .uri = "/io_set.cgi", .method = HTTP_POST,
 		.handler = io_set_post_handler, .user_ctx = NULL };
 
-static const httpd_uri_t wdog_set = { .uri = "/wdog_set.cgi", .method = HTTP_POST,
-		.handler = wdog_set_post_handler, .user_ctx = NULL };
+static const httpd_uri_t wdog_set = { .uri = "/wdog_set.cgi", .method =
+		HTTP_POST, .handler = wdog_set_post_handler, .user_ctx = NULL };
 
-		static const httpd_uri_t termo_set = { .uri = "/termo_set.cgi", .method = HTTP_POST,
-				.handler = termo_set_post_handler, .user_ctx = NULL };
+static const httpd_uri_t termo_set = { .uri = "/termo_set.cgi", .method =
+		HTTP_POST, .handler = termo_set_post_handler, .user_ctx = NULL };
 
-static const httpd_uri_t notify_set = { .uri = "/notify_set.cgi", .method = HTTP_POST,
-		.handler = notify_set_post_handler, .user_ctx = NULL };
-
+static const httpd_uri_t notify_set = { .uri = "/notify_set.cgi", .method =
+		HTTP_POST, .handler = notify_set_post_handler, .user_ctx = NULL };
 
 static const httpd_uri_t io_set_pulse = { .uri = "/io_set_pulse.cgi", .method =
 		HTTP_POST, .handler = io_set_pulse_post_handler, .user_ctx = NULL };
@@ -1829,7 +1950,7 @@ httpd_handle_t start_webserver(void) {
 		httpd_register_uri_handler(server, &termo_data_api);
 		httpd_register_uri_handler(server, &email_send_test_cgi);
 		httpd_register_uri_handler(server, &notify_get_cgi);
-		httpd_register_uri_handler(server, &log_get_cgi);//
+		httpd_register_uri_handler(server, &log_get_cgi); //
 		httpd_register_uri_handler(server, &sse_get_cgi); ///io.cgi
 		httpd_register_uri_handler(server, &io_get_api);
 		httpd_register_uri_handler(server, &io_set);

@@ -494,7 +494,7 @@ void decode_reple_en(char *out, log_reple_t *reple) {
 	strcat(out, out_small);
 }
 
-void form_reple_to_save(uint8_t event) {
+void form_reple_to_save(event_struct_t cfg) {
 	char mess_syslog[200] = { 0 };
 
 	GET_reple(&reple_to_save);
@@ -503,7 +503,7 @@ void form_reple_to_save(uint8_t event) {
 ///////  xSemaphoreTake (flag_global_save_log, (TickType_t) 100);
 }
 
-void form_reple_to_smtp(uint8_t event) {
+void form_reple_to_smtp(event_struct_t cfg) {
 	char mess_syslog[200] = { 0 };
 
 	GET_reple(&reple_to_save);
@@ -1245,16 +1245,18 @@ void log_task(void *pvParameters) {
 
 						if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
 							flag_delay_ping = 1;
-							form_reple_to_save(SWICH_TOLG_WATCH);
+
+							form_reple_to_save(event_main);
+							//form_reple_to_save(SWICH_TOLG_WATCH);
 							//flag_global_swich_out = SWICH_TOLG_WATCH;
-							if (FW_data.wdt[0].V_N_OUT == 1) {
+							if (FW_data.wdt[0].V_N_OUT == 11008) {
 								FW_data.gpio.OUT_PORT[0].old_sost =
 										FW_data.gpio.OUT_PORT[0].sost;
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
-							} else if (FW_data.wdt[0].V_N_OUT == 2){
+							} else if (FW_data.wdt[0].V_N_OUT == 11009){
 								FW_data.gpio.OUT_PORT[1].old_sost =
 										FW_data.gpio.OUT_PORT[1].sost;
 								FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1272,9 +1274,10 @@ void log_task(void *pvParameters) {
 							if (ct_max_res
 									< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
 								flag_delay_ping = 1;
-								form_reple_to_save(SWICH_TOLG_WATCH);
+								form_reple_to_save(event_main);
+								//form_reple_to_save(SWICH_TOLG_WATCH);
 								//flag_global_swich_out = SWICH_TOLG_WATCH;
-								if (FW_data.wdt[0].V_N_OUT == 1) {
+								if (FW_data.wdt[0].V_N_OUT == 11008) {
 									FW_data.gpio.OUT_PORT[0].old_sost =
 											FW_data.gpio.OUT_PORT[0].sost;
 									FW_data.gpio.OUT_PORT[0].sost = 1;
@@ -1282,7 +1285,7 @@ void log_task(void *pvParameters) {
 									FW_data.gpio.OUT_PORT[0].event =
 											WEB_OUT_PORT0_TOL;
 									FW_data.gpio.OUT_PORT[0].aflag = 1;
-								} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+								} else  if (FW_data.wdt[0].V_N_OUT == 11009) {
 									FW_data.gpio.OUT_PORT[1].old_sost =
 											FW_data.gpio.OUT_PORT[1].sost;
 									FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1322,16 +1325,17 @@ void log_task(void *pvParameters) {
 							&& (ping_data.flag_err[2] != 0)) {
 
 						if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
-							form_reple_to_save(SWICH_TOLG_WATCH);
+							form_reple_to_save(event_main);
+							//form_reple_to_save(SWICH_TOLG_WATCH);
 							//flag_global_swich_out=SWICH_TOLG_WATCH;/
-							if (FW_data.wdt[0].V_N_OUT == 1) {
+							if (FW_data.wdt[0].V_N_OUT == 11008) {
 								FW_data.gpio.OUT_PORT[0].old_sost =
 										FW_data.gpio.OUT_PORT[0].sost;
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
-							} else  if (FW_data.wdt[0].V_N_OUT == 2){
+							} else  if (FW_data.wdt[0].V_N_OUT == 11009){
 								FW_data.gpio.OUT_PORT[1].old_sost =
 										FW_data.gpio.OUT_PORT[1].sost;
 								FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1348,9 +1352,10 @@ void log_task(void *pvParameters) {
 						} else {
 							if (ct_max_res
 									< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
-								form_reple_to_save(SWICH_TOLG_WATCH);
+								form_reple_to_save(event_main);
+								//form_reple_to_save(SWICH_TOLG_WATCH);
 								//flag_global_swich_out=SWICH_TOLG_WATCH;
-								if (FW_data.wdt[0].V_N_OUT == 1) {
+								if (FW_data.wdt[0].V_N_OUT == 11008) {
 									FW_data.gpio.OUT_PORT[0].old_sost =
 											FW_data.gpio.OUT_PORT[0].sost;
 									FW_data.gpio.OUT_PORT[0].sost = 1;
@@ -1358,7 +1363,7 @@ void log_task(void *pvParameters) {
 									FW_data.gpio.OUT_PORT[0].event =
 											WEB_OUT_PORT0_TOL;
 									FW_data.gpio.OUT_PORT[0].aflag = 1;
-								} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+								} else  if (FW_data.wdt[0].V_N_OUT == 11009) {
 									FW_data.gpio.OUT_PORT[1].old_sost =
 											FW_data.gpio.OUT_PORT[1].sost;
 									FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1396,16 +1401,17 @@ void log_task(void *pvParameters) {
 									&& (ping_data.flag_err[2] != 0))) {
 
 						if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
-							form_reple_to_save(SWICH_TOLG_WATCH);
+							form_reple_to_save(event_main);
+							//form_reple_to_save(SWICH_TOLG_WATCH);
 							//    flag_global_swich_out=SWICH_TOLG_WATCH;
-							if (FW_data.wdt[0].V_N_OUT == 1) {
+							if (FW_data.wdt[0].V_N_OUT == 11008) {
 								FW_data.gpio.OUT_PORT[0].old_sost =
 										FW_data.gpio.OUT_PORT[0].sost;
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
-							} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+							} else  if (FW_data.wdt[0].V_N_OUT == 11009) {
 								FW_data.gpio.OUT_PORT[1].old_sost =
 										FW_data.gpio.OUT_PORT[1].sost;
 								FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1422,10 +1428,11 @@ void log_task(void *pvParameters) {
 						} else {
 							if (ct_max_res
 									< FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
-								form_reple_to_save(SWICH_TOLG_WATCH);
+								form_reple_to_save(event_main);
+								//form_reple_to_save(SWICH_TOLG_WATCH);
 								// flag_global_swich_out=SWICH_TOLG_WATCH;
 								//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
-								if (FW_data.wdt[0].V_N_OUT == 1) {
+								if (FW_data.wdt[0].V_N_OUT == 11008) {
 									FW_data.gpio.OUT_PORT[0].old_sost =
 											FW_data.gpio.OUT_PORT[0].sost;
 									FW_data.gpio.OUT_PORT[0].sost = 1;
@@ -1433,7 +1440,7 @@ void log_task(void *pvParameters) {
 									FW_data.gpio.OUT_PORT[0].event =
 											WEB_OUT_PORT0_TOL;
 									FW_data.gpio.OUT_PORT[0].aflag = 1;
-								} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+								} else  if (FW_data.wdt[0].V_N_OUT == 11009) {
 									FW_data.gpio.OUT_PORT[1].old_sost =
 											FW_data.gpio.OUT_PORT[1].sost;
 									FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1469,16 +1476,17 @@ void log_task(void *pvParameters) {
 							&& ((ping_data.flag_err[0] != 0)
 									&& (ping_data.flag_err[2] != 1))) {
 						if (ct_max_res < FW_data.wdt[0].V_MAX_RESEND_PACET_RESET) {
-							form_reple_to_save(SWICH_TOLG_WATCH);
+							form_reple_to_save(event_main);
+							//form_reple_to_save(SWICH_TOLG_WATCH);
 							//  flag_global_swich_out=SWICH_TOLG_WATCH;
-							if (FW_data.wdt[0].V_N_OUT == 1) {
+							if (FW_data.wdt[0].V_N_OUT == 11008) {
 								FW_data.gpio.OUT_PORT[0].old_sost =
 										FW_data.gpio.OUT_PORT[0].sost;
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
-							} else  if (FW_data.wdt[0].V_N_OUT == 2) {
+							} else  if (FW_data.wdt[0].V_N_OUT == 11009) {
 								FW_data.gpio.OUT_PORT[1].old_sost =
 										FW_data.gpio.OUT_PORT[1].sost;
 								FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1495,16 +1503,17 @@ void log_task(void *pvParameters) {
 							ct_cn_c = 0;
 						}
 						if (FW_data.wdt[0].V_MAX_RESEND_PACET_RESET == 0) {
-							form_reple_to_save(SWICH_TOLG_WATCH);
+							form_reple_to_save(event_main);
+							//form_reple_to_save(SWICH_TOLG_WATCH);
 							//  flag_global_swich_out=SWICH_TOLG_WATCH;
-							if (FW_data.wdt[0].V_N_OUT == 1) {
+							if (FW_data.wdt[0].V_N_OUT == 11008) {
 								FW_data.gpio.OUT_PORT[0].old_sost =
 										FW_data.gpio.OUT_PORT[0].sost;
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
-							} else  if (FW_data.wdt[0].V_N_OUT == 2){
+							} else  if (FW_data.wdt[0].V_N_OUT == 11009){
 								FW_data.gpio.OUT_PORT[1].old_sost =
 										FW_data.gpio.OUT_PORT[1].sost;
 								FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1547,16 +1556,17 @@ void log_task(void *pvParameters) {
 
 									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 0) {
 										flag_delay_ping1 = 1;
-										form_reple_to_save(SWICH_TOLG_WATCH);
-										//flag_global_swich_out = SWICH_TOLG_WATCH;
-										if (FW_data.wdt[1].V_N_OUT == 1) {
+										form_reple_to_save(event_main);
+										//	form_reple_to_save(SWICH_TOLG_WATCH);
+
+										if (FW_data.wdt[1].V_N_OUT == 11008) {
 											FW_data.gpio.OUT_PORT[0].old_sost =
 													FW_data.gpio.OUT_PORT[0].sost;
 											FW_data.gpio.OUT_PORT[0].sost = 1;
 											FW_data.gpio.OUT_PORT[0].type_logic = 3;
 											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 											FW_data.gpio.OUT_PORT[0].aflag = 1;
-										} else if (FW_data.wdt[1].V_N_OUT == 2){
+										} else if (FW_data.wdt[1].V_N_OUT == 11009){
 											FW_data.gpio.OUT_PORT[1].old_sost =
 													FW_data.gpio.OUT_PORT[1].sost;
 											FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1574,9 +1584,10 @@ void log_task(void *pvParameters) {
 										if (ct_max_res1
 												< FW_data.wdt[1].V_MAX_RESEND_PACET_RESET) {
 											flag_delay_ping1 = 1;
-											form_reple_to_save(SWICH_TOLG_WATCH);
-											//flag_global_swich_out = SWICH_TOLG_WATCH;
-											if (FW_data.wdt[1].V_N_OUT == 1) {
+											form_reple_to_save(event_main);
+											//form_reple_to_save(SWICH_TOLG_WATCH);
+
+											if (FW_data.wdt[1].V_N_OUT == 11008) {
 												FW_data.gpio.OUT_PORT[0].old_sost =
 														FW_data.gpio.OUT_PORT[0].sost;
 												FW_data.gpio.OUT_PORT[0].sost = 1;
@@ -1584,7 +1595,7 @@ void log_task(void *pvParameters) {
 												FW_data.gpio.OUT_PORT[0].event =
 														WEB_OUT_PORT0_TOL;
 												FW_data.gpio.OUT_PORT[0].aflag = 1;
-											} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+											} else  if (FW_data.wdt[1].V_N_OUT == 11009) {
 												FW_data.gpio.OUT_PORT[1].old_sost =
 														FW_data.gpio.OUT_PORT[1].sost;
 												FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1623,9 +1634,10 @@ void log_task(void *pvParameters) {
 								if ((ping_data1.flag_err[0] != 0) && (ping_data1.flag_err[1] != 0)
 										&& (ping_data1.flag_err[2] != 0)) {
 
-									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 0) {
-										form_reple_to_save(SWICH_TOLG_WATCH);
-										//flag_global_swich_out=SWICH_TOLG_WATCH;/
+									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 11008) {
+										form_reple_to_save(event_main);
+										//form_reple_to_save(SWICH_TOLG_WATCH);
+
 										if (FW_data.wdt[1].V_N_OUT == 1) {
 											FW_data.gpio.OUT_PORT[0].old_sost =
 													FW_data.gpio.OUT_PORT[0].sost;
@@ -1633,7 +1645,7 @@ void log_task(void *pvParameters) {
 											FW_data.gpio.OUT_PORT[0].type_logic = 3;
 											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 											FW_data.gpio.OUT_PORT[0].aflag = 1;
-										} else  if (FW_data.wdt[1].V_N_OUT == 2){
+										} else  if (FW_data.wdt[1].V_N_OUT == 11009){
 											FW_data.gpio.OUT_PORT[1].old_sost =
 													FW_data.gpio.OUT_PORT[1].sost;
 											FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1650,9 +1662,10 @@ void log_task(void *pvParameters) {
 									} else {
 										if (ct_max_res1
 												< FW_data.wdt[1].V_MAX_RESEND_PACET_RESET) {
-											form_reple_to_save(SWICH_TOLG_WATCH);
-											//flag_global_swich_out=SWICH_TOLG_WATCH;
-											if (FW_data.wdt[1].V_N_OUT == 1) {
+											form_reple_to_save(event_main);
+											//form_reple_to_save(SWICH_TOLG_WATCH);
+
+											if (FW_data.wdt[1].V_N_OUT == 11008) {
 												FW_data.gpio.OUT_PORT[0].old_sost =
 														FW_data.gpio.OUT_PORT[0].sost;
 												FW_data.gpio.OUT_PORT[0].sost = 1;
@@ -1660,7 +1673,7 @@ void log_task(void *pvParameters) {
 												FW_data.gpio.OUT_PORT[0].event =
 														WEB_OUT_PORT0_TOL;
 												FW_data.gpio.OUT_PORT[0].aflag = 1;
-											} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+											} else  if (FW_data.wdt[1].V_N_OUT == 11009) {
 												FW_data.gpio.OUT_PORT[1].old_sost =
 														FW_data.gpio.OUT_PORT[1].sost;
 												FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1698,16 +1711,19 @@ void log_task(void *pvParameters) {
 												&& (ping_data1.flag_err[2] != 0))) {
 
 									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 0) {
-										form_reple_to_save(SWICH_TOLG_WATCH);
+
+										form_reple_to_save(event_main);
+//										form_reple_to_save(SWICH_TOLG_WATCH);
+
 										//    flag_global_swich_out=SWICH_TOLG_WATCH;
-										if (FW_data.wdt[1].V_N_OUT == 1) {
+										if (FW_data.wdt[1].V_N_OUT == 11008) {
 											FW_data.gpio.OUT_PORT[0].old_sost =
 													FW_data.gpio.OUT_PORT[0].sost;
 											FW_data.gpio.OUT_PORT[0].sost = 1;
 											FW_data.gpio.OUT_PORT[0].type_logic = 3;
 											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 											FW_data.gpio.OUT_PORT[0].aflag = 1;
-										} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+										} else  if (FW_data.wdt[1].V_N_OUT == 11009) {
 											FW_data.gpio.OUT_PORT[1].old_sost =
 													FW_data.gpio.OUT_PORT[1].sost;
 											FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1724,10 +1740,11 @@ void log_task(void *pvParameters) {
 									} else {
 										if (ct_max_res1
 												< FW_data.wdt[1].V_MAX_RESEND_PACET_RESET) {
-											form_reple_to_save(SWICH_TOLG_WATCH);
+											form_reple_to_save(event_main);
+											//form_reple_to_save(SWICH_TOLG_WATCH);
 											// flag_global_swich_out=SWICH_TOLG_WATCH;
 											//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
-											if (FW_data.wdt[1].V_N_OUT == 1) {
+											if (FW_data.wdt[1].V_N_OUT == 11008) {
 												FW_data.gpio.OUT_PORT[0].old_sost =
 														FW_data.gpio.OUT_PORT[0].sost;
 												FW_data.gpio.OUT_PORT[0].sost = 1;
@@ -1735,7 +1752,7 @@ void log_task(void *pvParameters) {
 												FW_data.gpio.OUT_PORT[0].event =
 														WEB_OUT_PORT0_TOL;
 												FW_data.gpio.OUT_PORT[0].aflag = 1;
-											} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+											} else  if (FW_data.wdt[1].V_N_OUT == 11009) {
 												FW_data.gpio.OUT_PORT[1].old_sost =
 														FW_data.gpio.OUT_PORT[1].sost;
 												FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1771,16 +1788,17 @@ void log_task(void *pvParameters) {
 										&& ((ping_data1.flag_err[0] != 0)
 												&& (ping_data1.flag_err[2] != 1))) {
 									if (ct_max_res1 < FW_data.wdt[1].V_MAX_RESEND_PACET_RESET) {
-										form_reple_to_save(SWICH_TOLG_WATCH);
+										form_reple_to_save(event_main);
+										//form_reple_to_save(SWICH_TOLG_WATCH);
 										//  flag_global_swich_out=SWICH_TOLG_WATCH;
-										if (FW_data.wdt[1].V_N_OUT == 1) {
+										if (FW_data.wdt[1].V_N_OUT == 11008) {
 											FW_data.gpio.OUT_PORT[0].old_sost =
 													FW_data.gpio.OUT_PORT[0].sost;
 											FW_data.gpio.OUT_PORT[0].sost = 1;
 											FW_data.gpio.OUT_PORT[0].type_logic = 3;
 											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 											FW_data.gpio.OUT_PORT[0].aflag = 1;
-										} else  if (FW_data.wdt[1].V_N_OUT == 2) {
+										} else  if (FW_data.wdt[1].V_N_OUT == 11009) {
 											FW_data.gpio.OUT_PORT[1].old_sost =
 													FW_data.gpio.OUT_PORT[1].sost;
 											FW_data.gpio.OUT_PORT[1].sost = 1;
@@ -1797,16 +1815,17 @@ void log_task(void *pvParameters) {
 										ct_cn_c1 = 0;
 									}
 									if (FW_data.wdt[1].V_MAX_RESEND_PACET_RESET == 0) {
-										form_reple_to_save(SWICH_TOLG_WATCH);
+										form_reple_to_save(event_main);
+										//form_reple_to_save(SWICH_TOLG_WATCH);
 										//  flag_global_swich_out=SWICH_TOLG_WATCH;
-										if (FW_data.wdt[1].V_N_OUT == 1) {
+										if (FW_data.wdt[1].V_N_OUT == 11008) {
 											FW_data.gpio.OUT_PORT[0].old_sost =
 													FW_data.gpio.OUT_PORT[0].sost;
 											FW_data.gpio.OUT_PORT[0].sost = 1;
 											FW_data.gpio.OUT_PORT[0].type_logic = 3;
 											FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
 											FW_data.gpio.OUT_PORT[0].aflag = 1;
-										} else  if (FW_data.wdt[1].V_N_OUT == 2){
+										} else  if (FW_data.wdt[1].V_N_OUT == 11009){
 											FW_data.gpio.OUT_PORT[1].old_sost =
 													FW_data.gpio.OUT_PORT[1].sost;
 											FW_data.gpio.OUT_PORT[1].sost = 1;

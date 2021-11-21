@@ -259,7 +259,7 @@ static void lwip_socket_drop_registered_mld6_memberships(int s);
 #endif /* LWIP_IPV6_MLD */
 
 /** The global array of available sockets */
-static struct lwip_sock sockets[NUM_SOCKETS];
+ struct lwip_sock sockets[NUM_SOCKETS];
 
 #if LWIP_SOCKET_SELECT || LWIP_SOCKET_POLL
 #if LWIP_TCPIP_CORE_LOCKING
@@ -3351,6 +3351,35 @@ lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t opt
     return -1;
   }
 
+  struct lwip_sock *rets= tryget_socket_unconn_nouse (s);
+   if(rets->conn->type==NETCONN_RAW)
+   {
+	   rets->conn->recv_timeout=1000;
+   }
+
+
+//  //  /*************************************************************************************/
+//  //  for(uint8_t ct_n=0;ct_n<NUM_SOCKETS;ct_n++)
+//  //  {
+//  	if ( sock==57)
+//  	{
+//  		*(sock+(conn->recv_timeout))=1000;
+//
+//
+//  	}
+//  //  }
+//
+//  	  //sockets[3]->conn->recv_timeout=1000;
+//
+//
+//  //  LWIP_SO_SNDRCVTIMEO_SET(LWIP_SO_SNDRCVTIMEO_OPTTYPE,1000);
+//
+//
+//
+
+
+
+
 #if LWIP_TCPIP_CORE_LOCKING
   /* core-locking can just call the -impl function */
   LOCK_TCPIP_CORE();
@@ -3372,6 +3401,7 @@ lwip_setsockopt(int s, int level, int optname, const void *optval, socklen_t opt
   LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).s = s;
   LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).level = level;
   LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).optname = optname;
+ // LWIP_SETGETSOCKOPT_DATA_VAR_REF(sock).recv_timeout = 1000;
   LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).optlen = optlen;
 #if LWIP_MPU_COMPATIBLE
   MEMCPY(LWIP_SETGETSOCKOPT_DATA_VAR_REF(data).optval, optval, optlen);
