@@ -1662,7 +1662,7 @@ void send_smtp_task(void *pvParameters)
     	if (reple_to_email.dicr!=0)
     	{
     		GET_reple(&reple_to_email);
-    		swich_mess_event(reple_to_email.type_event, event_mess);
+    		swich_mess_event(&reple_to_email, event_mess);
     		sprintf(mess, "%02d.%02d.%02d %02d:%02d:%02d %s ", reple_to_email.day, reple_to_email.month,
     				reple_to_email.year, reple_to_email.reple_hours, reple_to_email.reple_minuts,
 					reple_to_email.reple_seconds, event_mess);

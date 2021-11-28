@@ -106,8 +106,7 @@ static s16_t termo_table_get_value(struct snmp_node_instance *instance,
 static snmp_err_t termo_table_set_value(struct snmp_node_instance *instance,
 		u16_t len, void *value);
 
-
-struct snmp_varbind vbt_tr1,vbt_tr2,vbt_tr6,vbt_tr15,vbt_tr18,vbt_tr19;
+struct snmp_varbind vbt_tr1, vbt_tr2, vbt_tr6, vbt_tr15, vbt_tr18, vbt_tr19;
 
 /* sensorentry .1.3.6.1.4.1.26381.1.1.1 (.level0.level1)
  where level 0 is the table column (temperature/file name)
@@ -155,14 +154,12 @@ static const struct snmp_scalar_node termo_count =
 		SNMP_SCALAR_CREATE_NODE_READONLY(2, SNMP_ASN1_TYPE_INTEGER,
 				termo_count_get_value);
 
-
-
 /* example .1.3.6.1.4.1.26381.1 */
 static const struct snmp_node *const io_nodes[] = { &sensor_table.node.node,
 		&sensor_count.node.node };
 
 static const struct snmp_node *const termo_nodes[] = { &termo_table.node.node,
-				&termo_count.node.node };
+		&termo_count.node.node };
 
 static s16_t get_hres_value(struct snmp_node_instance *instance, void *value) {
 	u32_t *uint_ptr = (u32_t*) value;
@@ -235,7 +232,8 @@ static const struct snmp_node *const np_nodes[] = { &sres_node.node.node,
 
 static const struct snmp_tree_node io_node = SNMP_CREATE_TREE_NODE(1, io_nodes);
 static const struct snmp_tree_node np_node = SNMP_CREATE_TREE_NODE(1, np_nodes);
-static const struct snmp_tree_node termo_node = SNMP_CREATE_TREE_NODE(1, termo_nodes);
+static const struct snmp_tree_node termo_node = SNMP_CREATE_TREE_NODE(1,
+		termo_nodes);
 ///{ 1,3,6,1,4,1,26381,1 }
 static const u32_t prvmib_base_oid[] = { 1, 3, 6, 1, 4, 1, 25728, 8800 };
 static const u32_t prvmib_np_base_oid[] = { 1, 3, 6, 1, 4, 1, 25728, 911 };
@@ -247,7 +245,6 @@ const struct snmp_mib mib_np_private = SNMP_MIB_CREATE(prvmib_np_base_oid,
 		&np_node.node);
 const struct snmp_mib mib_termo_private = SNMP_MIB_CREATE(termo_base_oid,
 		&termo_node.node);
-
 
 /**
  * Initialises this private MIB before use.
@@ -271,15 +268,15 @@ void lwip_privmib_init(void) {
 
 	memset(termo, 0, sizeof(termo));
 
-		printf("SNMP private MIB start, detecting sensors.\n");
+	printf("SNMP private MIB start, detecting sensors.\n");
 
-		for (i = 0; i < TERMO_COUNT; i++) {
-			termo[i].num = (u8_t)(i + 1);
-			snprintf(termo[i].file, sizeof(termo[i].file), "%d.txt", i);
-			/* initialize sensor value to != zero */
-			termo[i].value = 11 * (i + 1);
-			/* !SENSORS_USE_FILES */
-		}
+	for (i = 0; i < TERMO_COUNT; i++) {
+		termo[i].num = (u8_t)(i + 1);
+		snprintf(termo[i].file, sizeof(termo[i].file), "%d.txt", i);
+		/* initialize sensor value to != zero */
+		termo[i].value = 11 * (i + 1);
+		/* !SENSORS_USE_FILES */
+	}
 
 }
 
@@ -322,11 +319,8 @@ static s16_t termo_count_get_value(struct snmp_node_instance *instance,
 static const struct snmp_oid_range sensor_table_oid_ranges[] = { { 1, SENSOR_MAX
 		+ 1 } };
 
-
 static const struct snmp_oid_range termo_table_oid_ranges[] = { { 1, termo_max
 		+ 1 } };
-
-
 
 static snmp_err_t sensor_table_get_cell_instance(const u32_t *column,
 		const u32_t *row_oid, u8_t row_oid_len,
@@ -539,7 +533,7 @@ static s16_t termo_table_get_value(struct snmp_node_instance *instance,
 	case 1: /* »дентификатор термодатчика, число от 1 до 8 включительно */
 
 		if (i < 2) {
-			*temperature =i;// (FW_data.termo[1].id[0]<<56)|(FW_data.termo[1].id[1]<<48)|(FW_data.termo[1].id[2]<<40)|(FW_data.termo[1].id[3]<<32)|(FW_data.termo[1].id[4]<<24)|(FW_data.termo[1].id[5]<<16)|(FW_data.termo[1].id[6]<<8)|(FW_data.termo[1].id[7]);
+			*temperature = i; // (FW_data.termo[1].id[0]<<56)|(FW_data.termo[1].id[1]<<48)|(FW_data.termo[1].id[2]<<40)|(FW_data.termo[1].id[3]<<32)|(FW_data.termo[1].id[4]<<24)|(FW_data.termo[1].id[5]<<16)|(FW_data.termo[1].id[6]<<8)|(FW_data.termo[1].id[7]);
 			return sizeof(s32_t);
 		} else {
 			return 0;
@@ -548,7 +542,7 @@ static s16_t termo_table_get_value(struct snmp_node_instance *instance,
 		if (i < 2) {
 			*temperature = FW_data.termo[i].temper;
 			return sizeof(s32_t);
-		}  else {
+		} else {
 			return 0;
 		}
 
@@ -556,37 +550,37 @@ static s16_t termo_table_get_value(struct snmp_node_instance *instance,
 		if (i < 2) {
 			*temperature = FW_data.termo[i].status;
 			return sizeof(s32_t);
-		}  else {
+		} else {
 			return 0;
 		}
 
 	case 4: /* Ќижн€€ граница диапазона нормальных значений температуры, ∞C, где n Ч номер датчика */
 		if (i < 2) {
-					*temperature = FW_data.termo[i].t_dw;
-					return sizeof(s32_t);
-				}  else {
-					return 0;
-				}
+			*temperature = FW_data.termo[i].t_dw;
+			return sizeof(s32_t);
+		} else {
+			return 0;
+		}
 	case 5: /* ¬ерхн€€ граница диапазона нормальных значений температуры, ∞C, где n Ч номер датчика */
 		if (i < 2) {
-					*temperature = FW_data.termo[i].t_up;
-					return sizeof(s32_t);
-				}  else {
-					return 0;
-				}
+			*temperature = FW_data.termo[i].t_up;
+			return sizeof(s32_t);
+		} else {
+			return 0;
+		}
 	case 6: /* file name */
-			if (i < 2) {
+		if (i < 2) {
 
-				MEMCPY(value, FW_data.termo[i].name, strlen(FW_data.termo[i].name));
-				return (s16_t) strlen(FW_data.termo[i].name);
-			} else {
-				return 0;
-			}
+			MEMCPY(value, FW_data.termo[i].name, strlen(FW_data.termo[i].name));
+			return (s16_t) strlen(FW_data.termo[i].name);
+		} else {
+			return 0;
+		}
 	case 7: /* sensor value */
 		if (i < 2) {
-			*temperature = 1000*FW_data.termo[i].ftemper;
+			*temperature = 1000 * FW_data.termo[i].ftemper;
 			return sizeof(s32_t);
-		}  else {
+		} else {
 			return 0;
 		}
 	default:
@@ -616,23 +610,36 @@ static snmp_err_t sensor_table_set_value(struct snmp_node_instance *instance,
 			if (in_data < 0) {
 				if (FW_data.gpio.OUT_PORT[i].sost == 0) {
 					FW_data.gpio.OUT_PORT[i].sost = 1;
-					FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_SET+i;
+					FW_data.gpio.OUT_PORT[i].event = OUT_SET;
+					reple_to_save.type_event = OUT_SET;
+					reple_to_save.event_cfg.canal = i;
+					reple_to_save.event_cfg.source = SNMP;
+					reple_to_save.dicr = 1;
 				} else {
 					FW_data.gpio.OUT_PORT[i].sost = 0;
-					FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_RES+i;
+					FW_data.gpio.OUT_PORT[i].event = OUT_RES;
+					reple_to_save.type_event = OUT_RES;
+					reple_to_save.event_cfg.canal = i;
+					reple_to_save.event_cfg.source = SNMP;
+					reple_to_save.dicr = 1;
 				}
 //					FW_data.gpio.OUT_PORT[i].type_logic=3;
 //					FW_data.gpio.OUT_PORT[i].sost=1;
 
 			} else {
 				FW_data.gpio.OUT_PORT[i].sost = in_data;
-				if (in_data==0)
-				{
-				 FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_RES+i;
-				}
-				else
-				{
-				 FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_SET+i;
+				if (in_data == 0) {
+					FW_data.gpio.OUT_PORT[i].event = OUT_RES;
+					reple_to_save.type_event = OUT_RES;
+					reple_to_save.event_cfg.canal = i;
+					reple_to_save.event_cfg.source = SNMP;
+					reple_to_save.dicr = 1;
+				} else {
+					FW_data.gpio.OUT_PORT[i].event = OUT_SET;
+					reple_to_save.type_event = OUT_SET;
+					reple_to_save.event_cfg.canal = i;
+					reple_to_save.event_cfg.source = SNMP;
+					reple_to_save.dicr = 1;
 				}
 			}
 			FW_data.gpio.OUT_PORT[i].aflag = 1;
@@ -656,22 +663,26 @@ static snmp_err_t sensor_table_set_value(struct snmp_node_instance *instance,
 	case 12: /* sensor value */
 
 		if (i < 2) {
-			FW_data.gpio.OUT_PORT[i].delay=100*in_data;
+			FW_data.gpio.OUT_PORT[i].delay = 100 * in_data;
 			return SNMP_ERR_NOERROR;
 		} else {
 			return SNMP_ERR_GENERROR;
 		}
 	case 13: /* sensor value */
 
-			if ((i < 2)&&(in_data==1)) {
-				FW_data.gpio.OUT_PORT[i].type_logic=3;
-				FW_data.gpio.OUT_PORT[i].sost=1;
-				FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_TOL+i;
-				FW_data.gpio.OUT_PORT[i].aflag=1;
-				return SNMP_ERR_NOERROR;
-			} else {
-				return SNMP_ERR_GENERROR;
-			}
+		if ((i < 2) && (in_data == 1)) {
+			FW_data.gpio.OUT_PORT[i].type_logic = 3;
+			FW_data.gpio.OUT_PORT[i].sost = 1;
+			FW_data.gpio.OUT_PORT[i].event = OUT_TOL;
+			reple_to_save.type_event = OUT_TOL;
+			reple_to_save.event_cfg.canal = i;
+			reple_to_save.event_cfg.source = SNMP;
+			reple_to_save.dicr = 1;
+			FW_data.gpio.OUT_PORT[i].aflag = 1;
+			return SNMP_ERR_NOERROR;
+		} else {
+			return SNMP_ERR_GENERROR;
+		}
 
 	default:
 		return SNMP_ERR_GENERROR;
@@ -706,23 +717,36 @@ static snmp_err_t termo_table_set_value(struct snmp_node_instance *instance,
 			if (in_data < 0) {
 				if (FW_data.gpio.OUT_PORT[i].sost == 0) {
 					FW_data.gpio.OUT_PORT[i].sost = 1;
-					FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_SET+i;
+					FW_data.gpio.OUT_PORT[i].event = OUT_SET;
+					reple_to_save.type_event = OUT_SET;
+					reple_to_save.event_cfg.canal = i;
+					reple_to_save.event_cfg.source = SNMP;
+					reple_to_save.dicr = 1;
 				} else {
 					FW_data.gpio.OUT_PORT[i].sost = 0;
-					FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_RES+i;
+					FW_data.gpio.OUT_PORT[i].event = OUT_RES;
+					reple_to_save.type_event = OUT_RES;
+					reple_to_save.event_cfg.canal = i;
+					reple_to_save.event_cfg.source = SNMP;
+					reple_to_save.dicr = 1;
 				}
 //					FW_data.gpio.OUT_PORT[i].type_logic=3;
 //					FW_data.gpio.OUT_PORT[i].sost=1;
 
 			} else {
 				FW_data.gpio.OUT_PORT[i].sost = in_data;
-				if (in_data==0)
-				{
-				 FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_RES+i;
-				}
-				else
-				{
-				 FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_SET+i;
+				if (in_data == 0) {
+					FW_data.gpio.OUT_PORT[i].event = OUT_RES;
+					reple_to_save.type_event = OUT_RES;
+					reple_to_save.event_cfg.canal = i;
+					reple_to_save.event_cfg.source = SNMP;
+					reple_to_save.dicr = 1;
+				} else {
+					FW_data.gpio.OUT_PORT[i].event = OUT_SET;
+					reple_to_save.type_event = OUT_SET;
+					reple_to_save.event_cfg.canal = i;
+					reple_to_save.event_cfg.source = SNMP;
+					reple_to_save.dicr = 1;
 				}
 			}
 			FW_data.gpio.OUT_PORT[i].aflag = 1;
@@ -746,22 +770,26 @@ static snmp_err_t termo_table_set_value(struct snmp_node_instance *instance,
 	case 12: /* sensor value */
 
 		if (i < 2) {
-			FW_data.gpio.OUT_PORT[i].delay=100*in_data;
+			FW_data.gpio.OUT_PORT[i].delay = 100 * in_data;
 			return SNMP_ERR_NOERROR;
 		} else {
 			return SNMP_ERR_GENERROR;
 		}
 	case 13: /* sensor value */
 
-			if ((i < 2)&&(in_data==1)) {
-				FW_data.gpio.OUT_PORT[i].type_logic=3;
-				FW_data.gpio.OUT_PORT[i].sost=1;
-				FW_data.gpio.OUT_PORT[i].event=SNMP_OUT_PORT0_TOL+i;
-				FW_data.gpio.OUT_PORT[i].aflag=1;
-				return SNMP_ERR_NOERROR;
-			} else {
-				return SNMP_ERR_GENERROR;
-			}
+		if ((i < 2) && (in_data == 1)) {
+			FW_data.gpio.OUT_PORT[i].type_logic = 3;
+			FW_data.gpio.OUT_PORT[i].sost = 1;
+			FW_data.gpio.OUT_PORT[i].event = OUT_TOL;
+			reple_to_save.type_event = OUT_TOL;
+			reple_to_save.event_cfg.canal = i;
+			reple_to_save.event_cfg.source = SNMP;
+			reple_to_save.dicr = 1;
+			FW_data.gpio.OUT_PORT[i].aflag = 1;
+			return SNMP_ERR_NOERROR;
+		} else {
+			return SNMP_ERR_GENERROR;
+		}
 
 	default:
 		return SNMP_ERR_GENERROR;
@@ -773,28 +801,25 @@ static snmp_err_t termo_table_set_value(struct snmp_node_instance *instance,
 //	  OUT_PORT0_TOL,
 //	  OUT_PORT0_TOL
 }
-void send_mess_trap (s32_t* OID_TR,char* mess,uint16_t lens_mess,uint8_t canal)
-{
-   struct snmp_obj_id OID;
+void send_mess_trap(s32_t *OID_TR, char *mess, uint16_t lens_mess,
+		uint8_t canal) {
+	struct snmp_obj_id OID;
 
+	OID.id[0] = OID_TR[0];
+	OID.id[1] = OID_TR[1];
+	OID.id[2] = OID_TR[2];
+	OID.id[3] = OID_TR[3];
+	OID.id[4] = OID_TR[4];
+	OID.id[5] = OID_TR[5];
+	OID.id[6] = OID_TR[6];
+	OID.id[7] = OID_TR[7];
+	OID.id[8] = OID_TR[8];
+	OID.id[9] = OID_TR[9];
+	OID.id[10] = OID_TR[10];
+	OID.id[11] = OID_TR[11];
+	OID.len = 11;
 
-
-  OID.id[0]=OID_TR[0];
-  OID.id[1]=OID_TR[1];
-  OID.id[2]=OID_TR[2];
-  OID.id[3]=OID_TR[3];
-  OID.id[4]=OID_TR[4];
-  OID.id[5]=OID_TR[5];
-  OID.id[6]=OID_TR[6];
-  OID.id[7]=OID_TR[7];
-  OID.id[8]=OID_TR[8];
-  OID.id[9]=OID_TR[9];
-  OID.id[10]=OID_TR[10];
-  OID.id[11]=OID_TR[11];
-  OID.len = 11;
-
-  //struct snmp_varbind vbt_tr1,vbt_tr2,vbt_tr6,vbt_tr15,vbt_tr18,vbt_tr19;
-
+	//struct snmp_varbind vbt_tr1,vbt_tr2,vbt_tr6,vbt_tr15,vbt_tr18,vbt_tr19;
 
 //  vbt_tr2.value=mess;
 //  vbt_tr2.value_len=lens_mess;
@@ -814,157 +839,150 @@ void send_mess_trap (s32_t* OID_TR,char* mess,uint16_t lens_mess,uint8_t canal)
 //  vbt_tr2.next=&vbt_tr6;
 //  vbt_tr2.prev=&vbt_tr1;
 
+	uint32_t data = canal;
+	vbt_tr1.value = &data;
+	vbt_tr1.value_len = sizeof(data);
+	vbt_tr1.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr1.oid.len = 11;
+	vbt_tr1.oid.id[0] = 1;
+	vbt_tr1.oid.id[1] = 3;
+	vbt_tr1.oid.id[2] = 6;
+	vbt_tr1.oid.id[3] = 1;
+	vbt_tr1.oid.id[4] = 4;
+	vbt_tr1.oid.id[5] = 1;
+	vbt_tr1.oid.id[6] = 25728;
+	vbt_tr1.oid.id[7] = 5500;
+	vbt_tr1.oid.id[8] = 3;
+	vbt_tr1.oid.id[9] = 1;
+	vbt_tr1.oid.id[10] = 0;
+	vbt_tr1.next = &vbt_tr2;
 
-  uint32_t data = canal;
-  vbt_tr1.value=&data;
-  vbt_tr1.value_len=sizeof(data);
-  vbt_tr1.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr1.oid.len=11;
-  vbt_tr1.oid.id[0]=1;
-  vbt_tr1.oid.id[1]=3;
-  vbt_tr1.oid.id[2]=6;
-  vbt_tr1.oid.id[3]=1;
-  vbt_tr1.oid.id[4]=4;
-  vbt_tr1.oid.id[5]=1;
-  vbt_tr1.oid.id[6]=25728;
-  vbt_tr1.oid.id[7]=5500;
-  vbt_tr1.oid.id[8]=3;
-  vbt_tr1.oid.id[9]=1;
-  vbt_tr1.oid.id[10]=0;
-  vbt_tr1.next=&vbt_tr2;
+	vbt_tr2.value = &(FW_data.gpio.OUT_PORT[canal]);
+	vbt_tr2.value_len = 4;
+	vbt_tr2.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr2.oid.len = 11;
+	vbt_tr2.oid.id[0] = 1;
+	vbt_tr2.oid.id[1] = 3;
+	vbt_tr2.oid.id[2] = 6;
+	vbt_tr2.oid.id[3] = 1;
+	vbt_tr2.oid.id[4] = 4;
+	vbt_tr2.oid.id[5] = 1;
+	vbt_tr2.oid.id[6] = 25728;
+	vbt_tr2.oid.id[7] = 5500;
+	vbt_tr2.oid.id[8] = 3;
+	vbt_tr2.oid.id[9] = 2;
+	vbt_tr2.oid.id[10] = 0;
+	vbt_tr2.next = &vbt_tr6;
+	vbt_tr2.prev = &vbt_tr1;
 
-  vbt_tr2.value=&(FW_data.gpio.OUT_PORT[canal]);
-  vbt_tr2.value_len=4;
-  vbt_tr2.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr2.oid.len=11;
-  vbt_tr2.oid.id[0]=1;
-  vbt_tr2.oid.id[1]=3;
-  vbt_tr2.oid.id[2]=6;
-  vbt_tr2.oid.id[3]=1;
-  vbt_tr2.oid.id[4]=4;
-  vbt_tr2.oid.id[5]=1;
-  vbt_tr2.oid.id[6]=25728;
-  vbt_tr2.oid.id[7]=5500;
-  vbt_tr2.oid.id[8]=3;
-  vbt_tr2.oid.id[9]=2;
-  vbt_tr2.oid.id[10]=0;
-  vbt_tr2.next=&vbt_tr6;
-  vbt_tr2.prev=&vbt_tr1;
+	vbt_tr6.value = FW_data.gpio.name[canal];
+	vbt_tr6.value_len = strlen(FW_data.gpio.name[canal]);
+	vbt_tr6.type = SNMP_ASN1_TYPE_OCTET_STRING;
+	vbt_tr6.oid.len = 11;
+	vbt_tr6.oid.id[0] = 1;
+	vbt_tr6.oid.id[1] = 3;
+	vbt_tr6.oid.id[2] = 6;
+	vbt_tr6.oid.id[3] = 1;
+	vbt_tr6.oid.id[4] = 4;
+	vbt_tr6.oid.id[5] = 1;
+	vbt_tr6.oid.id[6] = 25728;
+	vbt_tr6.oid.id[7] = 5500;
+	vbt_tr6.oid.id[8] = 3;
+	vbt_tr6.oid.id[9] = 6;
+	vbt_tr6.oid.id[10] = 0;
+	vbt_tr6.next = &vbt_tr15;
+	vbt_tr6.prev = &vbt_tr2;
 
-  vbt_tr6.value=FW_data.gpio.name[canal];
-  vbt_tr6.value_len=strlen(FW_data.gpio.name[canal]);
-  vbt_tr6.type=SNMP_ASN1_TYPE_OCTET_STRING;
-  vbt_tr6.oid.len=11;
-  vbt_tr6.oid.id[0]=1;
-  vbt_tr6.oid.id[1]=3;
-  vbt_tr6.oid.id[2]=6;
-  vbt_tr6.oid.id[3]=1;
-  vbt_tr6.oid.id[4]=4;
-  vbt_tr6.oid.id[5]=1;
-  vbt_tr6.oid.id[6]=25728;
-  vbt_tr6.oid.id[7]=5500;
-  vbt_tr6.oid.id[8]=3;
-  vbt_tr6.oid.id[9]=6;
-  vbt_tr6.oid.id[10]=0;
-  vbt_tr6.next=&vbt_tr15;
-  vbt_tr6.prev=&vbt_tr2;
+	int data3;
+	data3 = FW_data.gpio.OUT_PORT[canal].realtime;
+	vbt_tr15.value = &data3;
+	vbt_tr15.value_len = 4;
+	vbt_tr15.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr15.oid.len = 11;
+	vbt_tr15.oid.id[0] = 1;
+	vbt_tr15.oid.id[1] = 3;
+	vbt_tr15.oid.id[2] = 6;
+	vbt_tr15.oid.id[3] = 1;
+	vbt_tr15.oid.id[4] = 4;
+	vbt_tr15.oid.id[5] = 1;
+	vbt_tr15.oid.id[6] = 25728;
+	vbt_tr15.oid.id[7] = 5500;
+	vbt_tr15.oid.id[8] = 3;
+	vbt_tr15.oid.id[9] = 15;
+	vbt_tr15.oid.id[10] = 0;
+	vbt_tr15.next = &vbt_tr18;
+	vbt_tr15.prev = &vbt_tr6;
 
+	int data2;
+	data2 = (-1);
+	vbt_tr18.value = &data2;
+	vbt_tr18.value_len = 4;
+	vbt_tr18.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr18.oid.len = 11;
+	vbt_tr18.oid.id[0] = 1;
+	vbt_tr18.oid.id[1] = 3;
+	vbt_tr18.oid.id[2] = 6;
+	vbt_tr18.oid.id[3] = 1;
+	vbt_tr18.oid.id[4] = 4;
+	vbt_tr18.oid.id[5] = 1;
+	vbt_tr18.oid.id[6] = 25728;
+	vbt_tr18.oid.id[7] = 5500;
+	vbt_tr18.oid.id[8] = 3;
+	vbt_tr18.oid.id[9] = 18;
+	vbt_tr18.oid.id[10] = 0;
+	vbt_tr18.next = &vbt_tr19;
+	vbt_tr18.prev = &vbt_tr15;
 
-  int data3;
-  data3=FW_data.gpio.OUT_PORT[canal].realtime;
-  vbt_tr15.value=&data3;
-  vbt_tr15.value_len=4;
-  vbt_tr15.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr15.oid.len=11;
-  vbt_tr15.oid.id[0]=1;
-  vbt_tr15.oid.id[1]=3;
-  vbt_tr15.oid.id[2]=6;
-  vbt_tr15.oid.id[3]=1;
-  vbt_tr15.oid.id[4]=4;
-  vbt_tr15.oid.id[5]=1;
-  vbt_tr15.oid.id[6]=25728;
-  vbt_tr15.oid.id[7]=5500;
-  vbt_tr15.oid.id[8]=3;
-  vbt_tr15.oid.id[9]=15;
-  vbt_tr15.oid.id[10]=0;
-  vbt_tr15.next=&vbt_tr18;
-  vbt_tr15.prev=&vbt_tr6;
+	char buf_list[64];
+	int year, mons;
+	year = timeinfo.tm_year + 1900;
+	mons = (timeinfo.tm_mon + 1);
+	sprintf(buf_list, "%dг. %dм. %dд. %dч. %dм. %dс.", year, mons,
+			timeinfo.tm_mday, timeinfo.tm_hour, timeinfo.tm_min,
+			timeinfo.tm_sec);
+	vbt_tr19.value = buf_list;
+	vbt_tr19.value_len = strlen(buf_list);
+	vbt_tr19.type = SNMP_ASN1_TYPE_OCTET_STRING;
+	vbt_tr19.oid.len = 11;
+	vbt_tr19.oid.id[0] = 1;
+	vbt_tr19.oid.id[1] = 3;
+	vbt_tr19.oid.id[2] = 6;
+	vbt_tr19.oid.id[3] = 1;
+	vbt_tr19.oid.id[4] = 4;
+	vbt_tr19.oid.id[5] = 1;
+	vbt_tr19.oid.id[6] = 25728;
+	vbt_tr19.oid.id[7] = 5500;
+	vbt_tr19.oid.id[8] = 3;
+	vbt_tr19.oid.id[9] = 19;
+	vbt_tr19.oid.id[10] = 0;
+	vbt_tr19.prev = &vbt_tr18;
 
-
-  int data2;
-  data2=(-1);
-  vbt_tr18.value=&data2;
-  vbt_tr18.value_len=4;
-  vbt_tr18.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr18.oid.len=11;
-  vbt_tr18.oid.id[0]=1;
-  vbt_tr18.oid.id[1]=3;
-  vbt_tr18.oid.id[2]=6;
-  vbt_tr18.oid.id[3]=1;
-  vbt_tr18.oid.id[4]=4;
-  vbt_tr18.oid.id[5]=1;
-  vbt_tr18.oid.id[6]=25728;
-  vbt_tr18.oid.id[7]=5500;
-  vbt_tr18.oid.id[8]=3;
-  vbt_tr18.oid.id[9]=18;
-  vbt_tr18.oid.id[10]=0;
-  vbt_tr18.next=&vbt_tr19;
-  vbt_tr18.prev=&vbt_tr15;
-
-
-  char buf_list[64];
-  int year,mons;
-  year=timeinfo.tm_year+1900;
-  mons=(timeinfo.tm_mon+1);
-  sprintf(buf_list,"%dг. %dм. %dд. %dч. %dм. %dс.",year,mons,timeinfo.tm_mday,timeinfo.tm_hour,timeinfo.tm_min,timeinfo.tm_sec);
-  vbt_tr19.value=buf_list;
-  vbt_tr19.value_len=strlen(buf_list);
-  vbt_tr19.type=SNMP_ASN1_TYPE_OCTET_STRING;
-  vbt_tr19.oid.len=11;
-  vbt_tr19.oid.id[0]=1;
-  vbt_tr19.oid.id[1]=3;
-  vbt_tr19.oid.id[2]=6;
-  vbt_tr19.oid.id[3]=1;
-  vbt_tr19.oid.id[4]=4;
-  vbt_tr19.oid.id[5]=1;
-  vbt_tr19.oid.id[6]=25728;
-  vbt_tr19.oid.id[7]=5500;
-  vbt_tr19.oid.id[8]=3;
-  vbt_tr19.oid.id[9]=19;
-  vbt_tr19.oid.id[10]=0;
-  vbt_tr19.prev=&vbt_tr18;
-
-
- snmp_send_trap((const struct snmp_obj_id*)&OID,SNMP_GENTRAP_ENTERPRISE_SPECIFIC,1,&vbt_tr1);
-
+	snmp_send_trap((const struct snmp_obj_id*) &OID,
+			SNMP_GENTRAP_ENTERPRISE_SPECIFIC, 1, &vbt_tr1);
 
 //  snmp_send_trap_specific(SNMP_GENTRAP_ENTERPRISE_SPECIFIC,&vbt_tr);
 //  snmp_send_trap_specific(SNMP_GENTRAP_ENTERPRISE_SPECIFIC,&vbt_tr);
 
 }
 
-void send_mess_trap_termo (s32_t* OID_TR,uint8_t canal)
-{
-   struct snmp_obj_id OID;
+void send_mess_trap_termo(s32_t *OID_TR, uint8_t canal) {
+	struct snmp_obj_id OID;
 
+	OID.id[0] = OID_TR[0];
+	OID.id[1] = OID_TR[1];
+	OID.id[2] = OID_TR[2];
+	OID.id[3] = OID_TR[3];
+	OID.id[4] = OID_TR[4];
+	OID.id[5] = OID_TR[5];
+	OID.id[6] = OID_TR[6];
+	OID.id[7] = OID_TR[7];
+	OID.id[8] = OID_TR[8];
+	OID.id[9] = OID_TR[9];
+	OID.id[10] = OID_TR[10];
+	OID.id[11] = OID_TR[11];
+	OID.len = 11;
 
-
-  OID.id[0]=OID_TR[0];
-  OID.id[1]=OID_TR[1];
-  OID.id[2]=OID_TR[2];
-  OID.id[3]=OID_TR[3];
-  OID.id[4]=OID_TR[4];
-  OID.id[5]=OID_TR[5];
-  OID.id[6]=OID_TR[6];
-  OID.id[7]=OID_TR[7];
-  OID.id[8]=OID_TR[8];
-  OID.id[9]=OID_TR[9];
-  OID.id[10]=OID_TR[10];
-  OID.id[11]=OID_TR[11];
-  OID.len = 11;
-
-  //struct snmp_varbind vbt_tr1,vbt_tr2,vbt_tr6,vbt_tr15,vbt_tr18,vbt_tr19;
-
+	//struct snmp_varbind vbt_tr1,vbt_tr2,vbt_tr6,vbt_tr15,vbt_tr18,vbt_tr19;
 
 //  vbt_tr2.value=mess;
 //  vbt_tr2.value_len=lens_mess;
@@ -984,127 +1002,122 @@ void send_mess_trap_termo (s32_t* OID_TR,uint8_t canal)
 //  vbt_tr2.next=&vbt_tr6;
 //  vbt_tr2.prev=&vbt_tr1;
 
+	uint32_t data = canal;
+	vbt_tr1.value = &data;
+	vbt_tr1.value_len = sizeof(data);
+	vbt_tr1.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr1.oid.len = 11;
+	vbt_tr1.oid.id[0] = 1;
+	vbt_tr1.oid.id[1] = 3;
+	vbt_tr1.oid.id[2] = 6;
+	vbt_tr1.oid.id[3] = 1;
+	vbt_tr1.oid.id[4] = 4;
+	vbt_tr1.oid.id[5] = 1;
+	vbt_tr1.oid.id[6] = 25728;
+	vbt_tr1.oid.id[7] = 8800;
+	vbt_tr1.oid.id[8] = 2;
+	vbt_tr1.oid.id[9] = 1;
+	vbt_tr1.oid.id[10] = 0;
+	vbt_tr1.next = &vbt_tr2;
 
-  uint32_t data = canal;
-  vbt_tr1.value=&data;
-  vbt_tr1.value_len=sizeof(data);
-  vbt_tr1.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr1.oid.len=11;
-  vbt_tr1.oid.id[0]=1;
-  vbt_tr1.oid.id[1]=3;
-  vbt_tr1.oid.id[2]=6;
-  vbt_tr1.oid.id[3]=1;
-  vbt_tr1.oid.id[4]=4;
-  vbt_tr1.oid.id[5]=1;
-  vbt_tr1.oid.id[6]=25728;
-  vbt_tr1.oid.id[7]=8800;
-  vbt_tr1.oid.id[8]=2;
-  vbt_tr1.oid.id[9]=1;
-  vbt_tr1.oid.id[10]=0;
-  vbt_tr1.next=&vbt_tr2;
+	vbt_tr2.value = &(FW_data.termo[canal].temper);
+	vbt_tr2.value_len = 4;
+	vbt_tr2.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr2.oid.len = 11;
+	vbt_tr2.oid.id[0] = 1;
+	vbt_tr2.oid.id[1] = 3;
+	vbt_tr2.oid.id[2] = 6;
+	vbt_tr2.oid.id[3] = 1;
+	vbt_tr2.oid.id[4] = 4;
+	vbt_tr2.oid.id[5] = 1;
+	vbt_tr2.oid.id[6] = 25728;
+	vbt_tr2.oid.id[7] = 8800;
+	vbt_tr2.oid.id[8] = 2;
+	vbt_tr2.oid.id[9] = 2;
+	vbt_tr2.oid.id[10] = 0;
+	vbt_tr2.next = &vbt_tr6;
+	vbt_tr2.prev = &vbt_tr1;
 
-  vbt_tr2.value=&(FW_data.termo[canal].temper);
-  vbt_tr2.value_len=4;
-  vbt_tr2.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr2.oid.len=11;
-  vbt_tr2.oid.id[0]=1;
-  vbt_tr2.oid.id[1]=3;
-  vbt_tr2.oid.id[2]=6;
-  vbt_tr2.oid.id[3]=1;
-  vbt_tr2.oid.id[4]=4;
-  vbt_tr2.oid.id[5]=1;
-  vbt_tr2.oid.id[6]=25728;
-  vbt_tr2.oid.id[7]=8800;
-  vbt_tr2.oid.id[8]=2;
-  vbt_tr2.oid.id[9]=2;
-  vbt_tr2.oid.id[10]=0;
-  vbt_tr2.next=&vbt_tr6;
-  vbt_tr2.prev=&vbt_tr1;
+	vbt_tr6.value = &(FW_data.termo[canal].status);
+	vbt_tr6.value_len = 4;
+	vbt_tr6.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr6.oid.len = 11;
+	vbt_tr6.oid.id[0] = 1;
+	vbt_tr6.oid.id[1] = 3;
+	vbt_tr6.oid.id[2] = 6;
+	vbt_tr6.oid.id[3] = 1;
+	vbt_tr6.oid.id[4] = 4;
+	vbt_tr6.oid.id[5] = 1;
+	vbt_tr6.oid.id[6] = 25728;
+	vbt_tr6.oid.id[7] = 8800;
+	vbt_tr6.oid.id[8] = 2;
+	vbt_tr6.oid.id[9] = 3;
+	vbt_tr6.oid.id[10] = 0;
+	vbt_tr6.next = &vbt_tr15;
+	vbt_tr6.prev = &vbt_tr2;
 
-  vbt_tr6.value=&(FW_data.termo[canal].status);
-  vbt_tr6.value_len=4;
-  vbt_tr6.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr6.oid.len=11;
-  vbt_tr6.oid.id[0]=1;
-  vbt_tr6.oid.id[1]=3;
-  vbt_tr6.oid.id[2]=6;
-  vbt_tr6.oid.id[3]=1;
-  vbt_tr6.oid.id[4]=4;
-  vbt_tr6.oid.id[5]=1;
-  vbt_tr6.oid.id[6]=25728;
-  vbt_tr6.oid.id[7]=8800;
-  vbt_tr6.oid.id[8]=2;
-  vbt_tr6.oid.id[9]=3;
-  vbt_tr6.oid.id[10]=0;
-  vbt_tr6.next=&vbt_tr15;
-  vbt_tr6.prev=&vbt_tr2;
+	uint32_t data4;
+	data4 = FW_data.termo[canal].t_dw;
+	vbt_tr15.value = &(data4);
+	vbt_tr15.value_len = 4;
+	vbt_tr15.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr15.oid.len = 11;
+	vbt_tr15.oid.id[0] = 1;
+	vbt_tr15.oid.id[1] = 3;
+	vbt_tr15.oid.id[2] = 6;
+	vbt_tr15.oid.id[3] = 1;
+	vbt_tr15.oid.id[4] = 4;
+	vbt_tr15.oid.id[5] = 1;
+	vbt_tr15.oid.id[6] = 25728;
+	vbt_tr15.oid.id[7] = 5500;
+	vbt_tr15.oid.id[8] = 3;
+	vbt_tr15.oid.id[9] = 15;
+	vbt_tr15.oid.id[10] = 1;
+	vbt_tr15.next = &vbt_tr18;
+	vbt_tr15.prev = &vbt_tr6;
 
-  uint32_t data4;
-  data4=FW_data.termo[canal].t_dw;
-  vbt_tr15.value=&(data4);
-  vbt_tr15.value_len=4;
-  vbt_tr15.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr15.oid.len=11;
-  vbt_tr15.oid.id[0]=1;
-  vbt_tr15.oid.id[1]=3;
-  vbt_tr15.oid.id[2]=6;
-  vbt_tr15.oid.id[3]=1;
-  vbt_tr15.oid.id[4]=4;
-  vbt_tr15.oid.id[5]=1;
-  vbt_tr15.oid.id[6]=25728;
-  vbt_tr15.oid.id[7]=5500;
-  vbt_tr15.oid.id[8]=3;
-  vbt_tr15.oid.id[9]=15;
-  vbt_tr15.oid.id[10]=1;
-  vbt_tr15.next=&vbt_tr18;
-  vbt_tr15.prev=&vbt_tr6;
+	uint32_t data5;
+	data5 = FW_data.termo[canal].t_up;
 
-
-  uint32_t data5;
-  data5=FW_data.termo[canal].t_up;
-
-
-  vbt_tr18.value=&(data5);
-  vbt_tr18.value_len=4;
-  vbt_tr18.type=SNMP_ASN1_TYPE_INTEGER;
-  vbt_tr18.oid.len=11;
-  vbt_tr18.oid.id[0]=1;
-  vbt_tr18.oid.id[1]=3;
-  vbt_tr18.oid.id[2]=6;
-  vbt_tr18.oid.id[3]=1;
-  vbt_tr18.oid.id[4]=4;
-  vbt_tr18.oid.id[5]=1;
-  vbt_tr18.oid.id[6]=25728;
-  vbt_tr18.oid.id[7]=5500;
-  vbt_tr18.oid.id[8]=3;
-  vbt_tr18.oid.id[9]=18;
-  vbt_tr18.oid.id[10]=1;
-  vbt_tr18.next=&vbt_tr19;
-  vbt_tr18.prev=&vbt_tr15;
-
+	vbt_tr18.value = &(data5);
+	vbt_tr18.value_len = 4;
+	vbt_tr18.type = SNMP_ASN1_TYPE_INTEGER;
+	vbt_tr18.oid.len = 11;
+	vbt_tr18.oid.id[0] = 1;
+	vbt_tr18.oid.id[1] = 3;
+	vbt_tr18.oid.id[2] = 6;
+	vbt_tr18.oid.id[3] = 1;
+	vbt_tr18.oid.id[4] = 4;
+	vbt_tr18.oid.id[5] = 1;
+	vbt_tr18.oid.id[6] = 25728;
+	vbt_tr18.oid.id[7] = 5500;
+	vbt_tr18.oid.id[8] = 3;
+	vbt_tr18.oid.id[9] = 18;
+	vbt_tr18.oid.id[10] = 1;
+	vbt_tr18.next = &vbt_tr19;
+	vbt_tr18.prev = &vbt_tr15;
 
 //  char buf_list[32];
 //  sprintf(buf_list,"%dг. %dм. %dд. %dч. %dм. %dс.",time_run[0],time_run[1],time_run[2],time_run[3],time_run[4],time_run[5]);
-  vbt_tr19.value=FW_data.termo[canal].name;
-  vbt_tr19.value_len=strlen(FW_data.termo[canal].name);
-  vbt_tr19.type=SNMP_ASN1_TYPE_OCTET_STRING;
-  vbt_tr19.oid.len=11;
-  vbt_tr19.oid.id[0]=1;
-  vbt_tr19.oid.id[1]=3;
-  vbt_tr19.oid.id[2]=6;
-  vbt_tr19.oid.id[3]=1;
-  vbt_tr19.oid.id[4]=4;
-  vbt_tr19.oid.id[5]=1;
-  vbt_tr19.oid.id[6]=25728;
-  vbt_tr19.oid.id[7]=5500;
-  vbt_tr19.oid.id[8]=3;
-  vbt_tr19.oid.id[9]=19;
-  vbt_tr19.oid.id[10]=1;
-  vbt_tr19.prev=&vbt_tr15;
+	vbt_tr19.value = FW_data.termo[canal].name;
+	vbt_tr19.value_len = strlen(FW_data.termo[canal].name);
+	vbt_tr19.type = SNMP_ASN1_TYPE_OCTET_STRING;
+	vbt_tr19.oid.len = 11;
+	vbt_tr19.oid.id[0] = 1;
+	vbt_tr19.oid.id[1] = 3;
+	vbt_tr19.oid.id[2] = 6;
+	vbt_tr19.oid.id[3] = 1;
+	vbt_tr19.oid.id[4] = 4;
+	vbt_tr19.oid.id[5] = 1;
+	vbt_tr19.oid.id[6] = 25728;
+	vbt_tr19.oid.id[7] = 5500;
+	vbt_tr19.oid.id[8] = 3;
+	vbt_tr19.oid.id[9] = 19;
+	vbt_tr19.oid.id[10] = 1;
+	vbt_tr19.prev = &vbt_tr15;
 
-
- snmp_send_trap((const struct snmp_obj_id*)&OID,SNMP_GENTRAP_ENTERPRISE_SPECIFIC,1,&vbt_tr1);
-
+	snmp_send_trap((const struct snmp_obj_id*) &OID,
+			SNMP_GENTRAP_ENTERPRISE_SPECIFIC, 1, &vbt_tr1);
 
 //  snmp_send_trap_specific(SNMP_GENTRAP_ENTERPRISE_SPECIFIC,&vbt_tr);
 //  snmp_send_trap_specific(SNMP_GENTRAP_ENTERPRISE_SPECIFIC,&vbt_tr);

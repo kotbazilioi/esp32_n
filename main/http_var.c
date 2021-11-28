@@ -1343,13 +1343,13 @@ static esp_err_t notify_set_post_handler(httpd_req_t *req) {
 	if (page_sost == TERMO) {
 		char2_to_hex((char*) (buf + 5), (uint8_t*) buf_temp, 25);
 		canal = buf_temp[1];
-		FW_data.termo[canal].TEMP_UP_L = (buf_temp[2] ) & 0x01;
+		FW_data.termo[canal].TEMP_UP_L = (buf_temp[2] >> 0) & 0x01;
 		FW_data.termo[canal].TEMP_UP_SL = (buf_temp[2] >> 1) & 0x01;
 		FW_data.termo[canal].TEMP_UP_E = (buf_temp[2] >> 2) & 0x01;
 		FW_data.termo[canal].TEMP_UP_SM = (buf_temp[2] >> 3) & 0x01;
 		FW_data.termo[canal].TEMP_UP_SN = (buf_temp[2] >> 4) & 0x01;
 
-		FW_data.termo[canal].TEMP_OK_L = (buf_temp[4] ) & 0x01;
+		FW_data.termo[canal].TEMP_OK_L = (buf_temp[4] >> 0) & 0x01;
 		FW_data.termo[canal].TEMP_OK_SL = (buf_temp[4] >> 1) & 0x01;
 		FW_data.termo[canal].TEMP_OK_E = (buf_temp[4] >> 2) & 0x01;
 		FW_data.termo[canal].TEMP_OK_SM = (buf_temp[4] >> 3) & 0x01;
@@ -1463,11 +1463,25 @@ static esp_err_t io_set_post_handler(httpd_req_t *req) {
 		if (FW_data.gpio.OUT_PORT[ct].sost
 				> FW_data.gpio.OUT_PORT[ct].old_sost) {
 			FW_data.gpio.OUT_PORT[ct].old_sost = FW_data.gpio.OUT_PORT[ct].sost;
-			FW_data.gpio.OUT_PORT[ct].event = WEB_OUT_PORT0_SET + ct;
+			//FW_data.gpio.OUT_PORT[ct].event = WEB_OUT_PORT0_SET + ct;
+							reple_to_save.type_event = OUT_SET;
+							reple_to_save.event_cfg.canal = ct;
+							reple_to_save.event_cfg.source=WEB;
+							reple_to_save.dicr = 1;
+
+
 		} else if (FW_data.gpio.OUT_PORT[ct].sost
 				< FW_data.gpio.OUT_PORT[ct].old_sost) {
 			FW_data.gpio.OUT_PORT[ct].old_sost = FW_data.gpio.OUT_PORT[ct].sost;
-			FW_data.gpio.OUT_PORT[ct].event = WEB_OUT_PORT0_RES + ct;
+		//	FW_data.gpio.OUT_PORT[ct].event = WEB_OUT_PORT0_RES + ct;
+			reple_to_save.type_event = OUT_RES;
+    		reple_to_save.event_cfg.canal = ct;
+			reple_to_save.event_cfg.source=WEB;
+			reple_to_save.dicr = 1;
+
+
+
+
 		}
 
 	}
@@ -1502,7 +1516,11 @@ static esp_err_t io_set_pulse_post_handler(httpd_req_t *req) {
 	if (buf[6] == 0x31) {
 		char2_to_hex((char*) (buf + 7), (uint8_t*) buf_temp, 2);
 		FW_data.gpio.OUT_PORT[1].delay = ((buf[7] << 4) | (buf[8])) * 100;
-		FW_data.gpio.OUT_PORT[1].event = WEB_OUT_PORT1_TOL;
+		FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
+		reple_to_save.type_event = OUT_TOL;
+					reple_to_save.event_cfg.canal = 1;
+					reple_to_save.event_cfg.source = WEB;
+					reple_to_save.dicr = 1;
 		FW_data.gpio.OUT_PORT[1].sost = 1;
 		FW_data.gpio.OUT_PORT[1].type_logic = 3;
 		FW_data.gpio.OUT_PORT[1].aflag = 1;
@@ -1510,7 +1528,11 @@ static esp_err_t io_set_pulse_post_handler(httpd_req_t *req) {
 	} else {
 		char2_to_hex((char*) (buf + 7), (uint8_t*) buf_temp, 2);
 		FW_data.gpio.OUT_PORT[0].delay = ((buf[7] << 4) | (buf[8])) * 100;
-		FW_data.gpio.OUT_PORT[0].event = WEB_OUT_PORT0_TOL;
+		FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
+		reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 0;
+							reple_to_save.event_cfg.source = WEB;
+							reple_to_save.dicr = 1;
 		FW_data.gpio.OUT_PORT[0].sost = 1;
 		FW_data.gpio.OUT_PORT[0].type_logic = 3;
 		FW_data.gpio.OUT_PORT[0].aflag = 1;
@@ -1945,7 +1967,7 @@ httpd_handle_t start_webserver(void) {
 		httpd_register_uri_handler(server, &eeprom_clone_get);
 		httpd_register_uri_handler(server, &wdog_get_cgi);
 		httpd_register_uri_handler(server, &setup_get_cgi);
-		httpd_register_uri_handler(server, &io_get_cgi);
+
 		httpd_register_uri_handler(server, &termo_get_api);
 		httpd_register_uri_handler(server, &termo_data_api);
 		httpd_register_uri_handler(server, &email_send_test_cgi);
@@ -1954,6 +1976,7 @@ httpd_handle_t start_webserver(void) {
 		httpd_register_uri_handler(server, &sse_get_cgi); ///io.cgi
 		httpd_register_uri_handler(server, &io_get_api);
 		httpd_register_uri_handler(server, &io_set);
+		httpd_register_uri_handler(server, &io_get_cgi);
 		httpd_register_uri_handler(server, &wdog_set);
 		httpd_register_uri_handler(server, &termo_set);
 		httpd_register_uri_handler(server, &notify_set);

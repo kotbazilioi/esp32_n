@@ -149,6 +149,8 @@ void output_port(void *pvParameters) {
 			} else {
 				gpio_set_direction(PORT_O[ct], GPIO_MODE_INPUT);
 			}
+
+
 			if (xSemaphoreTake(FW_data.gpio.OUT_PORT[ct].S_gpio_port,
 					(TickType_t) 100) == pdTRUE) {
 				if ((FW_data.gpio.dir[ct] == 1)
@@ -280,8 +282,15 @@ void start_task(void *pvParameters) {
 	xTaskCreate(&send_smtp_task, "send_smtp_task", 4096, NULL, 10, NULL);
 	ping_init();
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
+
+
+
+
 	reple_to_save.type_event = POWER_ON;
+	reple_to_save.event_cfg.canal = 0;
+    reple_to_save.event_cfg.source=SYS;
 	reple_to_save.dicr = 1;
+
 
 	printf("all app run\n\r");
 	timeup=timeinfo.tm_sec+timeinfo.tm_min*60+timeinfo.tm_hour*60*60+timeinfo.tm_yday*60*60*24+(timeinfo.tm_year-70)*60*60*8766;

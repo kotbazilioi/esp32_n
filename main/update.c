@@ -185,8 +185,13 @@ esp_err_t np_http_reboot_cgi(httpd_req_t *req)
     	httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "Can't read FW version!");
     	return ESP_FAIL;
     }
-    reple_to_save.type_event=RESETL;
-    reple_to_save.dicr=1;
+
+	reple_to_save.type_event = RESETL;
+	reple_to_save.event_cfg.canal = 0;
+    reple_to_save.event_cfg.source=SNMP;
+	reple_to_save.dicr = 1;
+
+
     esp_restart();
 //    char buf[128];
 //    sprintf(buf,
