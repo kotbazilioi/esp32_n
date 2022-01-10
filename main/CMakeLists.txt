@@ -14,6 +14,7 @@ idf_component_register(SRCS
  "owb_gpio.c"
  "owb_rmt.c"
  "ds18b20.c"
+ "syslog.c"
    
                     INCLUDE_DIRS ".")
 

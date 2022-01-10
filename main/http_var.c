@@ -177,7 +177,7 @@ static esp_err_t notify_get_cgi_handler(httpd_req_t *req) {
 				| (FW_data.termo[canal].TEMP_UP_E << 2)
 				| (FW_data.termo[canal].TEMP_UP_SM << 3)
 				| (FW_data.termo[canal].TEMP_UP_SN << 4);
-		norm = (FW_data.termo[canal].TEMP_UP_L << 0)
+		norm = (FW_data.termo[canal].TEMP_OK_L << 0)
 				| (FW_data.termo[canal].TEMP_OK_SL << 1)
 				| (FW_data.termo[canal].TEMP_OK_E << 2)
 				| (FW_data.termo[canal].TEMP_OK_SM << 3)
@@ -1361,7 +1361,7 @@ static esp_err_t notify_set_post_handler(httpd_req_t *req) {
 		FW_data.termo[canal].TEMP_DW_SM = (buf_temp[6] >> 3) & 0x01;
 		FW_data.termo[canal].TEMP_DW_SN = (buf_temp[6] >> 4) & 0x01;
 
-		FW_data.termo[canal].TEMP_UP_L = (buf_temp[8] >> 0) & 0x01;
+		FW_data.termo[canal].TEMP_ERR_L = (buf_temp[8] >> 0) & 0x01;
 		FW_data.termo[canal].TEMP_ERR_SL = (buf_temp[8] >> 1) & 0x01;
 		FW_data.termo[canal].TEMP_ERR_E = (buf_temp[8] >> 2) & 0x01;
 		FW_data.termo[canal].TEMP_ERR_SM = (buf_temp[8] >> 3) & 0x01;
@@ -1945,7 +1945,7 @@ httpd_handle_t start_webserver(void) {
 	httpd_handle_t server = NULL;
 	const httpd_config_t config = { .task_priority = tskIDLE_PRIORITY + 5,
 			.stack_size = 32 * 1024, .core_id = tskNO_AFFINITY, .server_port =
-					80, .ctrl_port = 32768, .max_open_sockets = 7,
+					FW_data.http.V_WEB_PORT, .ctrl_port = 32768, .max_open_sockets = 7,
 			.max_uri_handlers = 50, /*12*/
 			.max_resp_headers = 8, .backlog_conn = 5, .lru_purge_enable = true, /**/
 			.recv_wait_timeout = 5, .send_wait_timeout = 5, .global_user_ctx =

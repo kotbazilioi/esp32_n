@@ -6,6 +6,7 @@
 #include "smtp.h"
 #include "config_pj.h"
 #include "ping.h"
+#include "syslog.h"
 //#include "flash_if.h"
 //#include "syslog.h"
 log_reple_t reple_to_save;
@@ -132,35 +133,36 @@ void swich_mess_event(log_reple_t *reply_sw, char *mess) {
 
 	}
 	esp_mac_type_t eth1 = 3;
-			uint8_t cid[6];
-			esp_read_mac(cid, eth1);
+	uint8_t cid[6];
+	esp_read_mac(cid, eth1);
 
-			if (reply_sw->event_cfg.source == SYS) {
-					switch (reply_sw->type_event) {
+	if (reply_sw->event_cfg.source == SYS) {
+		switch (reply_sw->type_event) {
 
-					case POWER_ON: {
-						sprintf(mess, "Включено устройство SN:%d\n",
-								(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8)
-													| (cid[0]));
-					}
-						break;
-					case UPDATE_FW: {
-						sprintf(mess, "Выполнено обновление микрокода устройства SN:%d\n",
-								(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8)
-													| (cid[0]));
-					}
-						break;
-					case RESETL: {
-						sprintf(mess, "Выполнена перезагрузка устройства SN:%d\n",
-													(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8)
-																		| (cid[0]));
-					}
-						break;
-
-					}
-
+		case POWER_ON: {
+			sprintf(mess, "Включено устройство SN:%d\n",
+					(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8) | (cid[0]));
+		}
+			break;
+		case UPDATE_FW: {
+			sprintf(mess, "Выполнено обновление микрокода устройства SN:%d\n",
+					(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8) | (cid[0]));
+		}
+			break;
+		case RESETL: {
+			sprintf(mess, "Выполнена перезагрузка устройства SN:%d\n",
+					(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8) | (cid[0]));
+		}
+			break;
+		case SAVE_DATA_SETT: {
+			sprintf(mess, "Выполнено сохранение настроек устройства SN:%d\n",
+					(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8) | (cid[0]));
+		}
+			break;
 
 		}
+
+	}
 
 }
 
@@ -170,18 +172,18 @@ void swich_mess_event_en(log_reple_t *reply_sw, char *mess) {
 		switch (reply_sw->type_event) {
 
 		case OUT_SET: {
-			sprintf(mess, "Включена нагрузка по WEB интерфейсу PORT%d\n",
+			sprintf(mess, "Load on WEB interface is enabled PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_RES: {
-			sprintf(mess, "Выключена нагрузка по WEB интерфейсу PORT%d\n",
+			sprintf(mess, "The load on the WEB interface is disabled PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_TOL: {
 			sprintf(mess,
-					"Произведен импульсный сброс нагрузки по WEB интерфейсу PORT%d\n",
+					"Impulse load shedding was performed via WEB interface PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
@@ -194,36 +196,36 @@ void swich_mess_event_en(log_reple_t *reply_sw, char *mess) {
 		switch (reply_sw->type_event) {
 
 		case OUT_SET: {
-			sprintf(mess, "Включена нагрузка по расписанию PORT%d\n",
+			sprintf(mess, "Scheduled load is enabled PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_RES: {
-			sprintf(mess, "Выключена нагрузка по расписанию PORT%d\n",
+			sprintf(mess, "Disabled load on schedule PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_TOL: {
 			sprintf(mess,
-					"Произведен импульсный сброс нагрузка по расписанию PORT%d \n",
+					"Impulse reset of the load according to the schedule PORT%d \n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_SET_N: {
 			sprintf(mess,
-					"Включена нагрузка по расписанию (неэффективна)PORT%d \n",
+					"Scheduled load enabled (ineffective) PORT%d \n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_RES_N: {
 			sprintf(mess,
-					"Выключена нагрузка по расписанию (неэффективна) PORT%d \n",
+					"Scheduled load is off (ineffective) PORT%d \n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_TOL_N: {
 			sprintf(mess,
-					"Произведен импульсный сброс нагрузка по расписанию (неэффективна) PORT%d\n",
+					"Performed impulse reset load on schedule (ineffective) PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
@@ -235,18 +237,18 @@ void swich_mess_event_en(log_reple_t *reply_sw, char *mess) {
 		switch (reply_sw->type_event) {
 
 		case OUT_SET: {
-			sprintf(mess, "Включена нагрузка по сторожу PORT%d\n",
+			sprintf(mess, "Watchdog load included PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_RES: {
-			sprintf(mess, "Выключена нагрузка по сторожу PORT%d\n",
+			sprintf(mess, "The watchdog load is turned off PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_TOL: {
 			sprintf(mess,
-					"Произведен импульсный сброс нагрузки по сторожу PORT%d\n",
+					"Impulse load shedding by the watchman PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
@@ -259,18 +261,18 @@ void swich_mess_event_en(log_reple_t *reply_sw, char *mess) {
 		switch (reply_sw->type_event) {
 
 		case OUT_SET: {
-			sprintf(mess, "Включена нагрузка по SNMP интерфейсу PORT%d\n",
+			sprintf(mess, "Load on SNMP interface is enabled PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_RES: {
-			sprintf(mess, "Выключена нагрузка по SNMP интерфейсу PORT%d\n",
+			sprintf(mess, "Disabled load on SNMP interface PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
 		case OUT_TOL: {
 			sprintf(mess,
-					"Произведен импульсный сброс нагрузки по SNMP интерфейсу PORT%d\n",
+					"Pulse load shedding was performed via SNMP interface PORT%d\n",
 					reply_sw->event_cfg.canal);
 		}
 			break;
@@ -278,33 +280,34 @@ void swich_mess_event_en(log_reple_t *reply_sw, char *mess) {
 		}
 	}
 	esp_mac_type_t eth1 = 3;
-		uint8_t cid[6];
-		esp_read_mac(cid, eth1);
+	uint8_t cid[6];
+	esp_read_mac(cid, eth1);
 
-		if (reply_sw->event_cfg.source == SYS) {
-				switch (reply_sw->type_event) {
+	if (reply_sw->event_cfg.source == SYS) {
+		switch (reply_sw->type_event) {
 
-				case POWER_ON: {
-					sprintf(mess, "Включено устройство SN:%d\n",
-							(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8)
-												| (cid[0]));
-				}
-					break;
-				case UPDATE_FW: {
-					sprintf(mess, "Выполнено обновление микрокода устройства SN:%d\n",
-							(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8)
-												| (cid[0]));
-				}
-					break;
-				case RESETL: {
-					sprintf(mess, "Выполнена перезагрузка устройства SN:%d\n",
-												(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8)
-																	| (cid[0]));
-				}
-					break;
+		case POWER_ON: {
+			sprintf(mess, "Device turned on SN:%d\n",
+					(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8) | (cid[0]));
+		}
+			break;
+		case UPDATE_FW: {
+			sprintf(mess, "Device microcode updated SN:%d\n",
+					(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8) | (cid[0]));
+		}
+			break;
+		case RESETL: {
+			sprintf(mess, "Device rebooted SN:%d\n",
+					(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8) | (cid[0]));
+		}
+			break;
+		case SAVE_DATA_SETT: {
+			sprintf(mess, "The device settings have been saved SN:%d\n",
+					(cid[3] << 24) | (cid[2] << 16) | (cid[1] << 8) | (cid[0]));
+		}
+			break;
 
-				}
-
+		}
 
 	}
 
@@ -354,8 +357,9 @@ void form_reple_to_save(event_struct_t cfg) {
 	char mess_syslog[200] = { 0 };
 
 	GET_reple(&reple_to_save);
+
 	decode_reple_en(mess_syslog, &reple_to_save);
-	//syslog_printf(mess_syslog);
+	syslog_printf(mess_syslog);
 ///////  xSemaphoreTake (flag_global_save_log, (TickType_t) 100);
 }
 
@@ -1171,10 +1175,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 0;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 0;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
 							} else if (FW_data.wdt[0].V_N_OUT == 11009) {
 								FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1182,10 +1186,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[1].sost = 1;
 								FW_data.gpio.OUT_PORT[1].type_logic = 3;
 								FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 1;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 1;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[1].aflag = 1;
 							}
 							///    HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1354,10 +1358,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 0;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 0;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
 							} else if (FW_data.wdt[0].V_N_OUT == 11009) {
 								FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1365,10 +1369,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[1].sost = 1;
 								FW_data.gpio.OUT_PORT[1].type_logic = 3;
 								FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 1;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 1;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[1].aflag = 1;
 							}
 							ct_max_res++;
@@ -1407,10 +1411,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[0].sost = 1;
 							FW_data.gpio.OUT_PORT[0].type_logic = 3;
 							FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 0;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 0;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[0].aflag = 1;
 						} else if (FW_data.wdt[0].V_N_OUT == 11009) {
 							FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1418,10 +1422,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[1].sost = 1;
 							FW_data.gpio.OUT_PORT[1].type_logic = 3;
 							FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 1;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 1;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[1].aflag = 1;
 						}
 						//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1442,10 +1446,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[0].sost = 1;
 							FW_data.gpio.OUT_PORT[0].type_logic = 3;
 							FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 0;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 0;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[0].aflag = 1;
 						} else if (FW_data.wdt[0].V_N_OUT == 11009) {
 							FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1453,10 +1457,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[1].sost = 1;
 							FW_data.gpio.OUT_PORT[1].type_logic = 3;
 							FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 1;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 1;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[1].aflag = 1;
 						}
 						//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1490,10 +1494,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[0].sost = 1;
 							FW_data.gpio.OUT_PORT[0].type_logic = 3;
 							FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 0;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 0;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[0].aflag = 1;
 						} else if (FW_data.wdt[1].V_N_OUT == 11009) {
 							FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1501,10 +1505,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[1].sost = 1;
 							FW_data.gpio.OUT_PORT[1].type_logic = 3;
 							FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 1;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 1;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[1].aflag = 1;
 						}
 						//  HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1526,10 +1530,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 0;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 0;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
 							} else if (FW_data.wdt[1].V_N_OUT == 11009) {
 								FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1537,10 +1541,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[1].sost = 1;
 								FW_data.gpio.OUT_PORT[1].type_logic = 3;
 								FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 1;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 1;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[1].aflag = 1;
 							}
 							///    HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1584,10 +1588,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[0].sost = 1;
 							FW_data.gpio.OUT_PORT[0].type_logic = 3;
 							FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 0;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 0;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[0].aflag = 1;
 						} else if (FW_data.wdt[1].V_N_OUT == 11009) {
 							FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1595,10 +1599,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[1].sost = 1;
 							FW_data.gpio.OUT_PORT[1].type_logic = 3;
 							FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 1;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 1;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[1].aflag = 1;
 						}
 						//      HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1619,10 +1623,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 0;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 0;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
 							} else if (FW_data.wdt[1].V_N_OUT == 11009) {
 								FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1630,10 +1634,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[1].sost = 1;
 								FW_data.gpio.OUT_PORT[1].type_logic = 3;
 								FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 1;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 1;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[1].aflag = 1;
 							}
 							//        HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1676,10 +1680,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[0].sost = 1;
 							FW_data.gpio.OUT_PORT[0].type_logic = 3;
 							FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 0;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 0;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[0].aflag = 1;
 						} else if (FW_data.wdt[1].V_N_OUT == 11009) {
 							FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1687,10 +1691,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[1].sost = 1;
 							FW_data.gpio.OUT_PORT[1].type_logic = 3;
 							FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 1;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 1;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[1].aflag = 1;
 						}
 						//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1712,10 +1716,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[0].sost = 1;
 								FW_data.gpio.OUT_PORT[0].type_logic = 3;
 								FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 0;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 0;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[0].aflag = 1;
 							} else if (FW_data.wdt[1].V_N_OUT == 11009) {
 								FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1723,10 +1727,10 @@ void log_task(void *pvParameters) {
 								FW_data.gpio.OUT_PORT[1].sost = 1;
 								FW_data.gpio.OUT_PORT[1].type_logic = 3;
 								FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-															reple_to_save.type_event = OUT_TOL;
-															reple_to_save.event_cfg.canal = 1;
-															reple_to_save.event_cfg.source = WDT;
-															reple_to_save.dicr = 1;
+								reple_to_save.type_event = OUT_TOL;
+								reple_to_save.event_cfg.canal = 1;
+								reple_to_save.event_cfg.source = WDT;
+								reple_to_save.dicr = 1;
 								FW_data.gpio.OUT_PORT[1].aflag = 1;
 							}
 							ct_max_res1++;
@@ -1765,10 +1769,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[0].sost = 1;
 							FW_data.gpio.OUT_PORT[0].type_logic = 3;
 							FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 0;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 0;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[0].aflag = 1;
 						} else if (FW_data.wdt[1].V_N_OUT == 11009) {
 							FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1776,10 +1780,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[1].sost = 1;
 							FW_data.gpio.OUT_PORT[1].type_logic = 3;
 							FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 1;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 1;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[1].aflag = 1;
 						}
 						//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);
@@ -1800,10 +1804,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[0].sost = 1;
 							FW_data.gpio.OUT_PORT[0].type_logic = 3;
 							FW_data.gpio.OUT_PORT[0].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 0;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 0;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[0].aflag = 1;
 						} else if (FW_data.wdt[1].V_N_OUT == 11009) {
 							FW_data.gpio.OUT_PORT[1].old_sost =
@@ -1811,10 +1815,10 @@ void log_task(void *pvParameters) {
 							FW_data.gpio.OUT_PORT[1].sost = 1;
 							FW_data.gpio.OUT_PORT[1].type_logic = 3;
 							FW_data.gpio.OUT_PORT[1].event = OUT_TOL;
-														reple_to_save.type_event = OUT_TOL;
-														reple_to_save.event_cfg.canal = 1;
-														reple_to_save.event_cfg.source = WDT;
-														reple_to_save.dicr = 1;
+							reple_to_save.type_event = OUT_TOL;
+							reple_to_save.event_cfg.canal = 1;
+							reple_to_save.event_cfg.source = WDT;
+							reple_to_save.dicr = 1;
 							FW_data.gpio.OUT_PORT[1].aflag = 1;
 						}
 						//       HAL_RTCEx_BKUPWrite(&hrtc,1,2);

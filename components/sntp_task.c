@@ -24,8 +24,8 @@ void time_sync_notification_cb(struct timeval *tv)
 void initialize_sntp(void) {
 	ESP_LOGI(TAG_SNTP, "Initializing SNTP");
 	sntp_setoperatingmode(SNTP_OPMODE_POLL);
-	sntp_setservername(0, "pool.ntp.org");
-	sntp_setservername(1, "ntp3.stratum2.ru");
+	sntp_setservername(0, FW_data.net.N_NTP1);
+	sntp_setservername(1, FW_data.net.N_NTP2);
 	sntp_set_time_sync_notification_cb(time_sync_notification_cb);
 #ifdef CONFIG_SNTP_TIME_SYNC_METHOD_SMOOTH
     sntp_set_sync_mode(SNTP_SYNC_MODE_SMOOTH);

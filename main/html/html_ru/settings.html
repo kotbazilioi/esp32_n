@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html><head>
 <!-- source is in UTF-8, packed and served in windows-1251! -->
 <meta http-equiv=Content-Type content="text/html; charset=windows-1251">
@@ -13,6 +13,25 @@ input,select {min-width:200px;}
 input[type="checkbox"] { min-width:auto; }
 </style>
 <script>
+
+/* extend packfmt from setup_get.cgi */
+if (!('dhcp' in packfmt)) {
+  packfmt.dhcp = {offs:95,len:1};
+}
+if (!('syslog_ip2' in packfmt)) {
+  packfmt.syslog_ip2 = {offs:704,len:4};
+}
+if (!('syslog_ip3' in packfmt)) {
+  packfmt.syslog_ip3 = {offs:708,len:4};
+}
+if (!('syslog_hostname2' in packfmt)) {
+  packfmt.syslog_hostname2 = {offs:712,len:64};
+}
+if (!('syslog_hostname3' in packfmt)) {
+  packfmt.syslog_hostname3 = {offs:778,len:64};
+}
+packfmt.__len = 842
+
 
 if(!data.length) data=[data];
 var Nch=data.length;
@@ -59,7 +78,7 @@ function input(label, name, aux)
 function hn_input(label, fn_ip, fn_hn)
 {
  var d,l='<tr><td class="parname">'+label+'</td>';
- for(ch=0;ch<Nch;++ch)  
+ for(ch=0;ch<Nch;++ch)
  {
   d=data[ch][fn_hn];
   if(!d) d=data[ch][fn_ip];
@@ -75,10 +94,11 @@ function pack_bin(fmt, data) {
  var d=new Uint8Array(fmt.__len);
  var i,l,n,x;
  for(i in fmt) {
+  console.log(i);
+  console.log(data[i]);
  if(typeof(data[i])=='undefined') { continue; }
-  x=data[i]; f=fmt[i]; 
-  switch(typeof x) 
-  {
+  x=data[i]; f=fmt[i];
+  switch(typeof x) {
   case 'string':
    x=x.replace(/\"/g,''); // 3.06.2015 quotes escaped
    l=x.length; if(l>f.len-2) l=f.len-2;
@@ -95,6 +115,7 @@ function pack_bin(fmt, data) {
    break;
   }
  }
+ console.log(d);
  return d;
 }
 
@@ -186,9 +207,10 @@ function chkfrm(reboot)
   d.hostname=f.hostname0.value;
   d.location=f.location0.value;
   d.contact=f.contact0.value;
-  
+
   f=document.frm_if;
   ///d.mac=chk_mac(f.mac0);
+  d.dhcp = f.dhcp0.checked?1:0;
   d.ip=chk_ip(f.ip0);
   d.mask=chk_mask(f.mask0);
   d.gate=chk_ip(f.gate0);
@@ -212,10 +234,10 @@ function chkfrm(reboot)
   d.community_w=chk_ascii(f.community_w0);
   d.filt_ip1=chk_ip(f.filt_ip10);
   d.filt_mask1=chk_mask(f.filt_mask10);
-  
+
   //f=document.frm_nf_disable;
   //d.nf_disable=f.nf_disable.checked?1:0;
-  
+
   f=document.frm_trap;
   q=chk_hn(f.trap_ip10); d.trap_ip1=q.ip; d.trap_hostname1=q.hn;
   q=chk_hn(f.trap_ip20); d.trap_ip2=q.ip; d.trap_hostname2=q.hn;
@@ -223,6 +245,8 @@ function chkfrm(reboot)
 
   f=document.frm_log;
   q=chk_hn(f.syslog_ip10); d.syslog_ip1=q.ip; d.syslog_hostname1=q.hn;
+  q=chk_hn(f.syslog_ip20); d.syslog_ip2=q.ip; d.syslog_hostname2=q.hn;
+  q=chk_hn(f.syslog_ip30); d.syslog_ip3=q.ip; d.syslog_hostname3=q.hn;
   ///d.syslog_ip2=chk_ip(f.syslog_ip20);
   d.facility=range(f.facility0,0,23);
   d.severity=range(f.severity0,0,7);
@@ -237,12 +261,13 @@ function chkfrm(reboot)
 
   f=document.frm_ntp; 
   q=chk_hn(f.ntp_ip10); d.ntp_ip1=q.ip; d.ntp_hostname1=q.hn;
-  q=chk_hn(f.ntp_ip20); d.ntp_ip2=q.ip; d.ntp_hostname2=q.hn;  
+  q=chk_hn(f.ntp_ip20); d.ntp_ip2=q.ip; d.ntp_hostname2=q.hn;
   d.timezone=range(f.timezone0,-12,12);
   d.dst=f.dst0.checked?1:0; // 8.04.2013
 
   }catch(e){return false;}
-  
+
+  console.log(d);
   var bin_d=pack_bin(packfmt,d);
   var req=new XMLHttpRequest();
   req.open('POST',reboot?'ip_set.cgi':'setup_set.cgi',true);
@@ -267,6 +292,24 @@ function chkfrm_rtc()
  document.sender.data.value=hexb(tz)+hexb(dst?1:0)+hexb(ut,4);
  document.sender.action="rtcset.cgi";
  document.sender.submit();
+}
+
+function dhcpclick() {
+  const names = ['ip', 'mask', 'gate', 'dns_ip1'];
+  const ch_num = 0;
+  if (document.getElementsByName('dhcp' + ch_num)[0].checked) {
+    names.forEach(function(n) {
+      //document.getElementsByName(n + ch_num)[0].value = '';
+      //document.getElementsByName(n + ch_num)[0].closest("tr").style.display = 'none';
+      document.getElementsByName(n + ch_num)[0].disabled = true;
+    })
+  }
+  else {
+    names.forEach(function(n) {
+      //document.getElementsByName(n + ch_num)[0].closest("tr").style.display = 'table-row';
+      document.getElementsByName(n + ch_num)[0].disabled = false;
+    })
+  }
 }
 
 </script>
@@ -303,6 +346,10 @@ document.write(l);
 <caption class="send_button_container">
 <input type="submit" value="Применить изменения">
 </caption>
+<tr>
+<td class="parname">Включить DHCP</td>
+<td class=parinput><input type="checkbox" name="dhcp0" onclick="dhcpclick();"/></td>
+</tr>
 <script>
 l='';
 ///l+=input('MAC адрес','mac');
@@ -379,12 +426,14 @@ document.frm_trap.trap_refresh.value=data[0].trap_refresh;
 </caption>
 <script>
 l='';
-l+=hn_input('Адрес SysLog','syslog_ip1','syslog_hostname1');
+l+=hn_input('Адрес SysLog 1','syslog_ip1','syslog_hostname1');
+l+=hn_input('Адрес SysLog 2','syslog_ip2','syslog_hostname2');
+l+=hn_input('Адрес SysLog 3','syslog_ip3','syslog_hostname3');
 ///l+=input('IP 2 для посылки SysLog', 'syslog_ip2');
 l+=input('Syslog Facility', 'facility');
 l+=input('Syslog Severity', 'severity');
 document.write(l);
-</script>   
+</script>
 </table>
 </form>
 
@@ -513,6 +562,8 @@ function upload_eeprom()
 <script>
 var ts=document.getElementsByTagName('input');
 for(var i in ts) okp(ts[i]); // expand width
+document.frm_if.dhcp0.checked=(data[0].dhcp!=0);
+dhcpclick();
 //document.frm_nf_disable.nf_disable.checked=data[0].nf_disable?true:false;
 document.frm_ntp.dst0.checked=(data[0].dst!=0);
 document.frm_powersaving.powersaving_enet.checked=data[0].powersaving&1;

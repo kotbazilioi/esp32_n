@@ -156,10 +156,13 @@ typedef struct
 	uint8_t V_IP_DNS[4] ;
 	uint8_t V_IP_NTP1[4];
 	uint8_t V_IP_NTP2[4];
+	char N_NTP1[32];
+	char N_NTP2[32];
 	uint16_t V_PORT_NTP;
 
 	uint16_t V_HTTP_IP;
 	uint8_t V_IP_SYSL[4];
+	char N_SLOG[32];
 
 }FW_network_t;
 

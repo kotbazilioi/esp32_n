@@ -858,7 +858,7 @@ smtp_tcp_connected(void *arg, struct altcp_pcb *pcb, err_t err)
 /** DNS callback
  * If ipaddr is non-NULL, resolving succeeded, otherwise it failed.
  */
-static void
+void
 smtp_dns_found(const char* hostname, const ip_addr_t *ipaddr, void *arg)
 {
   struct smtp_session *s = (struct smtp_session*)arg;

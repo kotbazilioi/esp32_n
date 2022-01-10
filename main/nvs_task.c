@@ -468,11 +468,399 @@ esp_err_t save_data_blok(void) {
 			| nvs_set_u16(nvs_data_handle, get_name(V_N_O1),
 					FW_data.wdt[1].V_N_OUT);
 
+	//              uint8_t ALL_EVENT;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(ALL_EVENT),
+					FW_data.gpio.ALL_EVENT);
+	//      	  	uint8_t RISE_L[out_port_n+in_port_n];
+//	uint8_t 	lens = 4;
+
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(RISE_L),
+					FW_data.gpio.RISE_L, 4);
+	//      	  	uint8_t RISE_SL[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(RISE_SL),
+					FW_data.gpio.RISE_SL, 4);
+	//      	  	uint8_t RISE_E[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(RISE_E),
+					FW_data.gpio.RISE_E, 4);
+	//      	  	uint8_t RISE_SM[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(RISE_SM),
+					FW_data.gpio.RISE_SM, 4);
+	//      	  	uint8_t RISE_SN[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(RISE_SN),
+					FW_data.gpio.RISE_SN, 4);
+	//
+	//      	  	uint8_t FALL_L[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(FALL_L),
+					FW_data.gpio.FALL_L, 4);
+	//      	  	uint8_t FALL_SL[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(FALL_SL),
+					FW_data.gpio.FALL_SL, 4);
+	//      	  	uint8_t FALL_E[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(FALL_E),
+					FW_data.gpio.FALL_E, 4);
+	//      	  	uint8_t FALL_SM[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(FALL_SM),
+					FW_data.gpio.FALL_SM, 4);
+	//      	    uint8_t FALL_SN[out_port_n+in_port_n];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(FALL_SN),
+					FW_data.gpio.FALL_SN, 4);
+	//
+	//      	    uint8_t SET_COLOR;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(SET_COLOR),
+					FW_data.gpio.SET_COLOR);
+	//      	    uint8_t CLR_COLOR;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(CLR_COLOR),
+					FW_data.gpio.CLR_COLOR);
+	//      	    char mess_low[16];
+	//lens = 16;
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(mess_low),
+					FW_data.gpio.mess_low, 16);
+	//      	    char mess_hi[16];
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(mess_hi),
+					FW_data.gpio.mess_hi, 16);
+	//
+	//      	    uint8_t reactiv;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(reactiv),
+					FW_data.gpio.reactiv);
+	//      	    uint8_t cicle_t;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(cicle_t),
+					FW_data.gpio.cicle_t);
+
+	//      	    uint8_t TEMP_UP_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_L1),
+					FW_data.termo[0].TEMP_UP_L);
+
+	//      	  	uint8_t TEMP_UP_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_SL1),
+					FW_data.termo[0].TEMP_UP_SL);
+	//      	  	uint8_t TEMP_UP_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_E1),
+					FW_data.termo[0].TEMP_UP_E);
+	//      	  	uint8_t TEMP_UP_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_SM1),
+					FW_data.termo[0].TEMP_UP_SM);
+	//      	  	uint8_t TEMP_UP_SN;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_SN1),
+					FW_data.termo[0].TEMP_UP_SN);
+	//
+	//      	  	uint8_t TEMP_DW_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_L1),
+					FW_data.termo[0].TEMP_DW_L);
+	//      	  	uint8_t TEMP_DW_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_SL1),
+					FW_data.termo[0].TEMP_DW_SL);
+	//      	  	uint8_t TEMP_DW_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_E1),
+					FW_data.termo[0].TEMP_DW_E);
+	//      	  	uint8_t TEMP_DW_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_SM1),
+					FW_data.termo[0].TEMP_DW_SM);
+	//      	  	uint8_t TEMP_DW_SN;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_SN1),
+					FW_data.termo[0].TEMP_DW_SN);
+	//
+	//      	  	uint8_t TEMP_OK_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_L1),
+					FW_data.termo[0].TEMP_OK_L);
+	//      	  	uint8_t TEMP_OK_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_SL1),
+					FW_data.termo[0].TEMP_OK_SL);
+	//      	  	uint8_t TEMP_OK_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_E1),
+					FW_data.termo[0].TEMP_OK_E);
+	//      	  	uint8_t TEMP_OK_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_SM1),
+					FW_data.termo[0].TEMP_OK_SM);
+	//      	  	uint8_t TEMP_OK_SN;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_SN1),
+					FW_data.termo[0].TEMP_OK_SN);
+	//
+	//      	  	uint8_t TEMP_ERR_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_L1),
+					FW_data.termo[0].TEMP_ERR_L);
+	//      	  	uint8_t TEMP_ERR_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_SL1),
+					FW_data.termo[0].TEMP_ERR_SL);
+	//      	  	uint8_t TEMP_ERR_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_E1),
+					FW_data.termo[0].TEMP_ERR_E);
+	//      	  	uint8_t TEMP_ERR_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_SM1),
+					FW_data.termo[0].TEMP_ERR_SM);
+	//      	  	uint8_t TEMP_ERR_SN;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_SN1),
+					FW_data.termo[0].TEMP_ERR_SN);
+	//
+	//      	  	uint8_t TEMP_CIKL_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_CIKL_E1),
+					FW_data.termo[0].TEMP_CIKL_E);
+	//      	  	uint8_t TEMP_CIKL_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_CIKL_SM1),
+					FW_data.termo[0].TEMP_CIKL_SM);
+	//      	  	uint8_t ALL_EVENT;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(ALL_EVENTT1),
+					FW_data.termo[0].ALL_EVENT);
+	//      	  	uint8_t repit_3r;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(repit_3r1),
+					FW_data.termo[0].repit_3r);
+
+	//      		uint8_t V_EVENT_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_L1),
+					FW_data.wdt[0].V_EVENT_L);
+	//      		uint8_t V_EVENT_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_SL1),
+					FW_data.wdt[0].V_EVENT_SL);
+	//      		uint8_t V_EVENT_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_E1),
+					FW_data.wdt[0].V_EVENT_E);
+	//      		uint8_t V_EVENT_S;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_S1),
+					FW_data.wdt[0].V_EVENT_S);
+	//      		uint8_t V_EVENT_T;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_T1),
+					FW_data.wdt[0].V_EVENT_T);
+	//
+	//      		uint8_t V_RESET_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_L1),
+					FW_data.wdt[0].V_RESET_L);
+	//      		uint8_t V_RESET_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_SL1),
+					FW_data.wdt[0].V_RESET_SL);
+	//      		uint8_t V_RESET_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_E1),
+					FW_data.wdt[0].V_RESET_E);
+	//      		uint8_t V_RESET_S;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_S1),
+					FW_data.wdt[0].V_RESET_S);
+	//      		uint8_t V_RESET_T;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_T1),
+					FW_data.wdt[0].V_RESET_T);
+	//      		uint8_t V_RELOG_E;
+
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RELOG_E1),
+					FW_data.wdt[0].V_RELOG_E);
+
+	//      	    uint8_t TEMP_UP_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_L2),
+					FW_data.termo[1].TEMP_UP_L);
+
+	//      	  	uint8_t TEMP_UP_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_SL2),
+					FW_data.termo[1].TEMP_UP_SL);
+	//      	  	uint8_t TEMP_UP_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_E2),
+					FW_data.termo[1].TEMP_UP_E);
+	//      	  	uint8_t TEMP_UP_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_SM2),
+					FW_data.termo[1].TEMP_UP_SM);
+	//      	  	uint8_t TEMP_UP_SN;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_UP_SN2),
+					FW_data.termo[1].TEMP_UP_SN);
+	//
+	//      	  	uint8_t TEMP_DW_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_L2),
+					FW_data.termo[1].TEMP_DW_L);
+	//      	  	uint8_t TEMP_DW_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_SL2),
+					FW_data.termo[1].TEMP_DW_SL);
+	//      	  	uint8_t TEMP_DW_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_E2),
+					FW_data.termo[1].TEMP_DW_E);
+	//      	  	uint8_t TEMP_DW_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_SM2),
+					FW_data.termo[1].TEMP_DW_SM);
+	//      	  	uint8_t TEMP_DW_SN;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_DW_SN2),
+					FW_data.termo[1].TEMP_DW_SN);
+	//
+	//      	  	uint8_t TEMP_OK_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_L2),
+					FW_data.termo[1].TEMP_OK_L);
+	//      	  	uint8_t TEMP_OK_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_SL2),
+					FW_data.termo[1].TEMP_OK_SL);
+	//      	  	uint8_t TEMP_OK_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_E2),
+					FW_data.termo[1].TEMP_OK_E);
+	//      	  	uint8_t TEMP_OK_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_SM2),
+					FW_data.termo[1].TEMP_OK_SM);
+	//      	  	uint8_t TEMP_OK_SN;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_OK_SN2),
+					FW_data.termo[1].TEMP_OK_SN);
+	//
+	//      	  	uint8_t TEMP_ERR_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_L2),
+					FW_data.termo[1].TEMP_ERR_L);
+	//      	  	uint8_t TEMP_ERR_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_SL2),
+					FW_data.termo[1].TEMP_ERR_SL);
+	//      	  	uint8_t TEMP_ERR_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_E2),
+					FW_data.termo[1].TEMP_ERR_E);
+	//      	  	uint8_t TEMP_ERR_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_SM2),
+					FW_data.termo[1].TEMP_ERR_SM);
+	//      	  	uint8_t TEMP_ERR_SN;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_ERR_SN2),
+					FW_data.termo[1].TEMP_ERR_SN);
+	//
+	//      	  	uint8_t TEMP_CIKL_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_CIKL_E2),
+					FW_data.termo[1].TEMP_CIKL_E);
+	//      	  	uint8_t TEMP_CIKL_SM;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(TEMP_CIKL_SM2),
+					FW_data.termo[1].TEMP_CIKL_SM);
+	//      	  	uint8_t ALL_EVENT;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(ALL_EVENTT2),
+					FW_data.termo[1].ALL_EVENT);
+	//      	  	uint8_t repit_3r;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(repit_3r2),
+					FW_data.termo[1].repit_3r);
+
+	//      		uint8_t V_EVENT_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_L2),
+					FW_data.wdt[1].V_EVENT_L);
+	//      		uint8_t V_EVENT_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_SL2),
+					FW_data.wdt[1].V_EVENT_SL);
+	//      		uint8_t V_EVENT_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_E2),
+					FW_data.wdt[1].V_EVENT_E);
+	//      		uint8_t V_EVENT_S;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_S2),
+					FW_data.wdt[1].V_EVENT_S);
+	//      		uint8_t V_EVENT_T;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_EVENT_T2),
+					FW_data.wdt[1].V_EVENT_T);
+	//
+	//      		uint8_t V_RESET_L;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_L2),
+					FW_data.wdt[1].V_RESET_L);
+	//      		uint8_t V_RESET_SL;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_SL2),
+					FW_data.wdt[1].V_RESET_SL);
+	//      		uint8_t V_RESET_E;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_E2),
+					FW_data.wdt[1].V_RESET_E);
+	//      		uint8_t V_RESET_S;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_S2),
+					FW_data.wdt[1].V_RESET_S);
+	//      		uint8_t V_RESET_T;
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RESET_T2),
+					FW_data.wdt[1].V_RESET_T);
+	//      		uint8_t V_RELOG_E;
+
+	err = err
+			| nvs_set_u8(nvs_data_handle, get_name(V_RELOG_E2),
+					FW_data.wdt[1].V_RELOG_E);
+
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(N_NTP1),
+					FW_data.net.N_NTP1, 32);
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(N_NTP2),
+					FW_data.net.N_NTP2, 32);
+	err = err
+			| nvs_set_blob(nvs_data_handle, get_name(N_SLOG),
+					FW_data.net.N_SLOG, 32);
+
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 	printf("Committing updates in NVS ... ");
 	err = nvs_commit(nvs_data_handle);
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 	nvs_close(nvs_data_handle);
+
+	reple_to_save.type_event = SAVE_DATA_SETT;
+	reple_to_save.event_cfg.canal = 0;
+	reple_to_save.event_cfg.source = SYS;
+	reple_to_save.dicr = 1;
 
 	return err;
 }
@@ -938,68 +1326,384 @@ esp_err_t load_data_blok(void) {
 					&FW_data.wdt[1].V_N_OUT);
 
 //
-//      	  uint8_t ALL_EVENT;
+//              uint8_t ALL_EVENT;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(ALL_EVENT),
+					&FW_data.gpio.ALL_EVENT);
 //      	  	uint8_t RISE_L[out_port_n+in_port_n];
+	lens = out_port_n + in_port_n;
+
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(RISE_L),
+					FW_data.gpio.RISE_L, &lens);
 //      	  	uint8_t RISE_SL[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(RISE_SL),
+					FW_data.gpio.RISE_SL, &lens);
 //      	  	uint8_t RISE_E[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(RISE_E),
+					FW_data.gpio.RISE_E, &lens);
 //      	  	uint8_t RISE_SM[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(RISE_SM),
+					FW_data.gpio.RISE_SM, &lens);
 //      	  	uint8_t RISE_SN[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(RISE_SN),
+					FW_data.gpio.RISE_SN, &lens);
 //
 //      	  	uint8_t FALL_L[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(FALL_L),
+					FW_data.gpio.FALL_L, &lens);
 //      	  	uint8_t FALL_SL[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(FALL_SL),
+					FW_data.gpio.FALL_SL, &lens);
 //      	  	uint8_t FALL_E[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(FALL_E),
+					FW_data.gpio.FALL_E, &lens);
 //      	  	uint8_t FALL_SM[out_port_n+in_port_n];
-//      	      uint8_t FALL_SN[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(FALL_SM),
+					FW_data.gpio.FALL_SM, &lens);
+//      	    uint8_t FALL_SN[out_port_n+in_port_n];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(FALL_SN),
+					FW_data.gpio.FALL_SN, &lens);
 //
-//      	      uint8_t SET_COLOR;
-//      	      uint8_t CLR_COLOR;
+//      	    uint8_t SET_COLOR;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(SET_COLOR),
+					&FW_data.gpio.SET_COLOR);
+//      	    uint8_t CLR_COLOR;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(CLR_COLOR),
+					&FW_data.gpio.CLR_COLOR);
 //      	    char mess_low[16];
+	lens = 16;
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(mess_low),
+					FW_data.gpio.mess_low, &lens);
 //      	    char mess_hi[16];
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(mess_hi),
+					FW_data.gpio.mess_hi, &lens);
 //
-//      	      uint8_t reactiv;
-//      	      uint8_t cicle_t;
+//      	    uint8_t reactiv;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(reactiv),
+					&FW_data.gpio.reactiv);
+//      	    uint8_t cicle_t;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(cicle_t),
+					&FW_data.gpio.cicle_t);
 
-//      	  uint8_t TEMP_UP_L;
+//      	    uint8_t TEMP_UP_L;
+
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_L1),
+					&FW_data.termo[0].TEMP_UP_L);
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_L2),
+					&FW_data.termo[1].TEMP_UP_L);
+
 //      	  	uint8_t TEMP_UP_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_SL1),
+					&FW_data.termo[0].TEMP_UP_SL);
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_SL2),
+					&FW_data.termo[1].TEMP_UP_SL);
 //      	  	uint8_t TEMP_UP_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_E1),
+					&FW_data.termo[0].TEMP_UP_E);
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_E2),
+					&FW_data.termo[1].TEMP_UP_E);
 //      	  	uint8_t TEMP_UP_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_SM1),
+					&FW_data.termo[0].TEMP_UP_SM);
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_SM2),
+					&FW_data.termo[1].TEMP_UP_SM);
 //      	  	uint8_t TEMP_UP_SN;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_SN1),
+					&FW_data.termo[0].TEMP_UP_SN);
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_UP_SN2),
+					&FW_data.termo[1].TEMP_UP_SN);
 //
 //      	  	uint8_t TEMP_DW_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_L1),
+					&FW_data.termo[0].TEMP_DW_L);
 //      	  	uint8_t TEMP_DW_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_SL1),
+					&FW_data.termo[0].TEMP_DW_SL);
 //      	  	uint8_t TEMP_DW_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_E1),
+					&FW_data.termo[0].TEMP_DW_E);
 //      	  	uint8_t TEMP_DW_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_SM1),
+					&FW_data.termo[0].TEMP_DW_SM);
 //      	  	uint8_t TEMP_DW_SN;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_SN1),
+					&FW_data.termo[0].TEMP_DW_SN);
 //
 //      	  	uint8_t TEMP_OK_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_L1),
+					&FW_data.termo[0].TEMP_OK_L);
 //      	  	uint8_t TEMP_OK_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_SL1),
+					&FW_data.termo[0].TEMP_OK_SL);
 //      	  	uint8_t TEMP_OK_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_E1),
+					&FW_data.termo[0].TEMP_OK_E);
 //      	  	uint8_t TEMP_OK_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_SM1),
+					&FW_data.termo[0].TEMP_OK_SM);
 //      	  	uint8_t TEMP_OK_SN;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_SN1),
+					&FW_data.termo[0].TEMP_OK_SN);
 //
 //      	  	uint8_t TEMP_ERR_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_L1),
+					&FW_data.termo[0].TEMP_ERR_L);
 //      	  	uint8_t TEMP_ERR_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_SL1),
+					&FW_data.termo[0].TEMP_ERR_SL);
 //      	  	uint8_t TEMP_ERR_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_E1),
+					&FW_data.termo[0].TEMP_ERR_E);
 //      	  	uint8_t TEMP_ERR_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_SM1),
+					&FW_data.termo[0].TEMP_ERR_SM);
 //      	  	uint8_t TEMP_ERR_SN;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_SN1),
+					&FW_data.termo[0].TEMP_ERR_SN);
 //
 //      	  	uint8_t TEMP_CIKL_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_CIKL_E1),
+					&FW_data.termo[0].TEMP_CIKL_E);
 //      	  	uint8_t TEMP_CIKL_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_CIKL_SM1),
+					&FW_data.termo[0].TEMP_CIKL_SM);
 //      	  	uint8_t ALL_EVENT;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(ALL_EVENTT1),
+					&FW_data.termo[0].ALL_EVENT);
 //      	  	uint8_t repit_3r;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(repit_3r1),
+					&FW_data.termo[0].repit_3r);
 
 //      		uint8_t V_EVENT_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_L1),
+					&FW_data.wdt[0].V_EVENT_L);
 //      		uint8_t V_EVENT_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_SL1),
+					&FW_data.wdt[0].V_EVENT_SL);
 //      		uint8_t V_EVENT_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_E1),
+					&FW_data.wdt[0].V_EVENT_E);
 //      		uint8_t V_EVENT_S;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_S1),
+					&FW_data.wdt[0].V_EVENT_S);
 //      		uint8_t V_EVENT_T;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_T1),
+					&FW_data.wdt[0].V_EVENT_T);
 //
 //      		uint8_t V_RESET_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_L1),
+					&FW_data.wdt[0].V_RESET_L);
 //      		uint8_t V_RESET_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_SL1),
+					&FW_data.wdt[0].V_RESET_SL);
 //      		uint8_t V_RESET_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_E1),
+					&FW_data.wdt[0].V_RESET_E);
 //      		uint8_t V_RESET_S;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_S1),
+					&FW_data.wdt[0].V_RESET_S);
 //      		uint8_t V_RESET_T;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_T1),
+					&FW_data.wdt[0].V_RESET_T);
 //      		uint8_t V_RELOG_E;
+
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RELOG_E1),
+					&FW_data.wdt[0].V_RELOG_E);
+
+	//      	  	uint8_t TEMP_DW_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_L2),
+					&FW_data.termo[1].TEMP_DW_L);
+	//      	  	uint8_t TEMP_DW_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_SL2),
+					&FW_data.termo[1].TEMP_DW_SL);
+	//      	  	uint8_t TEMP_DW_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_E2),
+					&FW_data.termo[1].TEMP_DW_E);
+	//      	  	uint8_t TEMP_DW_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_SM2),
+					&FW_data.termo[1].TEMP_DW_SM);
+	//      	  	uint8_t TEMP_DW_SN;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_DW_SN2),
+					&FW_data.termo[1].TEMP_DW_SN);
+	//
+	//      	  	uint8_t TEMP_OK_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_L2),
+					&FW_data.termo[1].TEMP_OK_L);
+	//      	  	uint8_t TEMP_OK_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_SL2),
+					&FW_data.termo[1].TEMP_OK_SL);
+	//      	  	uint8_t TEMP_OK_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_E2),
+					&FW_data.termo[1].TEMP_OK_E);
+	//      	  	uint8_t TEMP_OK_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_SM2),
+					&FW_data.termo[1].TEMP_OK_SM);
+	//      	  	uint8_t TEMP_OK_SN;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_OK_SN2),
+					&FW_data.termo[1].TEMP_OK_SN);
+	//
+	//      	  	uint8_t TEMP_ERR_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_L2),
+					&FW_data.termo[1].TEMP_ERR_L);
+	//      	  	uint8_t TEMP_ERR_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_SL2),
+					&FW_data.termo[1].TEMP_ERR_SL);
+	//      	  	uint8_t TEMP_ERR_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_E2),
+					&FW_data.termo[1].TEMP_ERR_E);
+	//      	  	uint8_t TEMP_ERR_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_SM2),
+					&FW_data.termo[1].TEMP_ERR_SM);
+	//      	  	uint8_t TEMP_ERR_SN;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_ERR_SN2),
+					&FW_data.termo[1].TEMP_ERR_SN);
+	//
+	//      	  	uint8_t TEMP_CIKL_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_CIKL_E2),
+					&FW_data.termo[1].TEMP_CIKL_E);
+	//      	  	uint8_t TEMP_CIKL_SM;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(TEMP_CIKL_SM2),
+					&FW_data.termo[1].TEMP_CIKL_SM);
+	//      	  	uint8_t ALL_EVENT;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(ALL_EVENTT2),
+					&FW_data.termo[1].ALL_EVENT);
+	//      	  	uint8_t repit_3r;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(repit_3r2),
+					&FW_data.termo[1].repit_3r);
+
+	//      		uint8_t V_EVENT_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_L2),
+					&FW_data.wdt[1].V_EVENT_L);
+	//      		uint8_t V_EVENT_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_SL2),
+					&FW_data.wdt[1].V_EVENT_SL);
+	//      		uint8_t V_EVENT_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_E2),
+					&FW_data.wdt[1].V_EVENT_E);
+	//      		uint8_t V_EVENT_S;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_S2),
+					&FW_data.wdt[1].V_EVENT_S);
+	//      		uint8_t V_EVENT_T;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_EVENT_T2),
+					&FW_data.wdt[1].V_EVENT_T);
+	//
+	//      		uint8_t V_RESET_L;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_L2),
+					&FW_data.wdt[1].V_RESET_L);
+	//      		uint8_t V_RESET_SL;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_SL2),
+					&FW_data.wdt[1].V_RESET_SL);
+	//      		uint8_t V_RESET_E;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_E2),
+					&FW_data.wdt[1].V_RESET_E);
+	//      		uint8_t V_RESET_S;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_S2),
+					&FW_data.wdt[1].V_RESET_S);
+	//      		uint8_t V_RESET_T;
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RESET_T2),
+					&FW_data.wdt[1].V_RESET_T);
+	//      		uint8_t V_RELOG_E;
+
+	err = err
+			| nvs_get_u8(nvs_data_handle, get_name(V_RELOG_E2),
+					&FW_data.wdt[1].V_RELOG_E);
+
+	lens = 32;
+
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(N_NTP1),
+					FW_data.net.N_NTP1, &lens);
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(N_NTP2),
+					FW_data.net.N_NTP2, &lens);
+	err = err
+			| nvs_get_blob(nvs_data_handle, get_name(N_SLOG),
+					FW_data.net.N_SLOG, &lens);
 
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 
@@ -1135,6 +1839,14 @@ uint8_t load_def_data(void) {
 	memset((uint8_t*) &FW_data.sys.V_CALL_DATA, 0, 85);
 	memcpy((uint8_t*) &FW_data.sys.V_Name_dev, (uint8_t*) "netping110", 10);
 	memcpy((uint8_t*) &FW_data.sys.V_CALL_DATA, (uint8_t*) "netping.ru", 10);
+
+	memset((uint8_t*) &FW_data.net.N_NTP1, 0, 32);
+	memcpy((uint8_t*) &FW_data.net.N_NTP1, (uint8_t*) "pool.ntp.org", 12);
+
+	memset((uint8_t*) &FW_data.net.N_NTP2, 0, 32);
+	memcpy((uint8_t*) &FW_data.net.N_NTP2, (uint8_t*) "ntp3.stratum2.ru", 16);
+
+	memset((uint8_t*) &FW_data.net.N_SLOG, 0, 32);
 
 //    FW_data.V_logs_struct.CRC16 = 0;
 //    memset((uint8_t*)&FW_data.V_logs_struct.log_reple,0,2000);
@@ -1315,8 +2027,10 @@ void nvs_task(void *pvParameters) {
 
 		if (reple_to_save.dicr != 0) {
 			GET_reple(&reple_to_save);
-			if ((reple_to_save.event_cfg.source == WEB)||(reple_to_save.event_cfg.source == IO)) {
-				if ((reple_to_save.type_event == OUT_TOL)||(reple_to_save.type_event == OUT_SET)) {
+			if ((reple_to_save.event_cfg.source == WEB)
+					|| (reple_to_save.event_cfg.source == IO)) {
+				if ((reple_to_save.type_event == OUT_TOL)
+						|| (reple_to_save.type_event == OUT_SET)) {
 					reple_to_save.event_cfg.log =
 							FW_data.gpio.RISE_L[reple_to_save.event_cfg.canal];
 					reple_to_save.event_cfg.syslog =
@@ -1403,22 +2117,25 @@ void nvs_task(void *pvParameters) {
 			}
 
 			if (reple_to_save.event_cfg.source == SYS) {
-							reple_to_save.event_cfg.log = 1;
-							reple_to_save.event_cfg.syslog = 1;
-							reple_to_save.event_cfg.smtp = 0;
-							reple_to_save.event_cfg.snmp = 0;
-						}
-
+				reple_to_save.event_cfg.log = 1;
+				reple_to_save.event_cfg.syslog = 1;
+				reple_to_save.event_cfg.smtp = 0;
+				reple_to_save.event_cfg.snmp = 0;
+			}
 
 			if (reple_to_save.event_cfg.log == 1) {
 				save_reple_log(reple_to_save);
 			}
+			if (reple_to_save.event_cfg.syslog == 1) {
+				form_reple_to_save(reple_to_save.event_cfg);
+			}
 			if (reple_to_save.event_cfg.smtp == 1) {
 
 				reple_to_email.type_event = reple_to_save.type_event;
-				reple_to_email.event_cfg.canal=reple_to_save.event_cfg.canal;
+				reple_to_email.event_cfg.canal = reple_to_save.event_cfg.canal;
 				reple_to_email.dicr = 1;
 			}
+
 			if (reple_to_save.event_cfg.snmp == 1) {
 				char snmp_mess[128];
 				swich_mess_event(&reple_to_save, snmp_mess);

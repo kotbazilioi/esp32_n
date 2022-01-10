@@ -16,8 +16,10 @@
 #include "ping.h"
 #include "private_mib.h"
 #include "app_owb.h"
-
-
+#include "syslog.h"
+#include "lwip/ip4_addr.h"
+#include "lwip/dns.h"
+#include "smtp.h"
 TaskHandle_t xHandleNTP = NULL;
 
 uint8_t PORT_O[out_port_n] = { P_O0, P_O1 };
@@ -238,8 +240,29 @@ void output_port(void *pvParameters) {
 
 }
 
+int syslog_dns_found(const char* hostname,  ip_addr_t *ipaddr, void *arg)
+{
+//  struct smtp_session *s = (struct smtp_session*)arg;
+//  struct altcp_pcb *pcb;
+  err_t *err;
+  u8_t result;
+
+  err=(struct smtp_session*)arg;
+  LWIP_UNUSED_ARG(hostname);
+
+  if (ipaddr != NULL) {
+	  *err = ERR_OK;
+        return;
+  } else {
+    *err = ERR_ARG;
+    return;
+  }
+
+}
+
 void start_task(void *pvParameters) {
 
+	err_t err;
 	esp_mac_type_t eth = 3;
 	esp_read_mac(chipid, eth);
 	serial_id = (chipid[3] << 24) | (chipid[2] << 16) | (chipid[1] << 8)
@@ -281,6 +304,19 @@ void start_task(void *pvParameters) {
 	xTaskCreate(&log_task, "log_task", 2024, NULL, 10, NULL);
 	xTaskCreate(&send_smtp_task, "send_smtp_task", 4096, NULL, 10, NULL);
 	ping_init();
+
+	ip_addr_t ip_syslog;
+	char syslog_server[32]="ya.ru";
+	dns_gethostbyname( FW_data.net.N_SLOG, &ip_syslog, syslog_dns_found, &err);
+    if (err!=ERR_OK)
+    {
+    	IP4_ADDR(&ip4_syslog, FW_data.net.V_IP_SYSL[0], FW_data.net.V_IP_SYSL[1], FW_data.net.V_IP_SYSL[2], FW_data.net.V_IP_SYSL[3]);
+
+    	ip_syslog.type = 4;
+    	ip_syslog.u_addr.ip4.addr=ip4_syslog.addr;
+    }
+	syslog_init(local_syslog_ctx,ip_syslog);
+
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 
 

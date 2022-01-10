@@ -127,6 +127,7 @@ const char* smtp_result_str(u8_t smtp_result);
 
 #endif /* LWIP_HDR_APPS_SMTP_H */
 
+///void smtp_dns_found(const char* hostname, const ip_addr_t *ipaddr, void *arg);
 
 void send_smtp_mess(char * mes);
 void my_smtp_test(void);

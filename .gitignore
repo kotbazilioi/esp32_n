@@ -11,7 +11,8 @@ build/
 
 __pycache__/
 *.pyc
-
+*.cmake
+*.obj
 
 # Windows detritus
 

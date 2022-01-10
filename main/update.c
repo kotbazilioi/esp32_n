@@ -188,9 +188,11 @@ esp_err_t np_http_reboot_cgi(httpd_req_t *req)
 
 	reple_to_save.type_event = RESETL;
 	reple_to_save.event_cfg.canal = 0;
-    reple_to_save.event_cfg.source=SNMP;
+    reple_to_save.event_cfg.source=SYS;
 	reple_to_save.dicr = 1;
 
+
+	 vTaskDelay(3000 / portTICK_PERIOD_MS);
 
     esp_restart();
 //    char buf[128];
