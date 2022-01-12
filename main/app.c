@@ -30,7 +30,6 @@ esp_netif_dns_type_t dns_info;
 char SNMP_COMMUNITY[32];
 char SNMP_COMMUNITY_WRITE[32];
 
-
 //void gpio1_task(void *pvParameters) {
 //	gpio_set_direction(PORT_O2, GPIO_MODE_OUTPUT);
 //	gpio_set_direction(PORT_I0, GPIO_MODE_INPUT);
@@ -69,7 +68,6 @@ char SNMP_COMMUNITY_WRITE[32];
 //		vTaskDelay(300 / portTICK_PERIOD_MS);
 //	}
 //}
-
 
 void read_in(input_port_t *inpin, uint8_t pin) {
 	inpin->sost_raw = pin;
@@ -137,7 +135,7 @@ void output_port(void *pvParameters) {
 	s32_t OID_out[] = { 1, 3, 6, 1, 4, 1, 25728, 5500, 6, 100, 1 };
 
 	for (uint8_t ct = 0; ct < out_port_n; ct++) {
-	//	FW_data.gpio.OUT_PORT[ct].delay = 3000;
+		//	FW_data.gpio.OUT_PORT[ct].delay = 3000;
 		FW_data.gpio.OUT_PORT[ct].S_gpio_port = xSemaphoreCreateMutex();
 		xSemaphoreGive(FW_data.gpio.OUT_PORT[ct].S_gpio_port);
 	}
@@ -152,7 +150,6 @@ void output_port(void *pvParameters) {
 				gpio_set_direction(PORT_O[ct], GPIO_MODE_INPUT);
 			}
 
-
 			if (xSemaphoreTake(FW_data.gpio.OUT_PORT[ct].S_gpio_port,
 					(TickType_t) 100) == pdTRUE) {
 				if ((FW_data.gpio.dir[ct] == 1)
@@ -161,9 +158,8 @@ void output_port(void *pvParameters) {
 						if (FW_data.gpio.OUT_PORT[ct].sost == 0) {
 							gpio_set_level(PORT_O[ct], 0);
 
-
 							send_mess_trap(OID_out, FW_data.http.V_OFF_MESS,
-									strlen(FW_data.http.V_OFF_MESS),ct);
+									strlen(FW_data.http.V_OFF_MESS), ct);
 							FW_data.gpio.OUT_PORT[ct].realtime = 0;
 //							if(FW_data.gpio.OUT_PORT[ct].sost!=FW_data.gpio.OUT_PORT[ct].old_sost)
 //							   {
@@ -175,16 +171,15 @@ void output_port(void *pvParameters) {
 											/ portTICK_PERIOD_MS);
 							gpio_set_level(PORT_O[ct], 1);
 
-
 							send_mess_trap(OID_out, FW_data.http.V_ON_MESS,
-									strlen(FW_data.http.V_ON_MESS),ct);
+									strlen(FW_data.http.V_ON_MESS), ct);
 							FW_data.gpio.OUT_PORT[ct].count++;
 							FW_data.gpio.OUT_PORT[ct].realtime = 1;
-							FW_data.gpio.OUT_PORT[ct].type_logic= 0;
+							FW_data.gpio.OUT_PORT[ct].type_logic = 0;
 						} else {
 							gpio_set_level(PORT_O[ct], 1);
 							send_mess_trap(OID_out, FW_data.http.V_ON_MESS,
-									strlen(FW_data.http.V_ON_MESS),ct);
+									strlen(FW_data.http.V_ON_MESS), ct);
 							FW_data.gpio.OUT_PORT[ct].count++;
 							FW_data.gpio.OUT_PORT[ct].realtime = 1;
 //							if(FW_data.gpio.OUT_PORT[ct].sost!=FW_data.gpio.OUT_PORT[ct].old_sost)
@@ -197,9 +192,9 @@ void output_port(void *pvParameters) {
 											/ portTICK_PERIOD_MS);
 							gpio_set_level(PORT_O[ct], 0);
 							send_mess_trap(OID_out, FW_data.http.V_OFF_MESS,
-									strlen(FW_data.http.V_OFF_MESS),ct);
+									strlen(FW_data.http.V_OFF_MESS), ct);
 							FW_data.gpio.OUT_PORT[ct].realtime = 0;
-							FW_data.gpio.OUT_PORT[ct].type_logic= 0;
+							FW_data.gpio.OUT_PORT[ct].type_logic = 0;
 
 						}
 
@@ -207,7 +202,7 @@ void output_port(void *pvParameters) {
 						if (FW_data.gpio.OUT_PORT[ct].sost == 0) {
 							gpio_set_level(PORT_O[ct], 0);
 							send_mess_trap(OID_out, FW_data.http.V_OFF_MESS,
-									strlen(FW_data.http.V_OFF_MESS),ct);
+									strlen(FW_data.http.V_OFF_MESS), ct);
 //							if(FW_data.gpio.OUT_PORT[ct].sost!=FW_data.gpio.OUT_PORT[ct].old_sost)
 //								{
 //								 FW_data.gpio.OUT_PORT[ct].old_sost=FW_data.gpio.OUT_PORT[ct].sost;
@@ -217,7 +212,7 @@ void output_port(void *pvParameters) {
 						} else {
 							gpio_set_level(PORT_O[ct], 1);
 							send_mess_trap(OID_out, FW_data.http.V_ON_MESS,
-									strlen(FW_data.http.V_ON_MESS),ct);
+									strlen(FW_data.http.V_ON_MESS), ct);
 //							if(FW_data.gpio.OUT_PORT[ct].sost!=FW_data.gpio.OUT_PORT[ct].old_sost)
 //							  {
 //								FW_data.gpio.OUT_PORT[ct].old_sost=FW_data.gpio.OUT_PORT[ct].sost;
@@ -240,23 +235,22 @@ void output_port(void *pvParameters) {
 
 }
 
-int syslog_dns_found(const char* hostname,  ip_addr_t *ipaddr, void *arg)
-{
+int syslog_dns_found(const char *hostname, ip_addr_t *ipaddr, void *arg) {
 //  struct smtp_session *s = (struct smtp_session*)arg;
 //  struct altcp_pcb *pcb;
-  err_t *err;
-  u8_t result;
+	err_t *err;
+	u8_t result;
 
-  err=(struct smtp_session*)arg;
-  LWIP_UNUSED_ARG(hostname);
+	err = (struct smtp_session*) arg;
+	LWIP_UNUSED_ARG(hostname);
 
-  if (ipaddr != NULL) {
-	  *err = ERR_OK;
-        return;
-  } else {
-    *err = ERR_ARG;
-    return;
-  }
+	if (ipaddr != NULL) {
+		*err = ERR_OK;
+		return;
+	} else {
+		*err = ERR_ARG;
+		return;
+	}
 
 }
 
@@ -306,30 +300,51 @@ void start_task(void *pvParameters) {
 	ping_init();
 
 	ip_addr_t ip_syslog;
-	char syslog_server[32]="ya.ru";
-	dns_gethostbyname( FW_data.net.N_SLOG, &ip_syslog, syslog_dns_found, &err);
-    if (err!=ERR_OK)
-    {
-    	IP4_ADDR(&ip4_syslog, FW_data.net.V_IP_SYSL[0], FW_data.net.V_IP_SYSL[1], FW_data.net.V_IP_SYSL[2], FW_data.net.V_IP_SYSL[3]);
+	char syslog_server[32] = "ya.ru";
+	dns_gethostbyname(FW_data.net.N_SLOG, &ip_syslog, syslog_dns_found, &err);
+	if (err != ERR_OK) {
+		IP4_ADDR(&ip4_syslog, FW_data.net.V_IP_SYSL[0],
+				FW_data.net.V_IP_SYSL[1], FW_data.net.V_IP_SYSL[2],
+				FW_data.net.V_IP_SYSL[3]);
 
-    	ip_syslog.type = 4;
-    	ip_syslog.u_addr.ip4.addr=ip4_syslog.addr;
-    }
-	syslog_init(local_syslog_ctx,ip_syslog);
+		ip_syslog.type = 4;
+		ip_syslog.u_addr.ip4.addr = ip4_syslog.addr;
+	}
+	syslog_init(local_syslog_ctx, ip_syslog);
+
+	dns_gethostbyname(FW_data.net.N_SLOG1, &ip_syslog, syslog_dns_found, &err);
+	if (err != ERR_OK) {
+		IP4_ADDR(&ip4_syslog, FW_data.net.V_IP_SYSL[0],
+				FW_data.net.V_IP_SYSL[1], FW_data.net.V_IP_SYSL[2],
+				FW_data.net.V_IP_SYSL[3]);
+
+		ip_syslog.type = 4;
+		ip_syslog.u_addr.ip4.addr = ip4_syslog.addr;
+	}
+	syslog_init(local_syslog_ctx1, ip_syslog);
+
+	dns_gethostbyname(FW_data.net.N_SLOG2, &ip_syslog, syslog_dns_found, &err);
+	if (err != ERR_OK) {
+		IP4_ADDR(&ip4_syslog, FW_data.net.V_IP_SYSL[0],
+				FW_data.net.V_IP_SYSL[1], FW_data.net.V_IP_SYSL[2],
+				FW_data.net.V_IP_SYSL[3]);
+
+		ip_syslog.type = 4;
+		ip_syslog.u_addr.ip4.addr = ip4_syslog.addr;
+	}
+	syslog_init(local_syslog_ctx2, ip_syslog);
 
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 
-
-
-
 	reple_to_save.type_event = POWER_ON;
 	reple_to_save.event_cfg.canal = 0;
-    reple_to_save.event_cfg.source=SYS;
+	reple_to_save.event_cfg.source = SYS;
 	reple_to_save.dicr = 1;
 
-
 	printf("all app run\n\r");
-	timeup=timeinfo.tm_sec+timeinfo.tm_min*60+timeinfo.tm_hour*60*60+timeinfo.tm_yday*60*60*24+(timeinfo.tm_year-70)*60*60*8766;
+	timeup = timeinfo.tm_sec + timeinfo.tm_min * 60 + timeinfo.tm_hour * 60 * 60
+			+ timeinfo.tm_yday * 60 * 60 * 24
+			+ (timeinfo.tm_year - 70) * 60 * 60 * 8766;
 	vTaskDelete(NULL);
 }
 

@@ -55,6 +55,8 @@
 #define kputs(x)  LWIP_DEBUGF( PING_DEBUG, (x))
 static char syslog_message[CONFIG_SYSLOG_BUFSIZE];
  SysLog *local_syslog_ctx;
+ SysLog *local_syslog_ctx1;
+ SysLog *local_syslog_ctx2;
  ip4_addr_t ip4_syslog;
 
 /**
@@ -95,14 +97,6 @@ int syslog_printf(const char *fmt, ...)
    
   if ((FW_data.net.V_IP_SYSL[0]!=0)||(FW_data.net.V_IP_SYSL[1]!=0)||(FW_data.net.V_IP_SYSL[2]!=0)||(FW_data.net.V_IP_SYSL[3]!=0))
   {
-//        char* fmt=pvPortMalloc(300); 
-//  
-//        sprintf(fmt,"%s%s%s","<133>",FW_data.V_Name_dev,mess);
-           
-//	va_list ap;
-//	va_start(ap, fmt);
-//	int len = vsnprintf(syslog_message, sizeof(syslog_message), fmt, ap);
-//	va_end(ap);
     
     
         int len = sprintf(syslog_message,"%s %s %s", "<133>",FW_data.sys.V_Name_dev,fmt);
@@ -137,6 +131,73 @@ int syslog_printf(const char *fmt, ...)
 
 	local_syslog_ctx->syslog_cnt++;
 	netconn_delete(local_syslog_ctx->syslog_server);
+
+
+
+
+	syslog_message[sizeof(syslog_message) - 1] = 0;
+
+		#if CONFIG_SYSLOG_SERIAL
+			kputs(syslog_message);
+		#endif
+
+		if (local_syslog_ctx1 == NULL)
+		{
+			kputs("SysLog not init\n");
+			return -1;
+		}
+
+		local_syslog_ctx1->syslog_server = netconn_new(NETCONN_UDP);
+		if (local_syslog_ctx1->syslog_server == NULL)
+		{
+			kputs("Unable to alloc UDP connetions\n");
+			return -1;
+		}
+
+		netbuf_ref(local_syslog_ctx1->send_buf, syslog_message, len);
+		if (netconn_sendto(local_syslog_ctx1->syslog_server, local_syslog_ctx1->send_buf,
+							&(local_syslog_ctx1->server_addr), CONFIG_SYSLOG_PORT) != ERR_OK)
+		{
+			kputs("Unable to send log!\n");
+		}
+
+		local_syslog_ctx1->syslog_cnt++;
+		netconn_delete(local_syslog_ctx1->syslog_server);
+
+
+
+		syslog_message[sizeof(syslog_message) - 1] = 0;
+
+			#if CONFIG_SYSLOG_SERIAL
+				kputs(syslog_message);
+			#endif
+
+			if (local_syslog_ctx2 == NULL)
+			{
+				kputs("SysLog not init\n");
+				return -1;
+			}
+
+			local_syslog_ctx2->syslog_server = netconn_new(NETCONN_UDP);
+			if (local_syslog_ctx2->syslog_server == NULL)
+			{
+				kputs("Unable to alloc UDP connetions\n");
+				return -1;
+			}
+
+			netbuf_ref(local_syslog_ctx2->send_buf, syslog_message, len);
+			if (netconn_sendto(local_syslog_ctx2->syslog_server, local_syslog_ctx2->send_buf,
+								&(local_syslog_ctx2->server_addr), CONFIG_SYSLOG_PORT) != ERR_OK)
+			{
+				kputs("Unable to send log!\n");
+			}
+
+			local_syslog_ctx2->syslog_cnt++;
+			netconn_delete(local_syslog_ctx2->syslog_server);
+
+
+
+
       //  vPortFree(fmt);
         return len;
         

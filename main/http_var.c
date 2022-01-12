@@ -937,7 +937,26 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 	strcat(buf, buf_temp);
 	sprintf(buf_temp, "contact:\"%s\",", FW_data.sys.V_CALL_DATA);
 	strcat(buf, buf_temp);
-	sprintf(buf_temp, "dns_ip1:'%d.%d.%d.%d',", FW_data.net.V_IP_DNS[0],
+
+	sprintf(buf_temp, "dhcp:%d,", FW_data.net.V_DHCP);
+		strcat(buf, buf_temp);
+
+	sprintf(buf_temp, "ntp_hostname1:\"%s\",", FW_data.net.N_NTP1);
+		strcat(buf, buf_temp);
+
+	sprintf(buf_temp, "ntp_hostname2:\"%s\",", FW_data.net.N_NTP2);
+		strcat(buf, buf_temp);
+
+	sprintf(buf_temp, "syslog_hostname1:\"%s\",", FW_data.net.N_SLOG);
+				strcat(buf, buf_temp);
+
+    sprintf(buf_temp, "syslog_hostname2:\"%s\",", FW_data.net.N_SLOG1);
+				strcat(buf, buf_temp);
+
+	sprintf(buf_temp, "syslog_hostname3:\"%s\",", FW_data.net.N_SLOG2);
+					strcat(buf, buf_temp);
+
+	sprintf(buf_temp, "dns_ip1:'%d.%d.%d.%d'};", FW_data.net.V_IP_DNS[0],
 			FW_data.net.V_IP_DNS[1], FW_data.net.V_IP_DNS[2],
 			FW_data.net.V_IP_DNS[3]);
 	strcat(buf, buf_temp);
@@ -949,10 +968,12 @@ static esp_err_t setup_get_cgi_handler(httpd_req_t *req) {
 //	strcat(buf, buf_temp);
 //	sprintf(buf_temp, "ntp_hostname2:\"\",");
 //	strcat(buf, buf_temp);
-	sprintf(buf_temp, "syslog_hostname1:\"%d.%d.%d.%d\"};",
-			FW_data.net.V_IP_SYSL[0], FW_data.net.V_IP_SYSL[1],
-			FW_data.net.V_IP_SYSL[2], FW_data.net.V_IP_SYSL[3]);
-	strcat(buf, buf_temp);
+
+
+//	sprintf(buf_temp, "syslog_hostname1:\"%d.%d.%d.%d\"};",
+//			FW_data.net.V_IP_SYSL[0], FW_data.net.V_IP_SYSL[1],
+//			FW_data.net.V_IP_SYSL[2], FW_data.net.V_IP_SYSL[3]);
+//	strcat(buf, buf_temp);
 	uint32_t rtc_time;
 	rtc_time = timeinfo.tm_sec + timeinfo.tm_min * 60 + timeinfo.tm_hour * 3600
 			+ timeinfo.tm_yday * 86400 + (timeinfo.tm_year - 70) * 31557600;
@@ -1097,7 +1118,7 @@ static esp_err_t ip_set_post_handler(httpd_req_t *req) {
 //				}
 //				return ESP_FAIL;
 	}
-
+	FW_data.net.V_DHCP=buf[95];
 	FW_data.net.V_IP_CONFIG[0] = buf[6];
 	FW_data.net.V_IP_CONFIG[1] = buf[7];
 	FW_data.net.V_IP_CONFIG[2] = buf[8];
@@ -1552,6 +1573,7 @@ static esp_err_t setup_set_post_handler(httpd_req_t *req) {
 	httpd_resp_set_type(req, mime_sse);
 	httpd_resp_set_hdr(req, "Connection", "Close");
 	char buf[1000];
+
 	int ret, remaining = req->content_len;
 
 	if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0) {
@@ -1589,22 +1611,75 @@ static esp_err_t setup_set_post_handler(httpd_req_t *req) {
 	FW_data.snmp.V_IP_SNMP_S[2] = buf[111];
 	FW_data.snmp.V_IP_SNMP_S[3] = buf[112];
 
-	FW_data.net.V_IP_NTP1[0] = buf[113];
-	FW_data.net.V_IP_NTP1[1] = buf[114];
-	FW_data.net.V_IP_NTP1[2] = buf[115];
-	FW_data.net.V_IP_NTP1[3] = buf[116];
+	if (buf[512]==0)
+	{
+	 FW_data.net.V_IP_NTP1[0] = buf[113];
+	 FW_data.net.V_IP_NTP1[1] = buf[114];
+	 FW_data.net.V_IP_NTP1[2] = buf[115];
+	 FW_data.net.V_IP_NTP1[3] = buf[116];
+	}
+	else
+	{
+	  FW_data.net.V_IP_NTP1[0] = 0;
+	  FW_data.net.V_IP_NTP1[1] = 0;
+	  FW_data.net.V_IP_NTP1[2] = 0;
+	  FW_data.net.V_IP_NTP1[3] = 0;
 
-	FW_data.net.V_IP_NTP2[0] = buf[117];
-	FW_data.net.V_IP_NTP2[1] = buf[118];
-	FW_data.net.V_IP_NTP2[2] = buf[119];
-	FW_data.net.V_IP_NTP2[3] = buf[120];
+
+	  memset(FW_data.net.N_NTP1, 0, 32);
+	  memcpy(FW_data.net.N_NTP1, (char*) (buf+513), buf[512]);
+	}
+
+
+
+	if (buf[576]==0)
+	{
+	 FW_data.net.V_IP_NTP2[0] = buf[117];
+	 FW_data.net.V_IP_NTP2[1] = buf[118];
+	 FW_data.net.V_IP_NTP2[2] = buf[119];
+	 FW_data.net.V_IP_NTP2[3] = buf[120];
+	}
+	else
+	{
+		FW_data.net.V_IP_NTP2[0] = 0;
+	    FW_data.net.V_IP_NTP2[1] = 0;
+		FW_data.net.V_IP_NTP2[2] = 0;
+		FW_data.net.V_IP_NTP2[3] = 0;
+
+
+
+		memset(FW_data.net.N_NTP2, 0, 32);
+		memcpy(FW_data.net.N_NTP2, (char*) (buf+577), buf[576]);
+	}
 
 	FW_data.sys.V_NTP_CIRCL = buf[121];
 
+	if (buf[640]==0)
+	{
 	FW_data.net.V_IP_SYSL[0] = buf[122];
 	FW_data.net.V_IP_SYSL[1] = buf[123];
 	FW_data.net.V_IP_SYSL[2] = buf[124];
 	FW_data.net.V_IP_SYSL[3] = buf[125];
+	}
+	else
+	{
+		FW_data.net.V_IP_SYSL[0] = 0;
+		FW_data.net.V_IP_SYSL[1] = 0;
+		FW_data.net.V_IP_SYSL[2] = 0;
+		FW_data.net.V_IP_SYSL[3] = 0;
+
+		//len = read_mess_smtp((char*) (buf + 640), (uint8_t*) buf_temp);
+		memset(FW_data.net.N_SLOG, 0, 32);
+		memcpy(FW_data.net.N_SLOG, (char*) (buf+641), buf[640]);
+
+	//	len = read_mess_smtp((char*) (buf + 712), (uint8_t*) buf_temp);
+	    memset(FW_data.net.N_SLOG1, 0, 32);
+		memcpy(FW_data.net.N_SLOG1, (char*) (buf+713), buf[712]);
+
+	//	len = read_mess_smtp((char*) (buf + 778), (uint8_t*) buf_temp);
+		memset(FW_data.net.N_SLOG2, 0, 32);
+		memcpy(FW_data.net.N_SLOG2, (char*) (buf+779), buf[778]);
+	}
 	FW_data.sys.V_L_TIME = buf[15];
 
 //		        FW_data.net.V_IP_CONFIG[0] = buf[6];

@@ -851,6 +851,15 @@ esp_err_t save_data_blok(void) {
 			| nvs_set_blob(nvs_data_handle, get_name(N_SLOG),
 					FW_data.net.N_SLOG, 32);
 
+	err = err
+				| nvs_set_blob(nvs_data_handle, get_name(N_SLOG1),
+						FW_data.net.N_SLOG1, 32);
+
+	err = err
+				| nvs_set_blob(nvs_data_handle, get_name(N_SLOG2),
+						FW_data.net.N_SLOG2, 32);
+
+
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 	printf("Committing updates in NVS ... ");
 	err = nvs_commit(nvs_data_handle);
@@ -1704,6 +1713,14 @@ esp_err_t load_data_blok(void) {
 	err = err
 			| nvs_get_blob(nvs_data_handle, get_name(N_SLOG),
 					FW_data.net.N_SLOG, &lens);
+
+	err = err
+				| nvs_get_blob(nvs_data_handle, get_name(N_SLOG1),
+						FW_data.net.N_SLOG1, &lens);
+
+	err = err
+				| nvs_get_blob(nvs_data_handle, get_name(N_SLOG2),
+						FW_data.net.N_SLOG2, &lens);
 
 	printf((err != ESP_OK) ? "Failed!\n" : "Done\n");
 

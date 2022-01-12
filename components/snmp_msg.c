@@ -54,6 +54,8 @@
 #endif
 
 #include <string.h>
+#include "../main/app.h"
+
 
 #define SNMP_V3_AUTH_FLAG      0x01
 #define SNMP_V3_PRIV_FLAG      0x02

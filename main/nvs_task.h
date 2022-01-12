@@ -14,7 +14,7 @@
 #include <esp_system.h>
 ///#include <nvs_flash.h>
 #include <sys/param.h>
-#include "C:\esp-idf-2\components\nvs_flash\include\nvs_flash.h"
+#include "C:\Users\ivanov\Desktop\esp-idf\components\nvs_flash\include\nvs_flash.h"
 #include "esp_netif.h"
 #include "esp_eth.h"
 
@@ -163,6 +163,8 @@ typedef struct
 	uint16_t V_HTTP_IP;
 	uint8_t V_IP_SYSL[4];
 	char N_SLOG[32];
+	char N_SLOG1[32];
+	char N_SLOG2[32];
 
 }FW_network_t;
 

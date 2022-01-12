@@ -96,6 +96,8 @@ typedef struct SysLog
 } SysLog;
 
  extern SysLog *local_syslog_ctx;
+ extern SysLog *local_syslog_ctx1;
+ extern SysLog *local_syslog_ctx2;
  extern ip4_addr_t ip4_syslog;
  
  
